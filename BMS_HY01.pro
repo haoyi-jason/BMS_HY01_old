@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui serialport network serialbus
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,16 +25,37 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        bms_model.cpp \
+        can_codec.cpp \
+        frmhardwareconfig.cpp \
+        frmstackconfig.cpp \
         main.cpp \
-        mainwindow.cpp
+        maininfo.cpp \
+        mainwindow.cpp \
+        stackinfo.cpp
 
 HEADERS += \
-        mainwindow.h
+        bms_model.h \
+        can_codec.h \
+        frmhardwareconfig.h \
+        frmstackconfig.h \
+        maininfo.h \
+        mainwindow.h \
+        stackinfo.h
 
 FORMS += \
-        mainwindow.ui
+        frmhardwareconfig.ui \
+        frmstackconfig.ui \
+        maininfo.ui \
+        mainwindow.ui \
+        stackinfo.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+INCLUDEPATH += "icpdas_usbcan"
+
+#LIBS += VCI_CAN.lib
+
