@@ -151,7 +151,7 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
     bool ret = false;
     QJsonParseError e;
     QJsonDocument d = QJsonDocument::fromJson(data,&e);
-    if(d.isNull){
+    if(d.isNull()){
         return false;
     }
     QJsonObject obj = d.object();
@@ -165,8 +165,8 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
             ntcs = o["NTC"].toInt();
             BMS_StackInfo *stack = new BMS_StackInfo();
             stack->groupID(o["group id"].toInt());
-            stack->alias(o["name"]);
-            for(int i=0;i<o[batteries].toInt();i++){
+            stack->alias(o["name"].toString());
+            for(int i=0;i<o["batteries"].toInt();i++){
                 BMS_BatteryInfo *bat = new BMS_BatteryInfo(cells,ntcs);
                 bat->balancingVoltage(bal["voltage"].toInt());
                 bat->balancingHystersis(bal["hystersis"].toInt());

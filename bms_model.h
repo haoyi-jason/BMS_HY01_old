@@ -36,10 +36,10 @@ public:
     void balancingHystersis(ushort value){m_balancingHystersis = value;}
     void balancingONTime(ushort value){m_balancingONSeconds = value;}
     void balancingOFFTime(ushort value){m_balancingOFFSeconds = value;}
-    void feedData(uint8 id, uint16_t msg, QByteArray data){
+    void feedData(uint8_t id, uint16_t msg, QByteArray data){
         if(ID(id) == m_devid){
             switch (msg) {
-            case value:
+            case 0:
 
                 break;
             default:
