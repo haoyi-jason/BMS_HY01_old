@@ -59,7 +59,7 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     case Qt::TextAlignmentRole:
-        return (Qt::AlignVCenter);
+        return (Qt::AlignRight);
     case Qt::CheckStateRole:
         break;
     case Qt::ForegroundRole:
@@ -216,7 +216,7 @@ BMS_StackInfo *BMS_StackModel::findStack(int id)
 
 //*** BMS_EventModel ***/
 
-BMS_EventModel::BMS_EventModel(QObject *parent):QObject(parent)
+BMS_EventModel::BMS_EventModel(QObject *parent):QAbstractTableModel(parent)
 {
 
 }
@@ -228,9 +228,9 @@ BMS_EventModel::~BMS_EventModel()
 
 int BMS_EventModel::rowCount(const QModelIndex &parent) const
 {
-    if(m_activeStack != nullptr){
-        return m_activeStack->BatteryCount();
-    }
+//    if(m_activeStack != nullptr){
+//        return m_activeStack->BatteryCount();
+//    }
     return 0;
 }
 
@@ -241,7 +241,7 @@ int BMS_EventModel::columnCount(const QModelIndex &parent) const
 
 QVariant BMS_EventModel::data(const QModelIndex &index, int role) const
 {
-    if(m_activeStack == nullptr) return QVariant();
+//    if(m_activeStack == nullptr) return QVariant();
     int row = index.row();
     int col = index.column();
     switch(role){

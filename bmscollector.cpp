@@ -17,6 +17,7 @@ bool BMSCollector::addConnection(QString ipAddress)
         sys->connection=ipAddress;
         sys->socket = socket;
         sys->system = new BMS_SystemInfo();
+        sys->system->connectionString = ipAddress;
         m_servers.append(sys);
         connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
         if(m_currentSystemIndex<0) m_currentSystemIndex = 0;

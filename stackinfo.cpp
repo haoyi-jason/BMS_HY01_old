@@ -14,12 +14,16 @@ StackInfo::StackInfo(QWidget *parent) :
     m_currentStackIndex = 0;
     collector = new BMSCollector();
     activeSystem = nullptr;
-    if(collector->addConnection("127.0.0.1")){
-        collector->readConfig("127.0.0.1");
+//    QString ip = "127.0.0.1";
+    QString ip = "192.168.0.126";
+    if(collector->addConnection(ip)){
+        collector->readConfig(ip);
         //activeSystem = collector->currentSystem()->system;
         connect(collector,&BMSCollector::configReady,this,&StackInfo::on_system_config_ready);
         connect(collector,&BMSCollector::dataReceived,this,&StackInfo::on_system_data_ready);
     }
+
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 StackInfo::~StackInfo()
@@ -131,8 +135,8 @@ void StackInfo::updateStackInfo()
 
     QString msg = "系統資訊 IP:";
     msg += activeSystem->connectionString;
-    msg += "總簇數:" + QString::number(activeSystem->stacks().count());
-    msg += "目前為第 " + QString::number(m_currentStackIndex+1)+" 簇";
+    msg += "  總簇數:" + QString::number(activeSystem->stacks().count());
+    msg +=   "目前為第 " + QString::number(m_currentStackIndex+1)+" 簇";
     ui->lbInfo->setText(msg);
 
     ui->leSOC->setText(QString::number(s->soc()));
