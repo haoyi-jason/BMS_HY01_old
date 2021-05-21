@@ -14,30 +14,82 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pbSystemMonitor">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>50</y>
+      <x>230</x>
+      <y>90</y>
       <width>241</width>
       <height>201</height>
      </rect>
     </property>
     <property name="text">
-     <string>Energy System View</string>
+     <string>系統監看</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="pbHardwareInfo">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>60</y>
+      <x>220</x>
+      <y>370</y>
       <width>241</width>
       <height>201</height>
      </rect>
     </property>
     <property name="text">
-     <string>Hardware Info</string>
+     <string>硬體控制</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbSysConfig">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>370</y>
+      <width>241</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>系統設定</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>370</y>
+      <width>241</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>工具</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbSystemMonitor_2">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>90</y>
+      <width>241</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>歷史資料</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbViewEvent">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>90</y>
+      <width>241</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>事件檢視</string>
     </property>
    </widget>
   </widget>

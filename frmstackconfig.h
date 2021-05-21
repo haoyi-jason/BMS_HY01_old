@@ -7,6 +7,7 @@ namespace Ui {
 class frmStackConfig;
 }
 
+
 class frmStackConfig : public QWidget
 {
     Q_OBJECT
@@ -14,6 +15,14 @@ class frmStackConfig : public QWidget
 public:
     explicit frmStackConfig(QWidget *parent = nullptr);
     ~frmStackConfig();
+
+private slots:
+    void on_pbSetPath_clicked();
+
+    void on_pbScan_clicked();
+
+    void on_lwFiles_doubleClicked(const QModelIndex &index);
+
 
 private:
     Ui::frmStackConfig *ui;

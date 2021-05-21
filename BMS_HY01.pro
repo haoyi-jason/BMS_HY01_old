@@ -25,26 +25,38 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        bms_def.cpp \
         bms_model.cpp \
+        bmscollector.cpp \
         can_codec.cpp \
+        frmeventview.cpp \
         frmhardwareconfig.cpp \
+        frmhistoryview.cpp \
         frmstackconfig.cpp \
         main.cpp \
         maininfo.cpp \
         mainwindow.cpp \
+        secs.cpp \
         stackinfo.cpp
 
 HEADERS += \
+        bms_def.h \
         bms_model.h \
+        bmscollector.h \
         can_codec.h \
+        frmeventview.h \
         frmhardwareconfig.h \
+        frmhistoryview.h \
         frmstackconfig.h \
         maininfo.h \
         mainwindow.h \
+        secs.h \
         stackinfo.h
 
 FORMS += \
+        frmeventview.ui \
         frmhardwareconfig.ui \
+        frmhistoryview.ui \
         frmstackconfig.ui \
         maininfo.ui \
         mainwindow.ui \
