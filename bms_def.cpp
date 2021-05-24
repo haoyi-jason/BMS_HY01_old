@@ -6,7 +6,7 @@
 #include "bms_model.h"
 
 /***** BMS_BatteryInfo ************/
-BMS_BatteryInfo::BMS_BatteryInfo(QObject *parent):
+BMS_BMUDevice::BMS_BMUDevice(QObject *parent):
     QObject(parent)
 {
 
@@ -19,7 +19,7 @@ BMS_BatteryInfo::BMS_BatteryInfo(QObject *parent):
         m_packTemperature.append(0);
     }
 }
-BMS_BatteryInfo::BMS_BatteryInfo(int nofCells, int nofTemp, QObject *parent):
+BMS_BMUDevice::BMS_BMUDevice(int nofCells, int nofTemp, QObject *parent):
     QObject(parent),m_nofCell(nofCells), m_nofNtc(nofTemp)
 {
     for(int i=0;i<nofCells;i++){
@@ -31,14 +31,14 @@ BMS_BatteryInfo::BMS_BatteryInfo(int nofCells, int nofTemp, QObject *parent):
     }
 }
 
-ushort BMS_BatteryInfo::getCellVoltage(int index){
+ushort BMS_BMUDevice::getCellVoltage(int index){
     if(index < m_cellVoltage.size()){
         return m_cellVoltage.at(index);
     }
     return 0;
 }
 
-ushort BMS_BatteryInfo::getPackTemperature(int index)
+ushort BMS_BMUDevice::getPackTemperature(int index)
 {
     if(index < m_packTemperature.size()){
         return m_packTemperature.at((index));
@@ -63,7 +63,7 @@ int BMS_StackInfo::BatteryCount()
 ushort BMS_StackInfo::cellVoltage(int bid, int cid)
 {
     if(bid < m_batteries.size()){
-        BMS_BatteryInfo *info = m_batteries.at(bid);
+        BMS_BMUDevice *info = m_batteries.at(bid);
         if(cid < 12){
             return info->getCellVoltage(cid);
         }
@@ -74,7 +74,7 @@ ushort BMS_StackInfo::cellVoltage(int bid, int cid)
 void BMS_StackInfo::cellVoltage(int bid, int cid, ushort x)
 {
     if(bid < m_batteries.size()){
-        BMS_BatteryInfo *info = m_batteries.at(bid);
+        BMS_BMUDevice *info = m_batteries.at(bid);
         if(cid < 12){
             info->cellVoltage(cid,x);
         }
@@ -84,7 +84,7 @@ void BMS_StackInfo::cellVoltage(int bid, int cid, ushort x)
 ushort BMS_StackInfo::queueData(int bid, int cid)
 {
     if(bid < m_batteries.size()){
-        BMS_BatteryInfo *info = m_batteries.at(bid);
+        BMS_BMUDevice *info = m_batteries.at(bid);
         if(cid < 12){
             return info->getCellVoltage(cid);
         }
@@ -100,7 +100,7 @@ ushort BMS_StackInfo::queueData(int bid, int cid)
 void BMS_StackInfo::queueData(int bid, int cid, ushort x)
 {
     if(bid < m_batteries.size()){
-        BMS_BatteryInfo *info = m_batteries.at(bid);
+        BMS_BMUDevice *info = m_batteries.at(bid);
         if(cid < 12){
             info->cellVoltage(cid,x);
         }
@@ -110,7 +110,7 @@ void BMS_StackInfo::queueData(int bid, int cid, ushort x)
     }
 }
 
-void BMS_StackInfo::addBattery(BMS_BatteryInfo *battery)
+void BMS_StackInfo::addBattery(BMS_BMUDevice *battery)
 {
     this->m_batteries.append(battery);
 }
@@ -210,6 +210,37 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
         }
         ret = true;
     }
+    if(obj.contains("bcu")){
+        this->m_bcuDevice = new BMS_BCUDevice();
+        QJsonObject bcu = obj["bcu"].toObject();
+        if(bcu.contains("digital")){
+            QJsonObject digital = bcu["digital"].toObject();
+            if(digital.contains("input")){
+//                QJsonObject di = digital["input"].toObject();
+                int n = digital["input"].toObject()["channels"].toInt();
+                m_bcuDevice->add_digital_input(n);
+            }
+            if(digital.contains("output")){
+                int n = digital["output"].toObject()["channels"].toInt();
+                m_bcuDevice->add_digital_output(n);
+            }
+
+        }
+        if(bcu.contains("analog")){
+            QJsonObject analog = bcu["anlog"].toObject();
+            if(analog.contains("input")){
+                int n = analog["input"].toObject()["channels"].toInt();
+                m_bcuDevice->add_analog_input(n);
+            }
+        }
+        if(bcu.contains("voltage_source")){
+            QJsonObject vs = bcu["voltage_source"].toObject();
+            if(vs.contains("channels")){
+                int n = vs["channels"].toInt();
+                m_bcuDevice->add_voltage_source(n);
+            }
+        }
+    }
     if(ret){
         generateSystemStructure();
     }
@@ -231,7 +262,7 @@ void BMS_SystemInfo::generateSystemStructure()
     {
         BMS_StackInfo *info = new BMS_StackInfo();
         for(int i=0;i<c->m_nofBatteries;i++){
-            BMS_BatteryInfo *bat = new BMS_BatteryInfo(c->m_nofCellPerBattery,c->m_nofNTCPerBattery);
+            BMS_BMUDevice *bat = new BMS_BMUDevice(c->m_nofCellPerBattery,c->m_nofNTCPerBattery);
             info->addBattery(bat);
         }
         info->enableHVModule();
@@ -253,7 +284,7 @@ void BMS_SystemInfo::generateDummySystem()
     {
         BMS_StackInfo *info = new BMS_StackInfo();
         for(int j=0;j<20;j++){
-            BMS_BatteryInfo *bat = new BMS_BatteryInfo(12,5);
+            BMS_BMUDevice *bat = new BMS_BMUDevice(12,5);
             bat->deviceID(GROUP(i)+j+2);
             info->addBattery(bat);
         }

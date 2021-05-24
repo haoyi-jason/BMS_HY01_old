@@ -34,6 +34,8 @@ private slots:
 
     void on_system_data_ready();
 
+    void on_pbSwitchInfo_clicked();
+
 private:
     void dummyData();
     void updateStackInfo();

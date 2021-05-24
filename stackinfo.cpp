@@ -14,8 +14,8 @@ StackInfo::StackInfo(QWidget *parent) :
     m_currentStackIndex = 0;
     collector = new BMSCollector();
     activeSystem = nullptr;
-//    QString ip = "127.0.0.1";
-    QString ip = "192.168.0.126";
+    QString ip = "127.0.0.1";
+//    QString ip = "192.168.0.126";
     if(collector->addConnection(ip)){
         collector->readConfig(ip);
         //activeSystem = collector->currentSystem()->system;
@@ -68,7 +68,7 @@ void StackInfo::dummyData()
     for(int i=0;i<2;i++){
         BMS_StackInfo *stack_info = new BMS_StackInfo();
         for(int j=0;j<12;j++){
-            BMS_BatteryInfo *bat = new BMS_BatteryInfo(12,5);
+            BMS_BMUDevice *bat = new BMS_BMUDevice(12,5);
             QList<ushort> v,t;
             for(int k=0;k<12;k++){
                 v.append(3000+QRandomGenerator::global()->bounded(500));
@@ -181,4 +181,14 @@ void StackInfo::on_system_data_ready()
         ui->tableView->viewport()->update();
         updateStackInfo();
     }
+}
+
+void StackInfo::on_pbSwitchInfo_clicked()
+{
+    int c = ui->stackedWidget->currentIndex();
+    c++;
+    if(c >= ui->stackedWidget->count()){
+        c = 0;
+    }
+    ui->stackedWidget->setCurrentIndex(c);
 }

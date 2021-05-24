@@ -46,33 +46,50 @@ bool BMSCollector::readConfig(QString connection)
     }
 }
 
+// todo: move data handling process to timed function
+// handle every system periodically
 void BMSCollector::handleServerData()
 {
     QTcpSocket *socket = (QTcpSocket*)sender();
     //RemoteSystem *sys;
     foreach (RemoteSystem *sys, m_servers) {
         if(sys->socket == socket){
-            QByteArray data = sys->socket->readAll();
+            //QByteArray data = sys->socket->readAll();
+            sys->data.append(sys->socket->readAll());
+
             int len;
             quint8 hlen;
             if(sys->configReady){
                 qDebug()<<"Config ready";
-                if(hsmsParser::getHeader(data,&len,&hlen) == hsmsParser::BMS_STACK){
-                    qDebug()<<"Receive stack packet";
-                    data.remove(0,hlen);
-                    QDataStream d(&data,QIODevice::ReadOnly);
-                    d >> sys->system;
-                    emit dataReceived();
+                quint8 ret = hsmsParser::getHeader(sys->data,&len,&hlen);
+                if(ret == hsmsParser::BMS_STACK){
+                    //if(sys->data.size() >= len){
+                        qDebug()<<"Receive stack packet";
+                        sys->data.remove(0,hlen);
+                        QDataStream d(&sys->data,QIODevice::ReadOnly);
+                        d >> sys->system;
+                        emit dataReceived();
+                        sys->data.remove(0,len);
+                    //}
+                }
+                else if(ret == hsmsParser::BMS_WRONG_HEADER){
+                    sys->data.clear();
                 }
             }
             else{
                 qDebug()<<"Not Ready";
-                if(hsmsParser::getHeader(data,&len,&hlen) == hsmsParser::BMS_CONFIG){
+                quint8 ret = hsmsParser::getHeader(sys->data,&len,&hlen);
+                if(ret == hsmsParser::BMS_CONFIG){
 
                     qDebug()<<"Receive config packet";
-                    sys->system->Configuration(data.mid(hlen));
+                    sys->data.remove(0,hlen);
+                    sys->system->Configuration(sys->data);
                     sys->configReady = true;
                     emit configReady();
+                    sys->data.remove(0,len);
+                }
+                else if(ret == hsmsParser::BMS_WRONG_HEADER){
+                    sys->data.clear();
                 }
             }
         }

@@ -6,13 +6,15 @@
 class QTcpSocket;
 class BMS_SystemInfo;
 
-class RemoteSystem{
-public:
-    QString connection="";
-    QTcpSocket *socket = nullptr;
-    BMS_SystemInfo *system = nullptr;
-    bool configReady = false; // should be false
-};
+class RemoteSystem;
+//{
+//public:
+//    QString connection="";
+//    QTcpSocket *socket = nullptr;
+//    BMS_SystemInfo *system = nullptr;
+//    bool configReady = false; // should be false
+//    QByteArray data;
+//};
 
 class BMSCollector : public QObject
 {
