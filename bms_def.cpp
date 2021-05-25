@@ -165,6 +165,29 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
 
     this->Alias = (obj["alias"].toString());
     this->connectionString = obj["host_ip"].toString();
+
+//    if(obj.contains("canbus")){
+//        QJsonArray o = obj["canbus"].toArray();
+//        for(auto v:o){
+//            QJsonObject q = v.toObject();
+//            CANBUSDevice *dev = new CANBUSDevice();
+//            dev->name = q["name"].toString();
+//            dev->bitrate = q["bitrate"].toInt();
+//            QJsonArray a = q["groups"].toArray();
+//            for(int i=0;i<a.size();i++){
+//                dev->groupList.append(a[i].toInt());
+//            }
+//            this->m_canbusDevice.append(dev);
+//        }
+//    }
+
+//    if(obj.contains("mbslave")){
+//        QJsonObject o = obj["mbslave"].toObject();
+//        this->m_modbusDev = new MODBUSDevice();
+//        this->m_modbusDev->bitrate = o["bitrate"].toInt();
+//        this->m_modbusDev->portName = o["port"].toString();
+//    }
+
     if(obj.contains("balancing")){
         QJsonObject bal = obj["balancing"].toObject();
         this->BalancingVoltage = bal["voltage"].toInt();

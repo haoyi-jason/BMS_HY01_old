@@ -5,6 +5,8 @@
 #include <QtCore>
 
 class QTcpSocket;
+class CANBUSDevice;
+class MODBUSDevice;
 
 namespace bms {
 #define GROUP_OF(x)    (x >> 5)
@@ -700,8 +702,10 @@ private:
     QList<BMS_StackInfo*> m_stacks;
     QList<BMS_StackConfig*> m_stackConfig;
     QString m_alias;
-    QTimer *m_simulateTimer;
-    BMS_BCUDevice *m_bcuDevice;
+    QTimer *m_simulateTimer=nullptr;
+    BMS_BCUDevice *m_bcuDevice=nullptr;
+    //QList<CANBUSDevice*> m_canbusDevice;
+    //MODBUSDevice *m_modbusDev = nullptr;
 };
 
 class BMS_BCUInfo:public QObject{
@@ -737,6 +741,7 @@ public:
     bool configReady = false; // should be false
     QByteArray data;
 };
+
 
 
 #endif // BMS_DEF_H
