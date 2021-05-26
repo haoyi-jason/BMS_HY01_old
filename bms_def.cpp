@@ -255,6 +255,10 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
                 int n = analog["input"].toObject()["channels"].toInt();
                 m_bcuDevice->add_analog_input(n);
             }
+            //if(analog.contains("pwm_in")){
+                int n = analog["pwm_in"].toObject()["channels"].toInt();
+                m_bcuDevice->add_pwm_in(2);
+            //}
         }
         if(bcu.contains("voltage_source")){
             QJsonObject vs = bcu["voltage_source"].toObject();
@@ -284,8 +288,10 @@ void BMS_SystemInfo::generateSystemStructure()
     foreach(BMS_StackConfig *c, m_stackConfig)
     {
         BMS_StackInfo *info = new BMS_StackInfo();
+        quint8 id = 1; // bmu id start from 1
         for(int i=0;i<c->m_nofBatteries;i++){
             BMS_BMUDevice *bat = new BMS_BMUDevice(c->m_nofCellPerBattery,c->m_nofNTCPerBattery);
+            bat->deviceID(id++);
             info->addBattery(bat);
         }
         info->enableHVModule();
@@ -320,8 +326,15 @@ void BMS_SystemInfo::generateDummySystem()
 
 void BMS_SystemInfo::feedData(quint32 identifier, QByteArray data)
 {
-    foreach(BMS_StackInfo *s,m_stacks){
-        s->feedData(identifier,data);
+    uint8_t id = (identifier >> 12) & 0xff;
+    quint16 cmd = identifier & 0xFFF;
+    if(id == 0x01){ // bcu device
+        this->m_bcuDevice->feedData(id,cmd,data);
+    }
+    else{
+        foreach(BMS_StackInfo *s,m_stacks){
+            s->feedData(identifier,data);
+        }
     }
 }
 

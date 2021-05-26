@@ -9,12 +9,15 @@ class CANBUSDevice;
 class MODBUSDevice;
 
 namespace bms {
-#define GROUP_OF(x)    (x >> 5)
-#define ID_OF(x)       (x & 0x1F)
+#define GROUP_OF(x)     (x >> 5)
+#define ID_OF(x)        (x & 0x1F)
 #define GROUP(x)        (x<< 5)
-#define ID(x)       (x)
+#define ID(x)           (x)
+#define SVI_ID          0x1F
+#define BCU_ID          0x01
     const int MAX_CELLS = 12;
     const int MAX_NTC = 5;
+
 }
 
 class HW_IOChannel{
@@ -34,6 +37,12 @@ private:
     int m_valueToWrite;
     int m_valueReadBack;
     int m_value;
+};
+
+class CAN_Packet{
+public:
+    quint16 Command;
+    QByteArray data;
 };
 
 class BMS_BCUDevice:public QObject
@@ -74,9 +83,61 @@ public:
         }
     }
 
+    void add_pwm_in(int n){
+        for(int i=0;i<n;i++){
+            HW_IOChannel *c = new HW_IOChannel();
+            m_pwmInput.append(c);
+        }
+    }
+    int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
+    void setDigitalOut(int id, int state){
+        if(id < m_digitalOutput.size()){
+            m_digitalOutput[id]->writeValue(state);
+        }
+    }
+    void setVoltageSource(int id, int currentMa){
+        if(id < m_voltageSource.size()){
+            m_voltageSource[id]->writeValue(currentMa);
+        }
+    }
+    void generatePacket(){
+        // check digital input
+        bool gen = false;
+        foreach (HW_IOChannel *c, m_digitalOutput) {
+            if(!c->valid()) gen = true;
+        }
+        if(gen){
+            CAN_Packet *p = new CAN_Packet();
+            p->Command = 0x140;
+            quint8 b = 0x0;
+            for(int i=0;i<m_digitalOutput.size();i++){
+                b |= (m_digitalOutput[i]->value() << i);
+            }
+            p->data.append(b);
+            m_pendingAction.append(p);
+        }
+
+        gen = false;
+        foreach (HW_IOChannel *c,m_voltageSource) {
+            if(!c->valid()) gen = true;
+        }
+        if(gen){
+            CAN_Packet *p = new CAN_Packet();
+            p->Command = 0x180;
+            QDataStream ds(&p->data,QIODevice::WriteOnly);
+            quint16 v;
+            for(int i=0;i<m_voltageSource.size();i++){
+                v = (quint16)m_voltageSource[i]->value();
+                ds << v;
+            }
+            m_pendingAction.append(p);
+        }
+    }
     void feedData(quint8 id, quint16 msg, QByteArray data){
         if(id == 0x01){ // BCU always occupied 0x01, group 0, id 1
+            m_lastSeen = QDateTime::currentMSecsSinceEpoch();
             QDataStream ds(&data,QIODevice::ReadOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
             quint16 uv;
             quint8 bv;
             switch(msg){
@@ -210,6 +271,15 @@ public:
         }
         return in;
     }
+    CAN_Packet* ActionPending(){
+        CAN_Packet *ret=nullptr;
+        if(m_pendingAction.size() > 0){
+            ret = m_pendingAction.first();
+            m_pendingAction.removeFirst();
+        }
+        return ret;
+    }
+
 
 private:
     QList<HW_IOChannel*> m_digitalInput;
@@ -217,6 +287,8 @@ private:
     QList<HW_IOChannel*> m_analogInput;
     QList<HW_IOChannel*> m_pwmInput;
     QList<HW_IOChannel*> m_voltageSource;
+    long long m_lastSeen;
+    QList<CAN_Packet*> m_pendingAction;
 };
 
 
@@ -258,9 +330,10 @@ public:
     ushort minPackTemp(){return m_minTemperature;}
     ushort maxPackTemp(){return m_maxTemperature;}
     ushort cellVoltageDiff(){return (m_maxVoltage>m_minVoltage)?(m_maxVoltage-m_minVoltage):0;}
-
+    int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
     void feedData(uint8_t id, uint16_t msg, QByteArray data){
         if(id == m_devid){
+            m_lastSeen = QDateTime::currentMSecsSinceEpoch();
             QDataStream ds(&data,QIODevice::ReadOnly);
             switch (msg) {
             case 0x110:
@@ -380,6 +453,15 @@ public:
         return in;
     }
 
+    QByteArray ActionPending(){
+        QByteArray ret;
+        if(m_pendingAction.size() > 0){
+            ret = m_pendingAction.first();
+            m_pendingAction.removeFirst();
+        }
+        return ret;
+    }
+
 private:
     QList<ushort> m_cellVoltage;
     QList<ushort> m_packTemperature;
@@ -396,6 +478,8 @@ private:
     ushort m_maxTemperature;
     ushort m_minTemperature;
     ushort m_totalVoltage;
+    long long m_lastSeen;
+    QList<QByteArray> m_pendingAction;
 };
 
 class BMS_HVCInfo:public QObject{
@@ -412,6 +496,17 @@ public:
 
     int voltage(){return m_stackVoltage;}
     int current(){return m_stackCurrent;}
+
+    void feedData(quint8 id, quint16 msg, QByteArray data){
+        if(id == SVI_ID){
+            QDataStream ds(&data,QIODevice::ReadOnly);
+            quint16 v;
+            ds >> v;
+            m_stackVoltage = v;
+            ds >> v;
+            m_stackCurrent = v;
+        }
+    }
 
     friend QDataStream& operator << (QDataStream &out, const BMS_HVCInfo *hvc)
     {
@@ -515,12 +610,19 @@ public:
     void feedData(quint32 identifier, QByteArray data){
         uint8_t id = (identifier >> 12) & 0xff;
         uint16_t cmd = (identifier & 0xFFF);
+
         if(GROUP_OF(id) == m_groupID){
-            foreach(BMS_BMUDevice *b, m_batteries){
-                b->feedData(ID(id),cmd,data);
+            if(ID_OF(id) == SVI_ID){ // SVI Module
+                this->m_hvcInfo->feedData(ID_OF(id),cmd,data);
+            }
+            else{
+                foreach(BMS_BMUDevice *b, m_batteries){
+                    b->feedData(ID_OF(id),cmd,data);
+                }
             }
         }
     }
+
     void dummyData(){
         foreach (BMS_BMUDevice *b, m_batteries) {
             b->dummyData();
@@ -691,6 +793,22 @@ public:
             in >> s;
         }
         return in;
+    }
+    void setDigitalOut(int ch, int value){
+        if(m_bcuDevice != nullptr){
+            m_bcuDevice->setDigitalOut(ch,value);
+        }
+    }
+    void setVoltageSource(int ch, int value){
+        if(m_bcuDevice != nullptr){
+            m_bcuDevice->setVoltageSource(ch,value);
+        }
+    }
+
+    void flushBCU(){
+        if(m_bcuDevice != nullptr){
+            m_bcuDevice->generatePacket();
+        }
     }
 
 signals:
