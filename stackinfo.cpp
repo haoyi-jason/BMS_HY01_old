@@ -149,6 +149,18 @@ void StackInfo::updateStackInfo()
     ui->leTotalVoltage->setText(QString::number(s->stackVoltage()));
 
     //ui->le_maxDiff->setText(QString::number(s->));
+    QByteArray dig_in = collector->currentSystem()->system->digitalInput();
+    QByteArray dig_out = collector->currentSystem()->system->digitalOutput();
+    QList<int> vs = collector->currentSystem()->system->vsource();
+
+    quint8 in = dig_in[0];
+    quint8 out = dig_out[0];
+    ui->pbDigitalIn_0->setChecked((in & 0x01)==0x01?true:false);
+    ui->pbDigitalIn_1->setChecked((in & 0x02)==0x02?true:false);
+
+    ui->leVSourceIn_0->setText(QString::number(vs[0]));
+    ui->leVSourceIn_1->setText(QString::number(vs[1]));
+
 }
 
 void StackInfo::on_pbSystemNavi_clicked()

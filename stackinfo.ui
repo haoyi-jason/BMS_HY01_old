@@ -463,7 +463,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pbDigitalIn_0">
         <property name="geometry">
          <rect>
           <x>130</x>
@@ -479,7 +479,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="pbDigitalIn_1">
         <property name="geometry">
          <rect>
           <x>130</x>

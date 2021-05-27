@@ -872,6 +872,23 @@ public:
         }
     }
 
+    QByteArray digitalInput(){
+        if(m_bcuDevice != nullptr){
+            return m_bcuDevice->getDigitalInput();
+        }
+    }
+
+    QByteArray digitalOutput(){
+        if(m_bcuDevice != nullptr){
+            return m_bcuDevice->getDigitalOutput();
+        }
+    }
+
+    QList<int> vsource(){
+        if(m_bcuDevice != nullptr){
+            return m_bcuDevice->getWorkingCurrent();
+        }
+    }
 
 
 signals:
