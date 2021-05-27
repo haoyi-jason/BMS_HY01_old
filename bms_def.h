@@ -26,20 +26,20 @@ public:
     explicit HW_IOChannel(int initValue = 0, bool inverted = false){
         m_value = initValue;
         m_valueToWrite = initValue;
-        m_valueReadBack = initValue;
+        //m_valueReadBack = initValue;
     }
 
     int value(){return m_value;}
     void value(int v){m_value = v;}
     void writeValue(int value){m_valueToWrite = value;}
     int writeValue(){return m_valueToWrite;}
-    void setReadback(int value){m_valueReadBack = value;}
+    //void setReadback(int value){m_valueReadBack = value;}
     bool valid(){return (m_valueToWrite == m_value);}
     bool valid_write(){return !(m_valueToWrite == m_value);}
 
 private:
     int m_valueToWrite;
-    int m_valueReadBack;
+    //int m_valueReadBack;
     int m_value;
 };
 
@@ -95,7 +95,7 @@ public:
     }
     int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
     QByteArray getDigitalInput(){
-        int index;
+        int index=0;
         QByteArray ret;
         quint8 b = 0x0;
         foreach (HW_IOChannel *c, m_digitalInput) {
@@ -103,10 +103,11 @@ public:
            index++;
         }
         ret.append(b);
+        return ret;
     }
 
     QByteArray getDigitalOutput(){
-        int index;
+        int index=0;
         QByteArray ret;
         quint8 b = 0x0;
         foreach (HW_IOChannel *c, m_digitalOutput) {
@@ -114,6 +115,7 @@ public:
            index++;
         }
         ret.append(b);
+        return ret;
     }
 
     QList<int> getWorkingCurrent(){
@@ -268,14 +270,28 @@ public:
 
     friend QDataStream& operator << (QDataStream &out, const BMS_BCUDevice *dev){
         quint8 bv = 0;
-        if(dev->m_digitalInput.size() > 0){
-            bv = (0 << dev->m_digitalInput[0]->value()) | (1 << dev->m_digitalInput[1]->value());
-            out << bv;
+        int index;
+        foreach(HW_IOChannel *c, dev->m_digitalInput){
+            if(c->value() != 0){
+                bv |= (1 << index);
+            }
+            index++;
+            if(index == 8){
+                index = 0;
+            }
         }
-        if(dev->m_digitalOutput.size() > 0){
-            bv = (0 << dev->m_digitalOutput[0]->value()) | (1 << dev->m_digitalOutput[1]->value());
-            out << bv;
+        out << bv;
+        bv = 0;
+        foreach(HW_IOChannel *c, dev->m_digitalOutput){
+            if(c->value() != 0){
+                bv |= (1 << index);
+            }
+            index++;
+            if(index == 8){
+                index = 0;
+            }
         }
+        out << bv;
 
         if(dev->m_analogInput.size() > 0){
             foreach(HW_IOChannel *c, dev->m_analogInput){
@@ -300,33 +316,33 @@ public:
         int v;
         if(dev->m_digitalInput.size() > 0){
             in >> bv;
-            dev->m_digitalInput[0]->setReadback((bv&0x1)?1:0);
-            dev->m_digitalInput[1]->setReadback((bv&0x2)?1:0);
+            dev->m_digitalInput[0]->value((bv&0x1)?1:0);
+            dev->m_digitalInput[1]->value((bv&0x2)?1:0);
         }
         if(dev->m_digitalOutput.size() > 0){
             in >> bv;
-            dev->m_digitalOutput[0]->setReadback((bv&0x1)?1:0);
-            dev->m_digitalOutput[1]->setReadback((bv&0x2)?1:0);
+            dev->m_digitalOutput[0]->value((bv&0x1)?1:0);
+            dev->m_digitalOutput[1]->value((bv&0x2)?1:0);
         }
 
         if(dev->m_analogInput.size() > 0){
             foreach (HW_IOChannel *c, dev->m_analogInput) {
                 in >> v;
-                c->setReadback(v);
+                c->value(v);
             }
         }
 
         if(dev->m_pwmInput.size() > 0){
             foreach (HW_IOChannel *c, dev->m_pwmInput) {
                 in >> v;
-                c->setReadback(v);
+                c->value(v);
             }
         }
 
         if(dev->m_voltageSource.size() > 0){
             foreach (HW_IOChannel *c, dev->m_voltageSource) {
                 in >> v;
-                c->setReadback(v);
+                c->value(v);
             }
         }
         return in;
