@@ -36,6 +36,14 @@ private slots:
 
     void on_pbSwitchInfo_clicked();
 
+    void on_pbSetDO_0_clicked();
+
+    void on_pbSetDO_1_clicked();
+
+    void on_pbSetVsource_0_clicked();
+
+    void on_pbSetVsource_1_clicked();
+
 private:
     void dummyData();
     void updateStackInfo();

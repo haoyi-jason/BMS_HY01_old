@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtCore>
+#include <QtNetwork>
 
 class QTcpSocket;
 class CANBUSDevice;
@@ -32,6 +33,7 @@ public:
     void writeValue(int value){m_valueToWrite = value;}
     void setReadback(int value){m_valueReadBack = value;}
     bool valid(){return (m_valueReadBack == m_value);}
+    bool valid_write(){return !(m_valueToWrite == m_value);}
 
 private:
     int m_valueToWrite;
@@ -90,16 +92,42 @@ public:
         }
     }
     int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
-    void setDigitalOut(int id, int state){
+
+    CAN_Packet *setDigitalOut(int id, int state){
+        CAN_Packet *ret = nullptr;
         if(id < m_digitalOutput.size()){
             m_digitalOutput[id]->writeValue(state);
+            if(m_digitalOutput[id]->valid_write()){
+                ret = new CAN_Packet();
+                ret->Command = 0x140;
+                quint8 b = 0x0;
+                for(int i=0;i<m_digitalOutput.size();i++){
+                    b |= (m_digitalOutput[i]->value() << i);
+                }
+                ret->data.append(b);
+            }
         }
+        return ret;
     }
-    void setVoltageSource(int id, int currentMa){
+    CAN_Packet *setVoltageSource(int id, int currentMa){
+        CAN_Packet *ret = nullptr;
         if(id < m_voltageSource.size()){
             m_voltageSource[id]->writeValue(currentMa);
+
+            if(m_voltageSource[id]->valid_write()){
+                ret = new CAN_Packet();
+                ret->Command = 0x180;
+                QDataStream ds(&ret->data,QIODevice::WriteOnly);
+                quint16 v;
+                for(int i=0;i<m_voltageSource.size();i++){
+                    v = (quint16)m_voltageSource[i]->value();
+                    ds << v;
+                }
+            }
         }
+        return ret;
     }
+
     void generatePacket(){
         // check digital input
         bool gen = false;
@@ -119,7 +147,7 @@ public:
 
         gen = false;
         foreach (HW_IOChannel *c,m_voltageSource) {
-            if(!c->valid()) gen = true;
+            if(c->valid_write()) gen = true;
         }
         if(gen){
             CAN_Packet *p = new CAN_Packet();
@@ -811,6 +839,8 @@ public:
         }
     }
 
+
+
 signals:
     void sendPacket(QByteArray data);
 
@@ -858,6 +888,19 @@ public:
     BMS_SystemInfo *system = nullptr;
     bool configReady = false; // should be false
     QByteArray data;
+    void setDigitalOut(int id, int value){
+        QString msg = QString("DO:%1:%2").arg(id).arg(value);
+        if(socket != nullptr){
+            socket->write(msg.toUtf8());
+        }
+    }
+
+    void setVoltageSource(int id, int value){
+        QString msg = QString("VO:%1:%2").arg(id).arg(value);
+        if(socket != nullptr){
+            socket->write(msg.toUtf8());
+        }
+    }
 };
 
 

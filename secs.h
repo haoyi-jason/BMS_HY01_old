@@ -36,6 +36,8 @@ public:
         BMS_CONFIG = 0x1,
         BMS_STACK = 0x2,
         BMS_CRITICAL = 0x3,
+        BMS_BCU_CMD = 0x04,
+        BMS_BMU_CMD = 0x05,
         BMS_ADD_PACKET = 0xFE,
         BMS_WRONG_HEADER = 0xFF,
     };

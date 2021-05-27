@@ -431,7 +431,7 @@
        </widget>
       </widget>
       <widget class="QWidget" name="page_2">
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pbSetDO_0">
         <property name="geometry">
          <rect>
           <x>30</x>
@@ -447,7 +447,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pbSetDO_1">
         <property name="geometry">
          <rect>
           <x>30</x>
@@ -505,7 +505,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>第一路BMU電源電流:</string>
+         <string>第一路BMU電源電流(mA):</string>
         </property>
        </widget>
        <widget class="QLabel" name="label_11">
@@ -518,10 +518,10 @@
          </rect>
         </property>
         <property name="text">
-         <string>第二路BMU電源電流:</string>
+         <string>第二路BMU電源電流(mA):</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="leVSourceIn_0">
         <property name="geometry">
          <rect>
           <x>400</x>
@@ -530,8 +530,14 @@
           <height>20</height>
          </rect>
         </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="leVSourceIn_1">
         <property name="geometry">
          <rect>
           <x>400</x>
@@ -539,6 +545,76 @@
           <width>113</width>
           <height>20</height>
          </rect>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leVSourceSet_0">
+        <property name="geometry">
+         <rect>
+          <x>520</x>
+          <y>20</y>
+          <width>113</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>1000</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leVSourceSet_1">
+        <property name="geometry">
+         <rect>
+          <x>520</x>
+          <y>50</y>
+          <width>113</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>1000</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pbSetVsource_0">
+        <property name="geometry">
+         <rect>
+          <x>650</x>
+          <y>20</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>設定</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pbSetVsource_1">
+        <property name="geometry">
+         <rect>
+          <x>650</x>
+          <y>50</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>設定</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </widget>

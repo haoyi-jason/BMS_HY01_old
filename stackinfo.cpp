@@ -14,8 +14,8 @@ StackInfo::StackInfo(QWidget *parent) :
     m_currentStackIndex = 0;
     collector = new BMSCollector();
     activeSystem = nullptr;
-    QString ip = "127.0.0.1";
-//    QString ip = "192.168.0.126";
+//    QString ip = "127.0.0.1";
+    QString ip = "192.168.0.126";
     if(collector->addConnection(ip)){
         collector->readConfig(ip);
         //activeSystem = collector->currentSystem()->system;
@@ -191,4 +191,28 @@ void StackInfo::on_pbSwitchInfo_clicked()
         c = 0;
     }
     ui->stackedWidget->setCurrentIndex(c);
+}
+
+void StackInfo::on_pbSetDO_0_clicked()
+{
+    int value = ui->pbSetDO_0->isChecked()?1:0;
+    collector->currentSystem()->setDigitalOut(0,value);
+}
+
+void StackInfo::on_pbSetDO_1_clicked()
+{
+    int value = ui->pbSetDO_1->isChecked()?1:0;
+    collector->currentSystem()->setDigitalOut(1,value);
+}
+
+void StackInfo::on_pbSetVsource_0_clicked()
+{
+    int value = ui->leVSourceSet_0->text().toInt();
+    collector->currentSystem()->setVoltageSource(0,value);
+}
+
+void StackInfo::on_pbSetVsource_1_clicked()
+{
+    int value = ui->leVSourceSet_1->text().toInt();
+    collector->currentSystem()->setVoltageSource(0,value);
 }
