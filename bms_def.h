@@ -143,7 +143,7 @@ public:
         }
         return ret;
     }
-    CAN_Packet *setVoltageSource(int id, int currentMa){
+    CAN_Packet *setVoltageSource(int id, int currentMa, bool enable = true){
         CAN_Packet *ret = nullptr;
         if(id < m_voltageSource.size()){
             m_voltageSource[id]->writeValue(currentMa);
@@ -152,11 +152,14 @@ public:
                 ret = new CAN_Packet();
                 ret->Command = 0x180;
                 QDataStream ds(&ret->data,QIODevice::WriteOnly);
+                ds.setByteOrder(QDataStream::LittleEndian);
                 quint16 v;
-                for(int i=0;i<m_voltageSource.size();i++){
-                    v = (quint16)m_voltageSource[i]->value();
-                    ds << v;
-                }
+                quint8 bv = (quint8)id;
+                ds << bv;
+                bv = enable?1:0;
+                ds << bv;
+                v = (quint16)m_voltageSource[id]->writeValue();
+                ds << v;
             }
         }
         return ret;
@@ -270,7 +273,7 @@ public:
 
     friend QDataStream& operator << (QDataStream &out, const BMS_BCUDevice *dev){
         quint8 bv = 0;
-        int index;
+        int index=0;
         foreach(HW_IOChannel *c, dev->m_digitalInput){
             if(c->value() != 0){
                 bv |= (1 << index);
@@ -282,6 +285,7 @@ public:
         }
         out << bv;
         bv = 0;
+        index = 0;
         foreach(HW_IOChannel *c, dev->m_digitalOutput){
             if(c->value() != 0){
                 bv |= (1 << index);
@@ -876,9 +880,9 @@ public:
         }
         return nullptr;
     }
-    void setVoltageSource(int ch, int value){
+    CAN_Packet *setVoltageSource(int ch, int value, bool enable){
         if(m_bcuDevice != nullptr){
-            m_bcuDevice->setVoltageSource(ch,value);
+            return m_bcuDevice->setVoltageSource(ch,value,enable);
         }
     }
 
