@@ -30,9 +30,11 @@ public:
     }
 
     int value(){return m_value;}
+    void value(int v){m_value = v;}
     void writeValue(int value){m_valueToWrite = value;}
+    int writeValue(){return m_valueToWrite;}
     void setReadback(int value){m_valueReadBack = value;}
-    bool valid(){return (m_valueReadBack == m_value);}
+    bool valid(){return (m_valueToWrite == m_value);}
     bool valid_write(){return !(m_valueToWrite == m_value);}
 
 private:
@@ -92,6 +94,35 @@ public:
         }
     }
     int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
+    QByteArray getDigitalInput(){
+        int index;
+        QByteArray ret;
+        quint8 b = 0x0;
+        foreach (HW_IOChannel *c, m_digitalInput) {
+           b |= (c->value()<<index);
+           index++;
+        }
+        ret.append(b);
+    }
+
+    QByteArray getDigitalOutput(){
+        int index;
+        QByteArray ret;
+        quint8 b = 0x0;
+        foreach (HW_IOChannel *c, m_digitalOutput) {
+           b |= (c->value()<<index);
+           index++;
+        }
+        ret.append(b);
+    }
+
+    QList<int> getWorkingCurrent(){
+        QList<int> ret;
+        foreach (HW_IOChannel *c, m_voltageSource) {
+            ret.append(c->value());
+        }
+        return ret;
+    }
 
     CAN_Packet *setDigitalOut(int id, int state){
         CAN_Packet *ret = nullptr;
@@ -102,8 +133,9 @@ public:
                 ret->Command = 0x140;
                 quint8 b = 0x0;
                 for(int i=0;i<m_digitalOutput.size();i++){
-                    b |= (m_digitalOutput[i]->value() << i);
+                    b |= (m_digitalOutput[i]->writeValue() << i);
                 }
+                ret->data.append((quint8)0x0); // output control
                 ret->data.append(b);
             }
         }
@@ -171,31 +203,31 @@ public:
             switch(msg){
                 case 0x121:
                     ds >> uv;
-                    m_pwmInput[0]->setReadback(uv);
+                    m_pwmInput[0]->value(uv);
                     ds >> uv;
-                    m_pwmInput[1]->setReadback(uv);
+                    m_pwmInput[1]->value(uv);
                     ds >> uv;
-                    m_voltageSource[0]->setReadback(uv);
+                    m_voltageSource[0]->value(uv);
                     ds >> uv;
-                    m_voltageSource[1]->setReadback(uv);
+                    m_voltageSource[1]->value(uv);
                     break;
                 case 0x122:
                     ds >> bv;
                     for(int i=0;i<2;i++){
                         if((bv & (1 << i)) == (1 << i)){
-                            m_digitalInput[i]->setReadback(1);
+                            m_digitalInput[i]->value(1);
                         }
                         else{
-                            m_digitalInput[i]->setReadback(0);
+                            m_digitalInput[i]->value(0);
                         }
                     }
                     ds >> bv;
                     for(int i=0;i<2;i++){
                         if((bv & (1 << i)) == (1 << i)){
-                            m_digitalOutput[i]->setReadback(1);
+                            m_digitalOutput[i]->value(1);
                         }
                         else{
-                            m_digitalOutput[i]->setReadback(0);
+                            m_digitalOutput[i]->value(0);
                         }
                     }
                 break;
@@ -822,10 +854,11 @@ public:
         }
         return in;
     }
-    void setDigitalOut(int ch, int value){
+    CAN_Packet *setDigitalOut(int ch, int value){
         if(m_bcuDevice != nullptr){
-            m_bcuDevice->setDigitalOut(ch,value);
+            return m_bcuDevice->setDigitalOut(ch,value);
         }
+        return nullptr;
     }
     void setVoltageSource(int ch, int value){
         if(m_bcuDevice != nullptr){
