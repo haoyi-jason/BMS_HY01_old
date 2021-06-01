@@ -664,6 +664,9 @@ public:
         for(int i=0;i<bat->m_balancing.size();i++){
             out << bat->m_balancing[i];
         }
+        for(int i=0;i<bat->m_openWire.size();i++){
+            out << bat->m_openWire[i];
+        }
         return out;
     }
     friend QDataStream& operator >> (QDataStream &in, BMS_BMUDevice *bat){
@@ -680,6 +683,7 @@ public:
             for(int i=0;i<bat->m_nofCell;i++){
                 bat->m_cellVoltage.append(0x0);
                 bat->m_balancing.append(0x0);
+                bat->m_openWire.append(0x0);
             }
         }
         if(bat->m_packTemperature.size() == 0){
@@ -719,6 +723,9 @@ public:
         }
         for(int i=0;i<bat->m_balancing.size();i++){
             in >> bat->m_balancing[i];
+        }
+        for(int i=0;i<bat->m_openWire.size();i++){
+            in >> bat->m_openWire[i];
         }
         bat->m_maxVoltage = max_v;
         bat->m_maxTemperature = max_t;
