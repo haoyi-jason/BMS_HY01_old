@@ -37,6 +37,10 @@ private slots:
 
     void on_pushButton_9_clicked();
 
+    void on_pushButton_10_clicked();
+
+    void on_pbSaveParam_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

@@ -275,6 +275,13 @@ public:
         return ret;
     }
 
+    CAN_Packet *saveParam(){
+        CAN_Packet *ret = new CAN_Packet();
+        ret->Command = 0x160;
+        ret->data[0] = 0x99;
+        return ret;
+    }
+
     void generatePacket(){
         // check digital input
         bool gen = false;

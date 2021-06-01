@@ -98,3 +98,14 @@ void frmHardwareConfig::on_pushButton_9_clicked()
     m_collector->currentSystem()->setVoltageSource(0,value);
 
 }
+
+void frmHardwareConfig::on_pushButton_10_clicked()
+{
+    int value = ui->leVSourceSet_1->text().toInt();
+    m_collector->currentSystem()->setVoltageSource(1,value);
+}
+
+void frmHardwareConfig::on_pbSaveParam_clicked()
+{
+    m_collector->currentSystem()->writeCommand("BCU:SAVE");
+}

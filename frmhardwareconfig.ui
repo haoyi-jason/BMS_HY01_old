@@ -420,7 +420,7 @@
          <x>240</x>
          <y>170</y>
          <width>541</width>
-         <height>291</height>
+         <height>121</height>
         </rect>
        </property>
        <property name="title">
@@ -529,6 +529,19 @@
          <string>Config</string>
         </property>
        </widget>
+      </widget>
+      <widget class="QPushButton" name="pbSaveParam">
+       <property name="geometry">
+        <rect>
+         <x>820</x>
+         <y>210</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Save Param</string>
+       </property>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_3">
