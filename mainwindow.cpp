@@ -5,6 +5,8 @@
 #include "frmstackconfig.h"
 #include "frmhistoryview.h"
 #include "frmeventview.h"
+#include "bmscollector.h"
+#include "bms_def.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,6 +18,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_hardwareConfig = new frmHardwareConfig();
     m_hardwareConfig->hide();
+
+    collector = new BMSCollector();
+    if(collector->loadConfig("./config/system.json")){
+        collector->connectServer(0);
+        collector->readAllConfig();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -27,6 +35,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pbSystemMonitor_clicked()
 {
    // this->hide();
+    m_stackWin->setCollector(collector);
     m_stackWin->show();
 }
 
@@ -51,6 +60,12 @@ void MainWindow::on_pbViewEvent_clicked()
 void MainWindow::on_pbSystemMonitor_2_clicked()
 {
     frmHistoryView *hisView = new frmHistoryView();
-    hisView->setModal(true);
-    hisView->show();
+    //hisView->setModal(true);
+    //hisView->show();
+}
+
+void MainWindow::load_sys_config()
+{
+    collector = new BMSCollector();
+
 }

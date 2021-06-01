@@ -8,22 +8,12 @@ StackInfo::StackInfo(QWidget *parent) :
     ui(new Ui::StackInfo)
 {
     ui->setupUi(this);
-    stackModel = new BMS_StackModel();
-    batteryModel = new BMS_BatteryModel();
-    //dummyData();
-    m_currentStackIndex = 0;
-    collector = new BMSCollector();
-    activeSystem = nullptr;
-//    QString ip = "127.0.0.1";
-    QString ip = "192.168.0.126";
-    if(collector->addConnection(ip)){
-        collector->readConfig(ip);
-        //activeSystem = collector->currentSystem()->system;
-        connect(collector,&BMSCollector::configReady,this,&StackInfo::on_system_config_ready);
-        connect(collector,&BMSCollector::dataReceived,this,&StackInfo::on_system_data_ready);
-    }
+//    stackModel = new BMS_StackModel();
+//    batteryModel = new BMS_BatteryModel();
+//    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    //dummyData();
+//    m_currentStackIndex = 0;
 
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 StackInfo::~StackInfo()
@@ -49,7 +39,7 @@ void StackInfo::loadConfiguration(QString path)
         QString fp = wp + "\\" + s;
         QFile f(fp);
         if(f.open(QIODevice::ReadOnly)){
-            BMS_SystemInfo *info = new BMS_SystemInfo();
+            BMS_System *info = new BMS_System();
             if(info->Configuration(f.readAll())){
                 m_bmsInfo.append(info);
             }
@@ -60,6 +50,23 @@ void StackInfo::loadConfiguration(QString path)
         }
     }
 
+}
+
+void StackInfo::setCollector(BMSCollector *c)
+{
+    collector = c;
+    QObject::connect(collector,&BMSCollector::configReady,this,&StackInfo::on_system_config_ready);
+    QObject::connect(collector,&BMSCollector::dataReceived,this,&StackInfo::on_system_data_ready);
+    if(this->collector->currentSystem() != nullptr){
+        this->activeSystem = this->collector->currentSystem()->system;
+        activeSystem = collector->currentSystem()->system;
+        if(activeSystem != nullptr){
+            stackModel->setStack(activeSystem->stacks());
+            batteryModel->setStack(stackModel->findStack(0));
+            ui->tableView->setModel(batteryModel);
+            ui->tableView_2->setModel(stackModel);
+        }
+    }
 }
 
 void StackInfo::dummyData()
@@ -228,3 +235,4 @@ void StackInfo::on_pbSetVsource_1_clicked()
     int value = ui->leVSourceSet_1->text().toInt();
     collector->currentSystem()->setVoltageSource(0,value);
 }
+

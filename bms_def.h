@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QtCore>
 #include <QtNetwork>
+#include <QDateTime>
 
 class QTcpSocket;
 class CANBUSDevice;
@@ -49,6 +50,41 @@ public:
     QByteArray data;
 };
 
+class _EventItem{
+public:
+    int setValue;
+    int resetValue;
+    int holdTime;
+    int activeTime;
+};
+
+class _EventCriteria{
+public:
+    _EventItem alarmHigh;
+    _EventItem alarmLow;
+    _EventItem warningHigh;
+    _EventItem warningLow;
+    bool autoReset = false;
+    bool isAlarm();
+    bool isWarning();
+    int validBand(int v){
+
+    }
+    int validHigh(int v){
+
+    }
+    int validLow(int v){
+
+    }
+};
+
+class _Events{
+public:
+    int eventType;
+    int startTime;
+    QString eventDescription;
+};
+
 class BMS_BCUDevice:public QObject
 {
     Q_OBJECT
@@ -61,6 +97,7 @@ public:
     Q_ENUM(PendingAction)
 
     explicit BMS_BCUDevice(QObject *parent = nullptr){};
+
     void add_digital_input(int n, bool inverted=false){
         for(int i=0;i<n;i++){
             HW_IOChannel *c = new HW_IOChannel();
@@ -161,6 +198,77 @@ public:
                 v = (quint16)m_voltageSource[id]->writeValue();
                 ds << v;
             }
+        }
+        return ret;
+    }
+
+    CAN_Packet *setADCRawLow(int id, int value){
+        CAN_Packet *ret = nullptr;
+        if(id < 8){
+            ret = new CAN_Packet();
+            ret->Command = 0x200;
+            QDataStream ds(&ret->data,QIODevice::WriteOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
+            quint16 v;
+            quint8 bv = (quint8)id;
+            ds << bv;
+            bv = 0x0; // raw low
+            ds << bv;
+            v = (quint16)value;
+            ds << v;
+        }
+        return ret;
+    }
+
+    CAN_Packet *setADCRawHigh(int id, int value){
+        CAN_Packet *ret = nullptr;
+        if(id < 8){
+            ret = new CAN_Packet();
+            ret->Command = 0x200;
+            QDataStream ds(&ret->data,QIODevice::WriteOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
+            quint16 v;
+            quint8 bv = (quint8)id;
+            ds << bv;
+            bv = 0x1; // raw high
+            ds << bv;
+            v = (quint16)value;
+            ds << v;
+        }
+        return ret;
+    }
+
+    CAN_Packet *setADCEngLow(int id, float value){
+        CAN_Packet *ret = nullptr;
+        if(id < 8){
+            ret = new CAN_Packet();
+            ret->Command = 0x200;
+            QDataStream ds(&ret->data,QIODevice::WriteOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
+            float v;
+            quint8 bv = (quint8)id;
+            ds << bv;
+            bv = 0x2; // eng low
+            ds << bv;
+            v = value;
+            ds << v;
+        }
+        return ret;
+    }
+    CAN_Packet *setADCEngHigh(int id, float value){
+        CAN_Packet *ret = nullptr;
+        if(id < 8){
+            ret = new CAN_Packet();
+            ret->Command = 0x200;
+            QDataStream ds(&ret->data,QIODevice::WriteOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
+            float v;
+            quint8 bv = (quint8)id;
+            ds << bv;
+            bv = 0x3; // eng high
+            ds << bv;
+            v = value;
+            ds << v;
         }
         return ret;
     }
@@ -273,6 +381,18 @@ public:
 
     friend QDataStream& operator << (QDataStream &out, const BMS_BCUDevice *dev){
         quint8 bv = 0;
+
+        bv = (quint8)dev->m_digitalInput.size();
+        out << bv;
+        bv = (quint8)dev->m_digitalOutput.size();
+        out << bv;
+        bv = (quint8)dev->m_analogInput.size();
+        out << bv;
+        bv = (quint8)dev->m_pwmInput.size();
+        out << bv;
+        bv = (quint8)dev->m_voltageSource.size();
+        out << bv;
+
         int index=0;
         foreach(HW_IOChannel *c, dev->m_digitalInput){
             if(c->value() != 0){
@@ -318,6 +438,38 @@ public:
     friend QDataStream& operator >> (QDataStream &in, BMS_BCUDevice *dev){
         quint8 bv;
         int v;
+
+        in >> bv;
+        if(dev->m_digitalInput.size() == 0){
+            for(int i=0;i<bv;i++){
+                dev->m_digitalInput.append(new HW_IOChannel());
+            }
+        }
+        in >> bv;
+        if(dev->m_digitalOutput.size() == 0){
+            for(int i=0;i<bv;i++){
+                dev->m_digitalOutput.append(new HW_IOChannel());
+            }
+        }
+        in >> bv;
+        if(dev->m_analogInput.size() == 0){
+            for(int i=0;i<bv;i++){
+                dev->m_analogInput.append(new HW_IOChannel());
+            }
+        }
+        in >> bv;
+        if(dev->m_pwmInput.size() == 0){
+            for(int i=0;i<bv;i++){
+                dev->m_pwmInput.append(new HW_IOChannel());
+            }
+        }
+        in >> bv;
+        if(dev->m_voltageSource.size() == 0){
+            for(int i=0;i<bv;i++){
+                dev->m_voltageSource.append(new HW_IOChannel());
+            }
+        }
+
         if(dev->m_digitalInput.size() > 0){
             in >> bv;
             dev->m_digitalInput[0]->value((bv&0x1)?1:0);
@@ -488,6 +640,7 @@ public:
         return d;
     }
     friend QDataStream& operator << (QDataStream &out, const BMS_BMUDevice *bat){
+        out << bat->m_lastSeen;
         out << bat->m_devid;
         out << bat->m_nofCell;
         out << bat->m_nofNtc;
@@ -500,28 +653,58 @@ public:
         for(int i=0;i<bat->m_balancing.size();i++){
             out << bat->m_balancing[i];
         }
-//        out << bat->m_cellVoltage;
-//        out << bat->m_packTemperature;
-//        out << bat->m_balancing;
         return out;
     }
     friend QDataStream& operator >> (QDataStream &in, BMS_BMUDevice *bat){
+        in >> bat->m_lastSeen;
         in >> bat->m_devid;
         in >> bat->m_nofCell;
         in >> bat->m_nofNtc;
         ushort max_v = 0,max_t = 0;
         ushort min_v = 0xffff,min_t = 100;
         bat->m_totalVoltage = 0;
+        ushort tmpHighMask=0,tmpLowMask = 0;
+        if(bat->m_cellVoltage.size() == 0){
+            bat->m_balancing.clear();
+            for(int i=0;i<bat->m_nofCell;i++){
+                bat->m_cellVoltage.append(0x0);
+                bat->m_balancing.append(0x0);
+            }
+        }
+        if(bat->m_packTemperature.size() == 0){
+            for(int i=0;i<bat->m_nofNtc;i++){
+                bat->m_packTemperature.append(0);
+            }
+        }
+
         for(int i=0;i<bat->m_cellVoltage.size();i++){
             in >> bat->m_cellVoltage[i];
             max_v = bat->m_cellVoltage[i]>max_v?bat->m_cellVoltage[i]:max_v;
             min_v = bat->m_cellVoltage[i]<min_v?bat->m_cellVoltage[i]:min_v;
             bat->m_totalVoltage += bat->m_cellVoltage[i];
+            if(bat->m_cellVoltage[i] > bat->m_voltHighThreshold){
+                tmpHighMask |= (1 << i);
+            }
+            if(bat->m_cellVoltage[i] < bat->m_voltLowThreshold){
+                tmpLowMask |= (1 << i);
+            }
+            bat->m_voltHighMask = tmpHighMask;
+            bat->m_voltLowMask = tmpLowMask;
         }
+
+        tmpHighMask = tmpLowMask = 0;
         for(int i=0;i<bat->m_packTemperature.size();i++){
             in >> bat->m_packTemperature[i];
             max_t = bat->m_packTemperature[i]>max_t?bat->m_packTemperature[i]:max_t;
             min_t = bat->m_packTemperature[i]<min_t?bat->m_packTemperature[i]:min_t;
+            if(bat->m_packTemperature[i] > bat->m_tempHighThreshold){
+                tmpHighMask |= (1 << i);
+            }
+            if(bat->m_packTemperature[i] < bat->m_tempLowThreshold){
+                tmpLowMask |= (1 << i);
+            }
+            bat->m_tempHighMask = (quint8)tmpHighMask;
+            bat->m_tempLowMask = (quint8)tmpLowMask;
         }
         for(int i=0;i<bat->m_balancing.size();i++){
             in >> bat->m_balancing[i];
@@ -560,6 +743,14 @@ private:
     ushort m_totalVoltage;
     long long m_lastSeen;
     QList<QByteArray> m_pendingAction;
+    ushort m_voltHighThreshold;
+    ushort m_voltLowThreshold;
+    ushort m_voltHighMask;
+    ushort m_voltLowMask;
+    ushort m_tempHighThreshold;
+    ushort m_tempLowThreshold;
+    quint8 m_tempHighMask;
+    quint8 m_tempLowMask;
 };
 
 class BMS_HVCInfo:public QObject{
@@ -730,9 +921,10 @@ public:
     }
     friend QDataStream& operator << (QDataStream &out, const BMS_StackInfo *stack){
         out << stack->m_groupID;
+        quint8 nofBat = stack->m_batteries.size();
+        out << nofBat;
         //out << stack->m_MaxCellVoltage;
         //out << stack->m_MaxCellIndex;
-
         out << stack->m_hvcInfo;
         foreach (BMS_BMUDevice *b, stack->m_batteries) {
             out << b;
@@ -741,8 +933,21 @@ public:
     }
 
     friend QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack){
+        quint8 nofBat;
         in >> stack->m_groupID;
+        in >> nofBat;
+
+        if(stack->m_hvcInfo == nullptr){
+            stack->m_hvcInfo = new BMS_HVCInfo();
+        }
         in >> stack->m_hvcInfo;
+
+        if(stack->m_batteries.size() == 0){
+            for(quint8 i=0;i<nofBat;i++){
+                stack->m_batteries.append(new BMS_BMUDevice());
+            }
+        }
+
         ushort max_v = 0, max_t = 0;
         ushort min_v = 0xffff, min_t = 0xffff;
         int max_v_index=0, max_t_index = 0;
@@ -783,7 +988,7 @@ public:
         stack->m_soc = 100;
     }
 private:
-    BMS_HVCInfo *m_hvcInfo;  // stack voltage/current
+    BMS_HVCInfo *m_hvcInfo=nullptr;  // stack voltage/current
     QList<BMS_BMUDevice*> m_batteries; // point to BMS_BMUDevice
     ushort m_MaxCellVoltage;
     int m_MaxCellIndex;
@@ -818,18 +1023,36 @@ public:
     int m_nofNTCPerBattery;
     int m_groupID;
     bool m_hvboard;
+
+    friend QDataStream& operator << (QDataStream &out, BMS_StackConfig *cfg){
+        out << cfg->m_nofBatteries;
+        out << cfg->m_nofCellPerBattery;
+        out << cfg->m_nofNTCPerBattery;
+        out << cfg->m_groupID;
+        out << cfg->m_hvboard;
+        return out;
+    }
+
+    friend QDataStream& operator >> (QDataStream &in, BMS_StackConfig *cfg){
+        in >> cfg->m_nofBatteries;
+        in >> cfg->m_nofCellPerBattery;
+        in >> cfg->m_nofNTCPerBattery;
+        in >> cfg->m_groupID;
+        in >> cfg->m_hvboard;
+        return in;
+    }
 };
 
 /*
- * class BMS_SystemInfo
+ * class BMS_System
  * Object to hold system information
  *
  */
-class BMS_SystemInfo:public QObject
+class BMS_System:public QObject
 {
     Q_OBJECT
 public:
-    BMS_SystemInfo(QObject *parent = nullptr);
+    BMS_System(QObject *parent = nullptr);
     void SetStackInfo(QList<BMS_StackInfo*> info);
     void AddStack(BMS_StackInfo *stack);
     void ClearStack();
@@ -858,7 +1081,11 @@ public:
     int BalancingOnTime;
     int BalancingOffTime;
 
-    friend QDataStream& operator << (QDataStream &out, const BMS_SystemInfo *sys){
+    friend QDataStream& operator << (QDataStream &out, const BMS_System *sys){
+        out << sys->Stacks;
+//        foreach(BMS_StackConfig *s,sys->m_stackConfig){
+//            out << s;
+//        }
         out << sys->m_bcuDevice;
         foreach (BMS_StackInfo *s, sys->m_stacks) {
             out << s;
@@ -866,9 +1093,32 @@ public:
         return out;
     }
 
-    friend QDataStream& operator >> (QDataStream &in, BMS_SystemInfo *sys)
+    friend QDataStream& operator >> (QDataStream &in, BMS_System *sys)
     {
+        in >> sys->Stacks;
+//        if(sys->m_loadFromFile){
+//            for(int i=0;i<sys->Stacks; i++){
+//                BMS_StackConfig *s = new BMS_StackConfig();
+//                sys->m_stackConfig.append(s);
+//            }
+//        }
+//        foreach(BMS_StackConfig *s,sys->m_stackConfig){
+//            in >> s;
+//        }
+
+//        if(sys->m_loadFromFile){
+//            sys->generateSystemStructure();
+//            sys->m_bcuDevice = new BMS_BCUDevice();
+//        }
+        if(sys->m_bcuDevice == nullptr){
+            sys->m_bcuDevice = new BMS_BCUDevice();
+        }
         in >> sys->m_bcuDevice;
+        if(sys->m_stacks.size() == 0){
+            for(quint8 i=0;i<sys->Stacks;i++){
+                sys->m_stacks.append(new BMS_StackInfo());
+            }
+        }
         foreach (BMS_StackInfo *s, sys->m_stacks) {
             in >> s;
         }
@@ -910,6 +1160,24 @@ public:
         }
     }
 
+    void log(QString path, QByteArray data){
+        //QString path = QString("%1/%2.bin").arg(m_logPath).arg(QDateTime::currentMSecsSinceEpoch(),16,16,QLatin1Char('0'));
+        QFile f(path);
+        if(f.open(QIODevice::WriteOnly)){
+            QDataStream ds(&f);
+            ds << data;
+            f.close();
+        }
+    }
+
+    void emg_log(QByteArray data){
+
+    }
+
+    void logPath(QString path){m_logPath = path;}
+
+    BMS_BCUDevice *bcu(){return m_bcuDevice;}
+
 
 signals:
     void sendPacket(QByteArray data);
@@ -922,6 +1190,8 @@ private:
     QString m_alias;
     QTimer *m_simulateTimer=nullptr;
     BMS_BCUDevice *m_bcuDevice=nullptr;
+    QString m_logPath="./";
+    bool m_loadFromFile=false;
     //QList<CANBUSDevice*> m_canbusDevice;
     //MODBUSDevice *m_modbusDev = nullptr;
 };
@@ -955,9 +1225,13 @@ class RemoteSystem{
 public:
     QString connection="";
     QTcpSocket *socket = nullptr;
-    BMS_SystemInfo *system = nullptr;
+    BMS_System *system = nullptr;
     bool configReady = false; // should be false
     QByteArray data;
+    QString alias;
+    QString logPath;
+    int port;
+    bool autoConnect;
     void setDigitalOut(int id, int value){
         QString msg = QString("DO:%1:%2").arg(id).arg(value);
         if(socket != nullptr){
@@ -970,6 +1244,47 @@ public:
         if(socket != nullptr){
             socket->write(msg.toUtf8());
         }
+    }
+
+    void openSerialPort(QString name, int baudrate, int parity, int stopBits){
+        QString msg = QString("PORT:OPEN:%1:%2:%3:%4").arg(name).arg(baudrate).arg(parity).arg(stopBits);
+        if(socket != nullptr){
+            socket->write(msg.toUtf8());
+        }
+    }
+
+    void closeSerialPort(QString name){
+        QString msg = QString("PORT:CLOSE:%1").arg(name);
+        if(socket != nullptr){
+            socket->write(msg.toUtf8());
+        }
+    }
+
+    void writeSerialPort(QString name, QString data){
+        QString msg = QString("PORT:WRITE:%1:%2").arg(name).arg(data);
+        if(socket != nullptr){
+            socket->write(msg.toUtf8());
+        }
+
+    }
+    void writeCommand(QString command){
+        if(socket != nullptr){
+            socket->write(command.toUtf8());
+        }
+    }
+
+    void logData(){
+        QByteArray b;
+        QDataStream ds(&b,QIODevice::WriteOnly);
+        ds << this->system;
+        QString path = this->logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss.bin");
+        QFile f(path);
+        if(f.open(QIODevice::WriteOnly)){
+            QDataStream df(&f);
+            df << b;
+            f.close();
+        }
+
     }
 };
 

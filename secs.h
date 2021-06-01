@@ -38,13 +38,14 @@ public:
         BMS_CRITICAL = 0x3,
         BMS_BCU_CMD = 0x04,
         BMS_BMU_CMD = 0x05,
+        BMS_SERIAL_DATA,
         BMS_ADD_PACKET = 0xFE,
         BMS_WRONG_HEADER = 0xFF,
     };
     Q_ENUM(BMS_FORMAT)
     hsmsParser(QObject *parent = nullptr);
     static quint8 getHeader(QByteArray b, int* len, quint8 *hlen){
-        if(b[0] != 0xab && b[1] != 0xba){
+        if((b[0] != 0xab) && (b[1] != 0xba)){
             return BMS_WRONG_HEADER; // invalid packet
         }
 

@@ -1,14 +1,46 @@
 #include "frmhistoryview.h"
 #include "ui_frmhistoryview.h"
+#include <QFileSystemModel>
+#include "bms_model.h"
+#include "bms_def.h"
 
 frmHistoryView::frmHistoryView(QWidget *parent) :
-    QDialog(parent),
+    QWidget(parent),
     ui(new Ui::frmHistoryView)
 {
     ui->setupUi(this);
+
+    model = new QFileSystemModel(this);
+    batModel = new BMS_BatteryModel(this);
+    stackModel = new BMS_StackModel(this);
+
+    model->setRootPath(QDir::currentPath());
+    ui->listView->setModel(model);
+    ui->listView->setRootIndex(model->index("./log/192.168.0.102"));
+
 }
 
 frmHistoryView::~frmHistoryView()
 {
     delete ui;
+}
+
+void frmHistoryView::on_listView_clicked(const QModelIndex &index)
+{
+    QString fname = "./log/192.168.0.102/"+model->fileName(index);
+
+    BMS_System *sys = new BMS_System();
+
+    QFile f(fname);
+    if(f.open(QIODevice::ReadOnly)){
+        QDataStream ds(&f);
+        int sz;
+        ds >> sz; // file size truncated, should be solved later...
+        ds >> sys;
+        stackModel->setStack(sys->stacks());
+        batModel->setStack(stackModel->findStack(0));
+        ui->tableView->setModel(batModel);
+        ui->tableView->viewport()->update();
+    }
+
 }

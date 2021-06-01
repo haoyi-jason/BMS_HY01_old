@@ -47,7 +47,7 @@ void frmStackConfig::on_lwFiles_doubleClicked(const QModelIndex &index)
     QFile f(fileName);
     f.open(QIODevice::ReadOnly);
 
-    BMS_SystemInfo *sys = new BMS_SystemInfo();
+    BMS_System *sys = new BMS_System();
 
     if(!sys->Configuration(f.readAll())){
         qDebug()<<"Parse Json fail";

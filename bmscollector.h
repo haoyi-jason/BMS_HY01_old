@@ -25,11 +25,13 @@ public:
     bool addConnection(QString ipAddress);
     bool deleteConnection(QTcpSocket *socket);
     bool readConfig(QString connection);
+    void readAllConfig();
     RemoteSystem *currentSystem();
     RemoteSystem *nextSystem();
     RemoteSystem *prevSystem();
-
-
+    bool loadConfig(QString path); // load from local system
+    bool connectServer(int id);
+    bool disconnectServer(int id);
 signals:
     void configReady();
     void dataReceived();

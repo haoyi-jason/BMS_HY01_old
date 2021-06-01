@@ -121,28 +121,29 @@ void BMS_StackInfo::setHVC(BMS_HVCInfo *hvc)
 }
 
 
-/****** BMS_SystemInfo **********/
-BMS_SystemInfo::BMS_SystemInfo(QObject *parent)
+/****** BMS_System **********/
+BMS_System::BMS_System(QObject *parent):
+    QObject(parent)
 {
 
 }
 
-void BMS_SystemInfo::SetStackInfo(QList<BMS_StackInfo*> info)
+void BMS_System::SetStackInfo(QList<BMS_StackInfo*> info)
 {
     m_stacks = info;
 }
 
-void BMS_SystemInfo::AddStack(BMS_StackInfo *stack)
+void BMS_System::AddStack(BMS_StackInfo *stack)
 {
     m_stacks.append(stack);
 }
 
-void BMS_SystemInfo::ClearStack()
+void BMS_System::ClearStack()
 {
     m_stacks.clear();
 }
 
-BMS_StackInfo* BMS_SystemInfo::findStack(QString stackName)
+BMS_StackInfo* BMS_System::findStack(QString stackName)
 {
     BMS_StackInfo *stack = nullptr;
     foreach(BMS_StackInfo *s, m_stacks){
@@ -153,7 +154,7 @@ BMS_StackInfo* BMS_SystemInfo::findStack(QString stackName)
     return stack;
 }
 
-bool BMS_SystemInfo::Configuration(QByteArray data)
+bool BMS_System::Configuration(QByteArray data)
 {
     bool ret = false;
     QJsonParseError e;
@@ -165,28 +166,7 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
 
     this->Alias = (obj["alias"].toString());
     this->connectionString = obj["host_ip"].toString();
-
-//    if(obj.contains("canbus")){
-//        QJsonArray o = obj["canbus"].toArray();
-//        for(auto v:o){
-//            QJsonObject q = v.toObject();
-//            CANBUSDevice *dev = new CANBUSDevice();
-//            dev->name = q["name"].toString();
-//            dev->bitrate = q["bitrate"].toInt();
-//            QJsonArray a = q["groups"].toArray();
-//            for(int i=0;i<a.size();i++){
-//                dev->groupList.append(a[i].toInt());
-//            }
-//            this->m_canbusDevice.append(dev);
-//        }
-//    }
-
-//    if(obj.contains("mbslave")){
-//        QJsonObject o = obj["mbslave"].toObject();
-//        this->m_modbusDev = new MODBUSDevice();
-//        this->m_modbusDev->bitrate = o["bitrate"].toInt();
-//        this->m_modbusDev->portName = o["port"].toString();
-//    }
+    this->connectionPort = obj["port"].toInt();
 
     if(obj.contains("balancing")){
         QJsonObject bal = obj["balancing"].toObject();
@@ -274,7 +254,7 @@ bool BMS_SystemInfo::Configuration(QByteArray data)
     return ret;
 }
 
-QByteArray BMS_SystemInfo::Configuration()
+QByteArray BMS_System::Configuration()
 {
     QByteArray ret;
 
@@ -282,7 +262,7 @@ QByteArray BMS_SystemInfo::Configuration()
 }
 
 
-void BMS_SystemInfo::generateSystemStructure()
+void BMS_System::generateSystemStructure()
 {
     m_stacks.clear();
     foreach(BMS_StackConfig *c, m_stackConfig)
@@ -305,7 +285,7 @@ void BMS_SystemInfo::generateSystemStructure()
 
 }
 
-void BMS_SystemInfo::generateDummySystem()
+void BMS_System::generateDummySystem()
 {
     qDebug()<<"generate dummy system";
     m_stacks.clear();
@@ -324,7 +304,7 @@ void BMS_SystemInfo::generateDummySystem()
     }
 }
 
-void BMS_SystemInfo::feedData(quint32 identifier, QByteArray data)
+void BMS_System::feedData(quint32 identifier, QByteArray data)
 {
     uint8_t id = (identifier >> 12) & 0xff;
     quint16 cmd = identifier & 0xFFF;
@@ -338,20 +318,20 @@ void BMS_SystemInfo::feedData(quint32 identifier, QByteArray data)
     }
 }
 
-void BMS_SystemInfo::startSimulator(int interval)
+void BMS_System::startSimulator(int interval)
 {
     m_simulateTimer = new QTimer();
-    connect(m_simulateTimer,&QTimer::timeout,this,&BMS_SystemInfo::simulate);
+    connect(m_simulateTimer,&QTimer::timeout,this,&BMS_System::simulate);
     m_simulateTimer->start(interval);
 }
 
-void BMS_SystemInfo::stopSimulator()
+void BMS_System::stopSimulator()
 {
     m_simulateTimer->stop();
     m_simulateTimer->deleteLater();
 }
 
-void BMS_SystemInfo::simulate()
+void BMS_System::simulate()
 {
     //feed data to stacks
     ushort sim_data[4];
@@ -366,7 +346,7 @@ void BMS_SystemInfo::simulate()
 
 }
 
-QByteArray BMS_SystemInfo::data()
+QByteArray BMS_System::data()
 {
     // loop through each stack to gather data
     QByteArray d;

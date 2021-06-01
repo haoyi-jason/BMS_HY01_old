@@ -7,7 +7,7 @@
 namespace Ui {
 class StackInfo;
 }
-class BMS_SystemInfo;
+class BMS_System;
 class BMSCollector;
 
 class StackInfo : public QWidget
@@ -18,6 +18,7 @@ public:
     explicit StackInfo(QWidget *parent = nullptr);
     ~StackInfo();
     void loadConfiguration(QString path);
+    void setCollector(BMSCollector *c);
 
 private slots:
     void on_tableView_2_activated(const QModelIndex &index);
@@ -53,8 +54,8 @@ private:
     BMS_BatteryModel *batteryModel;
     int m_currentStackIndex;
     int m_currentSystemIndex;
-    QList<BMS_SystemInfo*> m_bmsInfo;
-    BMS_SystemInfo *activeSystem;
+    QList<BMS_System*> m_bmsInfo;
+    BMS_System *activeSystem;
     BMSCollector *collector;
 };
 

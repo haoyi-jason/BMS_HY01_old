@@ -29,10 +29,13 @@ SOURCES += \
         bms_model.cpp \
         bmscollector.cpp \
         can_codec.cpp \
+        collectorview.cpp \
         frmeventview.cpp \
         frmhardwareconfig.cpp \
         frmhistoryview.cpp \
         frmstackconfig.cpp \
+        frmstackview.cpp \
+        frmtest.cpp \
         main.cpp \
         maininfo.cpp \
         mainwindow.cpp \
@@ -44,20 +47,26 @@ HEADERS += \
         bms_model.h \
         bmscollector.h \
         can_codec.h \
+        collectorview.h \
         frmeventview.h \
         frmhardwareconfig.h \
         frmhistoryview.h \
         frmstackconfig.h \
+        frmstackview.h \
+        frmtest.h \
         maininfo.h \
         mainwindow.h \
         secs.h \
         stackinfo.h
 
 FORMS += \
+        collectorview.ui \
         frmeventview.ui \
         frmhardwareconfig.ui \
         frmhistoryview.ui \
         frmstackconfig.ui \
+        frmstackview.ui \
+        frmtest.ui \
         maininfo.ui \
         mainwindow.ui \
         stackinfo.ui
