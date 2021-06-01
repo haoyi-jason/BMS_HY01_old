@@ -35,6 +35,8 @@ private slots:
 
     void on_pbADCConfig_clicked();
 
+    void on_pushButton_9_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

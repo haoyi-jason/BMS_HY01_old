@@ -32,8 +32,8 @@ void frmHardwareConfig::update_collector()
     ui->lb_DI0->setText((dig_in[0] & 0x01)==0x01?"SET":"CLEAR");
     ui->lb_DI1->setText((dig_in[0] & 0x02)==0x02?"SET":"CLEAR");
 
-    ui->le_surce_current_0->setText(QString::number(vs[0]));
-    ui->le_surce_current_1->setText(QString::number(vs[1]));
+    ui->leVSourceIn_0->setText(QString::number(vs[0]));
+    ui->leVSourceIn_1->setText(QString::number(vs[1]));
 }
 
 void frmHardwareConfig::on_system_config_ready()
@@ -88,6 +88,13 @@ void frmHardwareConfig::on_pbRelay_1_clicked()
 void frmHardwareConfig::on_pbADCConfig_clicked()
 {
     QString command;
-    command = QString("BCU:2:%1:%2").arg(ui->cbADCChannel->currentIndex()).arg(ui->leADCCfgValue->text());
+    command = QString("BCU:AIMAP:%1:%2:%3").arg(ui->cbADCChannel->currentIndex()).arg(ui->cbADCOption->currentIndex()).arg(ui->leADCCfgValue->text());
     m_collector->currentSystem()->writeCommand(command);
+}
+
+void frmHardwareConfig::on_pushButton_9_clicked()
+{
+    int value = ui->leVSourceSet_0->text().toInt();
+    m_collector->currentSystem()->setVoltageSource(0,value);
+
 }

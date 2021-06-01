@@ -102,3 +102,15 @@ void frmStackView::updateStackInfo()
     ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()));
     ui->le_current->setText(QString::number(stack->stackCurrent()));
 }
+
+void frmStackView::on_pbSetVsource_0_clicked()
+{
+    int value = ui->leVSourceSet_0->text().toInt();
+    collector->currentSystem()->setVoltageSource(0,value);
+}
+
+void frmStackView::on_pbSetVsource_1_clicked()
+{
+    int value = ui->leVSourceSet_1->text().toInt();
+    collector->currentSystem()->setVoltageSource(1,value);
+}

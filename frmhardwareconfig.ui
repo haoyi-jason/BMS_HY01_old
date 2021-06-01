@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -328,7 +328,7 @@
            <string>Channel 2</string>
           </property>
          </widget>
-         <widget class="QLineEdit" name="le_surce_current_0">
+         <widget class="QLineEdit" name="leVSourceIn_0">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -341,7 +341,7 @@
            <string>0</string>
           </property>
          </widget>
-         <widget class="QLineEdit" name="le_surce_current_1">
+         <widget class="QLineEdit" name="leVSourceIn_1">
           <property name="geometry">
            <rect>
             <x>80</x>
@@ -354,7 +354,7 @@
            <string>0</string>
           </property>
          </widget>
-         <widget class="QLineEdit" name="lineEdit_5">
+         <widget class="QLineEdit" name="leVSourceSet_0">
           <property name="geometry">
            <rect>
             <x>180</x>
@@ -367,7 +367,7 @@
            <string>500</string>
           </property>
          </widget>
-         <widget class="QLineEdit" name="lineEdit_6">
+         <widget class="QLineEdit" name="leVSourceSet_1">
           <property name="geometry">
            <rect>
             <x>180</x>

@@ -31,6 +31,10 @@ private slots:
 
     void on_pbNextStack_clicked();
 
+    void on_pbSetVsource_0_clicked();
+
+    void on_pbSetVsource_1_clicked();
+
 private:
     Ui::frmStackView *ui;
     BMS_StackModel *stackModel;

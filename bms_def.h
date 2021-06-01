@@ -245,6 +245,7 @@ public:
             ret->Command = 0x200;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
+            ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
             float v;
             quint8 bv = (quint8)id;
             ds << bv;
@@ -262,6 +263,7 @@ public:
             ret->Command = 0x200;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
+            ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
             float v;
             quint8 bv = (quint8)id;
             ds << bv;
