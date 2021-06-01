@@ -1,5 +1,5 @@
 {
   "bms":[
-	  {"alias":"Local System","ip":"192.168.0.102","port":5001,"log_path":"./log","autoconnect":false}
+	  {"alias":"Local System","ip":"192.168.0.126","port":5001,"log_path":"./log","autoconnect":false}
   ]
 }

@@ -71,7 +71,7 @@ void frmHardwareConfig::on_pbRelay_0_clicked()
         m_collector->currentSystem()->setDigitalOut(0,1);
     }
     else{
-        m_collector->currentSystem()->setDigitalOut(0,1);
+        m_collector->currentSystem()->setDigitalOut(0,0);
     }
 }
 
@@ -81,7 +81,7 @@ void frmHardwareConfig::on_pbRelay_1_clicked()
         m_collector->currentSystem()->setDigitalOut(1,1);
     }
     else{
-        m_collector->currentSystem()->setDigitalOut(1,1);
+        m_collector->currentSystem()->setDigitalOut(1,0);
     }
 }
 

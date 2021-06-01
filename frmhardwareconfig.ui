@@ -277,6 +277,9 @@
            <property name="text">
             <string>Relay 1</string>
            </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
           </widget>
          </widget>
          <widget class="QGroupBox" name="groupBox_4">

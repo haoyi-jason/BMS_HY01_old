@@ -394,6 +394,7 @@ public:
         out << bv;
 
         int index=0;
+        bv = 0;
         foreach(HW_IOChannel *c, dev->m_digitalInput){
             if(c->value() != 0){
                 bv |= (1 << index);
