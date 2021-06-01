@@ -25,6 +25,7 @@ BMS_BMUDevice::BMS_BMUDevice(int nofCells, int nofTemp, QObject *parent):
     for(int i=0;i<nofCells;i++){
         m_cellVoltage.append(0);
         m_balancing.append(0);
+        m_openWire.append(0);
     }
     for(int i=0;i<nofTemp;i++){
         m_packTemperature.append(0);

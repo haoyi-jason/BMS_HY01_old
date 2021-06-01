@@ -577,6 +577,7 @@ public:
         if(id == m_devid){
             m_lastSeen = QDateTime::currentMSecsSinceEpoch();
             QDataStream ds(&data,QIODevice::ReadOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
             switch (msg) {
             case 0x110:
                 for(int i=0;i<4;i++){
@@ -781,6 +782,7 @@ public:
     void feedData(quint8 id, quint16 msg, QByteArray data){
         if(id == SVI_ID){
             QDataStream ds(&data,QIODevice::ReadOnly);
+            ds.setByteOrder(QDataStream::LittleEndian);
             quint16 v;
             ds >> v;
             m_stackVoltage = v;
