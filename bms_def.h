@@ -206,7 +206,7 @@ public:
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x200;
+            ret->Command = 0x160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             quint16 v;
@@ -224,7 +224,7 @@ public:
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x200;
+            ret->Command = 0x160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             quint16 v;
@@ -242,7 +242,7 @@ public:
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x200;
+            ret->Command = 0x160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
@@ -260,7 +260,7 @@ public:
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x200;
+            ret->Command = 0x160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
