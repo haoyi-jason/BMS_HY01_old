@@ -136,6 +136,7 @@ public:
         QString msg = QString("DO:%1:%2").arg(id).arg(value);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
+//            socket->flush();
         }
     }
 
@@ -143,6 +144,7 @@ public:
         QString msg = QString("VO:%1:%2").arg(id).arg(value);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
+//            socket->flush();
         }
     }
 
@@ -150,6 +152,7 @@ public:
         QString msg = QString("PORT:OPEN:%1:%2:%3:%4").arg(name).arg(baudrate).arg(parity).arg(stopBits);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
+//            socket->flush();
         }
     }
 
@@ -157,6 +160,7 @@ public:
         QString msg = QString("PORT:CLOSE:%1").arg(name);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
+//            socket->flush();
         }
     }
 
@@ -164,12 +168,14 @@ public:
         QString msg = QString("PORT:WRITE:%1:%2").arg(name).arg(data);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
+//            socket->flush();
         }
 
     }
     void writeCommand(QString command){
         if(socket != nullptr){
             socket->write(command.toUtf8());
+//            socket->flush();
         }
     }
 

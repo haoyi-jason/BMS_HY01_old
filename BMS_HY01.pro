@@ -90,3 +90,6 @@ INCLUDEPATH += "icpdas_usbcan"
 
 #LIBS += VCI_CAN.lib
 
+RESOURCES += \
+    resource.qrc
+

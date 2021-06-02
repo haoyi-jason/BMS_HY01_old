@@ -23,6 +23,7 @@ frmHardwareConfig::~frmHardwareConfig()
 
 void frmHardwareConfig::setCollector(BMSCollector *c)
 {
+    qDebug()<<Q_FUNC_INFO;
     m_collector = c;
     connect(m_collector,&BMSCollector::configReady,this,&frmHardwareConfig::on_system_config_ready);
     connect(m_collector,&BMSCollector::dataReceived,this,&frmHardwareConfig::on_system_data_ready);

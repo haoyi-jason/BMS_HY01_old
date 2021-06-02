@@ -37,7 +37,7 @@ bool BMSCollector::loadConfig(QString path)
             sys->connection = o["ip"].toString();
             sys->alias = o["alias"].toString();
             sys->port = o["port"].toInt();
-            sys->logPath = o["log_path"].toString()+"/"+sys->connection;
+            sys->logPath = QCoreApplication::applicationDirPath()+ o["log_path"].toString()+"/"+sys->connection;
             sys->system = new BMS_System();
             sys->autoConnect = o["autoconnect"].toBool();
             m_servers.append(sys);
@@ -72,12 +72,18 @@ bool BMSCollector::connectServer(int id)
         RemoteSystem *s = m_servers[id];
         if(s->socket == nullptr){
             QTcpSocket *socket = new QTcpSocket();
+            qDebug()<<"Connect to "<<s->connection <<" Port: " <<s->port;
             socket->connectToHost(s->connection,s->port);
-            if(socket->isValid()){
+            bool connected = socket->waitForConnected(5000);
+            if(connected){
+                qDebug()<<"Socket connected";
                 connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                 if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                 s->socket = socket;
                 readAllConfig();
+            }
+            else{
+                qDebug()<<"Connect fail";
             }
         }
     }
@@ -86,7 +92,8 @@ bool BMSCollector::connectServer(int id)
 
 bool BMSCollector::disconnectServer(int id)
 {
-    if(id < m_servers.size()){
+    qDebug()<<"Disconnect:"<<id;
+    if(id < m_servers.size() && m_servers[id]->socket != nullptr){
         if(m_servers[id]->socket->isValid()){
             m_servers[id]->socket->close();
             m_servers[id]->socket->deleteLater();
@@ -130,7 +137,9 @@ bool BMSCollector::readConfig(QString connection)
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
         if(s->connection == connection){
+            qDebug()<<"Write Command"<<b;
             s->socket->write(b);
+//            s->socket->flush();
         }
     }
 }
@@ -140,6 +149,8 @@ void BMSCollector::readAllConfig()
     QByteArray b = "READ:CFG";
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
+        qDebug()<<"Write Command"<<b;
+//        s->socket->flush();
         s->socket->write(b);
     }
 }

@@ -1,5 +1,6 @@
 #include "collectorview.h"
 #include "ui_collectorview.h"
+#include <QtCore>
 
 #include "stackinfo.h"
 #include "frmhardwareconfig.h"
@@ -25,9 +26,9 @@ CollectorView::CollectorView(QWidget *parent) :
 
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
-
+    QString path = QCoreApplication::applicationDirPath()+"/config/system.json";
     m_collector = new BMSCollector();
-    if(m_collector->loadConfig("./config/system.json")){
+    if(m_collector->loadConfig(path)){
         m_collector->connectServer(-1);
         //m_collector->readAllConfig();
         m_StackWin->setCollector(m_collector);
@@ -84,12 +85,30 @@ void CollectorView::on_pbBatHistory_clicked()
 
 void CollectorView::on_pbSystemNavi_clicked()
 {
+    // process to standalone system
+    QProcess *proc = new QProcess();
+
     QPushButton *btn = (QPushButton*)sender();
     if(btn->isChecked()){
+        QString cmd = "/opt/BMS_Controller/bin/BMS_Controller";
+        proc->start(cmd);
+        //QProcess::startDetached(cmd);
+        //proc->setProgram(cmd);
+        //proc->startDetached();
+//        proc->start("sh",QStringList()<<" -c"<<cmd);
+//        proc->waitForFinished();
+        qDebug()<<"Proc Result 3:"<<proc->readAll();
+        QThread::sleep(1);
         m_collector->connectServer(0);
         btn->setText("斷線");
     }else{
         m_collector->disconnectServer(0);
         btn->setText("連線");
+
+        QString cmd = "pkill BMS_Controller";
+        proc->start(cmd);
+//        proc->start("sh",QStringList()<<" -c"<<cmd);
+        proc->waitForFinished();
+        qDebug()<<"Proc Result:"<<proc->readAll();
     }
 }

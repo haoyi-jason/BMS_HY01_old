@@ -21,9 +21,11 @@ public:
 
     void setCollector(BMSCollector *collector);
     void updateStackInfo();
-private slots:
+
+public slots:
     void on_system_config_ready();
     void on_system_data_ready();
+private slots:
 
     void on_pbSwitchInfo_clicked();
 

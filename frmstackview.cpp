@@ -27,6 +27,7 @@ frmStackView::~frmStackView()
 
 void frmStackView::setCollector(BMSCollector *collector)
 {
+    qDebug()<<Q_FUNC_INFO;
     this->collector = collector;
     QObject::connect(this->collector,&BMSCollector::configReady,this,&frmStackView::on_system_config_ready);
     QObject::connect(this->collector,&BMSCollector::dataReceived,this,&frmStackView::on_system_data_ready);
