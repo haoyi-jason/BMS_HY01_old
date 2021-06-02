@@ -2,6 +2,12 @@
 #include "ui_frmstackview.h"
 #include "bms_model.h"
 #include "bmscollector.h"
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_stack.h"
+#include "bms_system.h"
+
 
 frmStackView::frmStackView(QWidget *parent) :
     QWidget(parent),
@@ -11,6 +17,7 @@ frmStackView::frmStackView(QWidget *parent) :
     batteryModel = new BMS_BatteryModel();
     stackModel = new BMS_StackModel();
     ui->lbInfo->setText("");
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 frmStackView::~frmStackView()
@@ -101,6 +108,19 @@ void frmStackView::updateStackInfo()
     ui->le_minTemp->setText(QString::number(stack->minStackTemperature()));
     ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()));
     ui->le_current->setText(QString::number(stack->stackCurrent()));
+
+    QByteArray dig_in = collector->currentSystem()->system->digitalInput();
+    QByteArray dig_out = collector->currentSystem()->system->digitalOutput();
+    QList<int> vs = collector->currentSystem()->system->vsource();
+
+    // update UI
+    ui->pbDigitalIn_0->setChecked((dig_in[0] & 0x01)==0x01?true:false);
+    ui->pbDigitalIn_1->setChecked((dig_in[0] & 0x02)==0x02?true:false);
+
+    ui->leVSourceIn_0->setText(QString::number(vs[0]));
+    ui->leVSourceIn_1->setText(QString::number(vs[1]));
+
+
 }
 
 void frmStackView::on_pbSetVsource_0_clicked()

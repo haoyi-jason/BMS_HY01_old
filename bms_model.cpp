@@ -4,7 +4,10 @@
 #include<QJsonValue>
 #include<QJsonArray>
 #include "bms_model.h"
-
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_stack.h"
 
 /***** BMS_BatteryModel ****************/
 
@@ -83,7 +86,9 @@ QVariant BMS_BatteryModel::headerData(int section, Qt::Orientation orientation, 
         return QString(m_header.at(section));
     }
     else if(role == Qt::DisplayRole && orientation == Qt::Vertical){
-        return QString("ID= %1").arg(section+1);
+        int g = m_activeStack->groupID();
+        QString str=QString("%1_%2").arg(g).arg(section+1);
+        return str;
     }
     else if(role == Qt::SizeHintRole && orientation == Qt::Horizontal){
         return QSize(60 ,25);

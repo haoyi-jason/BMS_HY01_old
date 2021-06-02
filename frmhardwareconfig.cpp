@@ -2,6 +2,12 @@
 #include "ui_frmhardwareconfig.h"
 #include "bmscollector.h"
 #include "bms_def.h"
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_stack.h"
+#include "bms_system.h"
+
 
 frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     QWidget(parent),
@@ -108,4 +114,14 @@ void frmHardwareConfig::on_pushButton_10_clicked()
 void frmHardwareConfig::on_pbSaveParam_clicked()
 {
     m_collector->currentSystem()->writeCommand("BCU:SAVE");
+}
+
+void frmHardwareConfig::on_pbEnVS0_clicked()
+{
+
+}
+
+void frmHardwareConfig::on_pbEnVS1_clicked()
+{
+
 }

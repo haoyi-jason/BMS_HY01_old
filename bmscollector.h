@@ -5,7 +5,7 @@
 
 class QTcpSocket;
 class BMS_SystemInfo;
-
+class BMS_System;
 class RemoteSystem;
 //{
 //public:

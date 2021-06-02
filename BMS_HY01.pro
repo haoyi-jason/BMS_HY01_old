@@ -25,8 +25,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        bms_bcudevice.cpp \
+        bms_bmudevice.cpp \
         bms_def.cpp \
         bms_model.cpp \
+        bms_stack.cpp \
+        bms_svidevice.cpp \
+        bms_system.cpp \
         bmscollector.cpp \
         can_codec.cpp \
         collectorview.cpp \
@@ -43,8 +48,13 @@ SOURCES += \
         stackinfo.cpp
 
 HEADERS += \
+        bms_bcudevice.h \
+        bms_bmudevice.h \
         bms_def.h \
         bms_model.h \
+        bms_stack.h \
+        bms_svidevice.h \
+        bms_system.h \
         bmscollector.h \
         can_codec.h \
         collectorview.h \

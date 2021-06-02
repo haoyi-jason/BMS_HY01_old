@@ -2,6 +2,12 @@
 #include "ui_frmstackconfig.h"
 #include "bms_model.h"
 #include <QFileDialog>
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_stack.h"
+#include "bms_system.h"
+
 
 frmStackConfig::frmStackConfig(QWidget *parent) :
     QWidget(parent),

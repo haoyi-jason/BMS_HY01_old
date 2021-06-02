@@ -41,6 +41,10 @@ private slots:
 
     void on_pbSaveParam_clicked();
 
+    void on_pbEnVS0_clicked();
+
+    void on_pbEnVS1_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

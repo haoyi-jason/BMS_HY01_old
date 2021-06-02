@@ -2,6 +2,11 @@
 #include "ui_stackinfo.h"
 #include "bms_model.h"
 #include "bmscollector.h"
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_stack.h"
+#include "bms_system.h"
 
 StackInfo::StackInfo(QWidget *parent) :
     QWidget(parent),

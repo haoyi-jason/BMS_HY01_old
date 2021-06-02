@@ -2,6 +2,10 @@
 #include "bms_def.h"
 #include <QtNetwork>
 #include "secs.h"
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_system.h"
 
 BMSCollector::BMSCollector(QObject *parent) : QObject(parent)
 {
