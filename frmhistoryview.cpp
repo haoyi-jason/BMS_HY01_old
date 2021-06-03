@@ -29,6 +29,7 @@ void frmHistoryView::rootPath(QString path)
 {
     m_rootPath = path;
     ui->listView->setRootIndex(model->index(m_rootPath));
+    qDebug()<<Q_FUNC_INFO<<" Set rootpath to :"<<path;
 }
 
 frmHistoryView::~frmHistoryView()
@@ -38,8 +39,9 @@ frmHistoryView::~frmHistoryView()
 
 void frmHistoryView::on_listView_clicked(const QModelIndex &index)
 {
-    QString fname = "./log/192.168.0.102/"+model->fileName(index);
+//    QString fname = "./log/192.168.0.102/"+model->fileName(index);
 
+    QString fname = m_rootPath + "/" +model->fileName(index);
     BMS_System *sys = new BMS_System();
 
     QFile f(fname);
