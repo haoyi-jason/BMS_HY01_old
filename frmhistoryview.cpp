@@ -8,6 +8,7 @@
 #include "bms_svidevice.h"
 #include "bms_stack.h"
 #include "bms_system.h"
+#include <QSysInfo>
 
 frmHistoryView::frmHistoryView(QWidget *parent) :
     QWidget(parent),
@@ -21,8 +22,13 @@ frmHistoryView::frmHistoryView(QWidget *parent) :
 
     model->setRootPath(QDir::currentPath());
     ui->listView->setModel(model);
-    ui->listView->setRootIndex(model->index("./log/192.168.0.102"));
 
+}
+
+void frmHistoryView::rootPath(QString path)
+{
+    m_rootPath = path;
+    ui->listView->setRootIndex(model->index(m_rootPath));
 }
 
 frmHistoryView::~frmHistoryView()

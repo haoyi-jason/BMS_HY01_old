@@ -337,3 +337,15 @@ void BMS_System::emg_log(QByteArray data){
 void BMS_System::logPath(QString path){m_logPath = path;}
 
 BMS_BCUDevice* BMS_System::bcu(){return m_bcuDevice;}
+
+QList<int> BMS_System::batteriesPerStack()
+{
+    QList<int> ret;
+    foreach(BMS_StackInfo *s,m_stacks){
+        ret << s->BatteryCount();
+    }
+    if(ret.size() == 0){
+        ret << 0;
+    }
+    return ret;
+}

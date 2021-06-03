@@ -18,7 +18,7 @@ class frmHistoryView : public QWidget
 public:
     explicit frmHistoryView(QWidget *parent = nullptr);
     ~frmHistoryView();
-
+    void rootPath(QString p);
 private slots:
     void on_listView_clicked(const QModelIndex &index);
 
@@ -27,6 +27,7 @@ private:
     QFileSystemModel *model=nullptr;
     BMS_BatteryModel *batModel = nullptr;
     BMS_StackModel *stackModel = nullptr;
+    QString m_rootPath="";
 };
 
 #endif // FRMHISTORYVIEW_H

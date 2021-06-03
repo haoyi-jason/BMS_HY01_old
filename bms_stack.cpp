@@ -204,3 +204,7 @@ QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack){
     stack->m_soc = 100;
 }
 
+QList<BMS_BMUDevice*> BMS_StackInfo::batteries()
+{
+    return m_batteries;
+}

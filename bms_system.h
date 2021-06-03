@@ -56,6 +56,7 @@ public:
     void emg_log(QByteArray data);
     void logPath(QString path);
     BMS_BCUDevice* bcu();
+    QList<int> batteriesPerStack();
 
 signals:
     void sendPacket(QByteArray data);

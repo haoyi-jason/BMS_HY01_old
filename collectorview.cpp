@@ -1,6 +1,7 @@
 #include "collectorview.h"
 #include "ui_collectorview.h"
 #include <QtCore>
+#include <QSysInfo>
 
 #include "stackinfo.h"
 #include "frmhardwareconfig.h"
@@ -18,6 +19,7 @@ CollectorView::CollectorView(QWidget *parent) :
     ui(new Ui::CollectorView)
 {
     ui->setupUi(this);
+    qDebug()<<"System Type:"<<QSysInfo::productType();
     m_StackWin = new frmStackView(this);
     m_HardwareWin = new frmHardwareConfig(this);
     m_HardwareWin->hide();
@@ -26,7 +28,13 @@ CollectorView::CollectorView(QWidget *parent) :
 
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
-    QString path = QCoreApplication::applicationDirPath()+"/config/system.json";
+    QString path;
+    if(QSysInfo::productType().contains("win")){
+        path = "./config/system.json";
+    }
+    else{
+       path = QCoreApplication::applicationDirPath()+"/config/system.json";
+    }
     m_collector = new BMSCollector();
     if(m_collector->loadConfig(path)){
         m_collector->connectServer(-1);
@@ -101,6 +109,8 @@ void CollectorView::on_pbSystemNavi_clicked()
         QThread::sleep(1);
         m_collector->connectServer(0);
         btn->setText("斷線");
+
+        m_HistWin->rootPath(m_collector->currentSystem()->logPath);
     }else{
         m_collector->disconnectServer(0);
         btn->setText("連線");

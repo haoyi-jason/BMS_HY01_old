@@ -61,7 +61,7 @@ public:
     QByteArray data();
     friend QDataStream& operator << (QDataStream &out, const BMS_StackInfo *stack);
     friend QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack);
-
+    QList<BMS_BMUDevice *> batteries();
     static QStringList headerInfo()
     {
         QHash<QString, int> m_params;
