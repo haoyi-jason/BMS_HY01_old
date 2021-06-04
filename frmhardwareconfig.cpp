@@ -7,6 +7,7 @@
 #include "bms_svidevice.h"
 #include "bms_stack.h"
 #include "bms_system.h"
+#include "inputwin.h"
 
 
 frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
@@ -14,6 +15,9 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     ui(new Ui::frmHardwareConfig)
 {
     ui->setupUi(this);
+    connect(ui->leVSourceSet_0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leVSourceSet_1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leADCCfgValue,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -125,4 +129,15 @@ void frmHardwareConfig::on_pbEnVS0_clicked()
 void frmHardwareConfig::on_pbEnVS1_clicked()
 {
 
+}
+
+void frmHardwareConfig::on_lineedit_focused(bool state)
+{
+    qDebug()<<Q_FUNC_INFO;
+    FocusEditor *editor = (FocusEditor*)sender();
+    InputWin *w = new InputWin;
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->setDisplayContent(editor->text());
+    connect(w,&InputWin::result,editor,&FocusEditor::setText);
+    w->exec();
 }

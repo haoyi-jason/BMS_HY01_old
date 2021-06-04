@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -289,7 +289,7 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QLineEdit" name="leVSourceSet_1">
+           <widget class="FocusEditor" name="leVSourceSet_1">
             <property name="text">
              <string>500</string>
             </property>
@@ -310,7 +310,7 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLineEdit" name="leVSourceSet_0">
+           <widget class="FocusEditor" name="leVSourceSet_0">
             <property name="text">
              <string>500</string>
             </property>
@@ -356,8 +356,8 @@
         <rect>
          <x>20</x>
          <y>20</y>
-         <width>394</width>
-         <height>55</height>
+         <width>531</width>
+         <height>81</height>
         </rect>
        </property>
        <property name="title">
@@ -433,7 +433,7 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLineEdit" name="leADCCfgValue"/>
+         <widget class="FocusEditor" name="leADCCfgValue"/>
         </item>
         <item row="0" column="3">
          <widget class="QPushButton" name="pbADCConfig">
@@ -447,7 +447,7 @@
       <widget class="QPushButton" name="pbSaveParam">
        <property name="geometry">
         <rect>
-         <x>440</x>
+         <x>590</x>
          <y>40</y>
          <width>75</width>
          <height>23</height>
@@ -467,6 +467,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FocusEditor</class>
+   <extends>QLineEdit</extends>
+   <header location="global">InputWin.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

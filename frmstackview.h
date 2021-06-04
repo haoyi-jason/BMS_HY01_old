@@ -37,6 +37,8 @@ private slots:
 
     void on_pbSetVsource_1_clicked();
 
+    void on_lineedit_focused(bool state);
+
 private:
     Ui::frmStackView *ui;
     BMS_StackModel *stackModel;

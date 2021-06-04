@@ -7,6 +7,7 @@
 #include "bms_svidevice.h"
 #include "bms_stack.h"
 #include "bms_system.h"
+#include "inputwin.h"
 
 
 frmStackView::frmStackView(QWidget *parent) :
@@ -23,6 +24,17 @@ frmStackView::frmStackView(QWidget *parent) :
 frmStackView::~frmStackView()
 {
     delete ui;
+}
+
+void frmStackView::on_lineedit_focused(bool state)
+{
+    qDebug()<<Q_FUNC_INFO;
+    FocusEditor *editor = (FocusEditor*)sender();
+    InputWin *w = new InputWin;
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->setDisplayContent(editor->text());
+    connect(w,&InputWin::result,editor,&FocusEditor::setText);
+    w->exec();
 }
 
 void frmStackView::setCollector(BMSCollector *collector)
@@ -126,12 +138,12 @@ void frmStackView::updateStackInfo()
 
 void frmStackView::on_pbSetVsource_0_clicked()
 {
-    int value = ui->leVSourceSet_0->text().toInt();
-    collector->currentSystem()->setVoltageSource(0,value);
+//    int value = ui->leVSourceSet_0->text().toInt();
+//    collector->currentSystem()->setVoltageSource(0,value);
 }
 
 void frmStackView::on_pbSetVsource_1_clicked()
 {
-    int value = ui->leVSourceSet_1->text().toInt();
-    collector->currentSystem()->setVoltageSource(1,value);
+//    int value = ui->leVSourceSet_1->text().toInt();
+//    collector->currentSystem()->setVoltageSource(1,value);
 }

@@ -46,6 +46,7 @@ private slots:
 
     void on_pbEnVS1_clicked();
 
+    void on_lineedit_focused(bool state);
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

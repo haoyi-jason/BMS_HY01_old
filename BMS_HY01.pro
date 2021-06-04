@@ -41,6 +41,7 @@ SOURCES += \
         frmstackconfig.cpp \
         frmstackview.cpp \
         frmtest.cpp \
+        inputwin.cpp \
         main.cpp \
         maininfo.cpp \
         mainwindow.cpp \
@@ -64,6 +65,7 @@ HEADERS += \
         frmstackconfig.h \
         frmstackview.h \
         frmtest.h \
+        inputwin.h \
         maininfo.h \
         mainwindow.h \
         secs.h \

@@ -13,12 +13,15 @@
 #include "frmtest.h"
 #include "frmstackview.h"
 #include "frmhistoryview.h"
+#include "inputwin.h"
 
 CollectorView::CollectorView(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CollectorView)
 {
     ui->setupUi(this);
+
+
     qDebug()<<"System Type:"<<QSysInfo::productType();
     m_StackWin = new frmStackView(this);
     m_HardwareWin = new frmHardwareConfig(this);
