@@ -2,6 +2,7 @@
 #define FRMHARDWARECONFIG_H
 
 #include <QWidget>
+#include "inputwin.h"
 
 namespace Ui {
 class frmHardwareConfig;
@@ -47,6 +48,8 @@ private slots:
     void on_pbEnVS1_clicked();
 
     void on_lineedit_focused(bool state);
+    void on_pushButton_9_clicked(bool checked);
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

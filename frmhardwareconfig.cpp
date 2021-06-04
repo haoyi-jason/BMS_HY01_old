@@ -73,11 +73,13 @@ void frmHardwareConfig::on_pbListenSerialPort_clicked()
 
 void frmHardwareConfig::on_pbWriteSerialPort_clicked()
 {
+    if(m_collector == nullptr) return;
     m_collector->currentSystem()->writeSerialPort(ui->cbSerialPort->currentText(),ui->leSeriaalWrite->text());
 }
 
 void frmHardwareConfig::on_pbRelay_0_clicked()
 {
+    if(m_collector == nullptr) return;
     if(ui->pbRelay_0->isChecked()){
         m_collector->currentSystem()->setDigitalOut(0,1);
     }
@@ -88,6 +90,8 @@ void frmHardwareConfig::on_pbRelay_0_clicked()
 
 void frmHardwareConfig::on_pbRelay_1_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
     if(ui->pbRelay_1->isChecked()){
         m_collector->currentSystem()->setDigitalOut(1,1);
     }
@@ -98,6 +102,8 @@ void frmHardwareConfig::on_pbRelay_1_clicked()
 
 void frmHardwareConfig::on_pbADCConfig_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
     QString command;
     command = QString("BCU:AIMAP:%1:%2:%3").arg(ui->cbADCChannel->currentIndex()).arg(ui->cbADCOption->currentIndex()).arg(ui->leADCCfgValue->text());
     m_collector->currentSystem()->writeCommand(command);
@@ -105,6 +111,8 @@ void frmHardwareConfig::on_pbADCConfig_clicked()
 
 void frmHardwareConfig::on_pushButton_9_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
     int value = ui->leVSourceSet_0->text().toInt();
     m_collector->currentSystem()->setVoltageSource(0,value);
 
@@ -112,12 +120,16 @@ void frmHardwareConfig::on_pushButton_9_clicked()
 
 void frmHardwareConfig::on_pushButton_10_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
     int value = ui->leVSourceSet_1->text().toInt();
     m_collector->currentSystem()->setVoltageSource(1,value);
 }
 
 void frmHardwareConfig::on_pbSaveParam_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
     m_collector->currentSystem()->writeCommand("BCU:SAVE");
 }
 
@@ -140,4 +152,9 @@ void frmHardwareConfig::on_lineedit_focused(bool state)
     w->setDisplayContent(editor->text());
     connect(w,&InputWin::result,editor,&FocusEditor::setText);
     w->exec();
+}
+
+void frmHardwareConfig::on_pushButton_9_clicked(bool checked)
+{
+
 }
