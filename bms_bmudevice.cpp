@@ -200,12 +200,26 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
 }
 
 void BMS_BMUDevice::dummyData(ushort vbase, ushort vgap, ushort tbase, ushort tgap){
+    ushort max_val = 0, min_val = 0xffff;
+    ushort total = 0;
     for(int i=0;i<m_cellVoltage.size();i++){
         m_cellVoltage[i] = (ushort)(vbase + QRandomGenerator::global()->bounded(vgap));
+        max_val = (max_val > m_cellVoltage[i])?max_val:m_cellVoltage[i];
+        min_val = (min_val < m_cellVoltage[i])?min_val:m_cellVoltage[i];
+        total += m_cellVoltage[i];
     }
+    m_maxVoltage = max_val;
+    m_minVoltage = min_val;
+    m_totalVoltage = total;
+
+    max_val = 0;min_val = 0xffff;
     for(int i=0;i<m_packTemperature.size();i++){
         m_packTemperature[i] = (ushort)(tbase + QRandomGenerator::global()->bounded(tgap));
+        max_val = (max_val > m_packTemperature[i])?max_val:m_packTemperature[i];
+        min_val = (min_val < m_packTemperature[i])?min_val:m_packTemperature[i];
     }
+    m_maxTemperature = max_val;
+    m_minTemperature = min_val;
 }
 QByteArray BMS_BMUDevice::data(){
     QByteArray d;
@@ -221,7 +235,8 @@ QByteArray BMS_BMUDevice::data(){
     }
     return d;
 }
-QDataStream& operator << (QDataStream &out, const BMS_BMUDevice *bat){
+QDataStream &operator<<(QDataStream &out, const BMS_BMUDevice *bat)
+{
     out << bat->m_lastSeen;
     out << bat->m_devid;
     out << bat->m_nofCell;
@@ -246,7 +261,8 @@ QDataStream& operator << (QDataStream &out, const BMS_BMUDevice *bat){
     }
     return out;
 }
-QDataStream& operator >> (QDataStream &in, BMS_BMUDevice *bat){
+QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
+{
     in >> bat->m_lastSeen;
     in >> bat->m_devid;
     in >> bat->m_nofCell;
@@ -259,7 +275,7 @@ QDataStream& operator >> (QDataStream &in, BMS_BMUDevice *bat){
 
     ushort max_v = 0,max_t = 0;
     ushort min_v = 0xffff,min_t = 100;
-    bat->m_totalVoltage = 0;
+    //bat->m_totalVoltage = 0;
     ushort tmpHighMask=0,tmpLowMask = 0;
     if(bat->m_cellVoltage.size() == 0){
         bat->m_balancing.clear();

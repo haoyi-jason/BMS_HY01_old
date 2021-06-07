@@ -67,7 +67,7 @@ void InputWin::padClicked()
     switch(key_map.value(key)){
     case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:case 8:case 9:
         if(inBox1->selectedText().size()){
-            str = "";
+            str = btn->text();
         }
         else{
             str += btn->text();

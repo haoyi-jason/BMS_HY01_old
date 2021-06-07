@@ -40,6 +40,7 @@ private:
     frmHistoryView *m_HistWin = nullptr;
     QWidget *mainWidget = nullptr;
     BMSCollector *m_collector = nullptr;
+    int m_userID = 1;
 };
 
 #endif // COLLECTORVIEW_H

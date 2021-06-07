@@ -47,8 +47,8 @@ public:
     void maxStackTemperature(ushort x);
     ushort minStackTemperature();
     void minStackTemperature(ushort x);
-    ushort stackVoltage();
-    void stackVoltage(ushort x);
+    quint32 stackVoltage();
+    void stackVoltage(quint32 x);
     short stackCurrent();
     void stackCurrent(short x);
     QString alias();
@@ -59,8 +59,8 @@ public:
     void feedData(quint32 identifier, QByteArray data);
     void dummyData();
     QByteArray data();
-    friend QDataStream& operator << (QDataStream &out, const BMS_StackInfo *stack);
-    friend QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack);
+    friend QDataStream &operator<<(QDataStream &out, const BMS_StackInfo *stack);
+    friend QDataStream &operator >> (QDataStream &in, BMS_StackInfo *stack);
     QList<BMS_BMUDevice *> batteries();
     static QStringList headerInfo()
     {
@@ -83,6 +83,9 @@ public:
        }
        return  lst;
     }
+
+    QString state();
+    void state(QString v);
 signals:
 
 public slots:
@@ -96,7 +99,7 @@ private:
     int m_MinCellIndex;
     ushort m_MaxTemperature;
     ushort m_MinTemperature;
-    ushort m_StackVoltage;
+    quint32 m_StackVoltage;
     short m_StackCurrent;
     QString m_State;
     ushort m_soc;

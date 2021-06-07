@@ -6,6 +6,7 @@
 #include "bms_bcudevice.h"
 #include "bms_svidevice.h"
 #include "bms_system.h"
+#include <QSysInfo>
 
 BMSCollector::BMSCollector(QObject *parent) : QObject(parent)
 {
@@ -37,7 +38,12 @@ bool BMSCollector::loadConfig(QString path)
             sys->connection = o["ip"].toString();
             sys->alias = o["alias"].toString();
             sys->port = o["port"].toInt();
-            sys->logPath = QCoreApplication::applicationDirPath()+ o["log_path"].toString()+"/"+sys->connection;
+            if(QSysInfo::productType().contains("win")){
+                sys->logPath = o["log_path"].toString()+"/"+sys->connection;
+            }
+            else{
+                sys->logPath = QCoreApplication::applicationDirPath()+ o["log_path"].toString()+"/"+sys->connection;
+            }
             sys->system = new BMS_System();
             sys->autoConnect = o["autoconnect"].toBool();
             m_servers.append(sys);
@@ -98,6 +104,7 @@ bool BMSCollector::disconnectServer(int id)
             m_servers[id]->socket->close();
             m_servers[id]->socket->deleteLater();
             m_servers[id]->socket = nullptr;
+            m_servers[id]->configReady = false;
             return true;
         }
     }
@@ -179,7 +186,10 @@ void BMSCollector::handleServerData()
                         d >> sys->system;
                         emit dataReceived();
                         sys->data.remove(0,len);
-                        sys->logData();
+                        QByteArray b;
+                        QDataStream d2(&b,QIODevice::ReadWrite);
+                        d2 << sys->system;
+                        sys->logData(b);
                     //}
                 }
                 else if(ret == hsmsParser::BMS_WRONG_HEADER){

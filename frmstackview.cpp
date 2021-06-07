@@ -122,6 +122,9 @@ void frmStackView::updateStackInfo()
     ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()));
     ui->le_current->setText(QString::number(stack->stackCurrent()));
 
+    ui->leSOC->setText(QString::number(stack->soc()));
+    ui->leState->setText(stack->state());
+
     QByteArray dig_in = collector->currentSystem()->system->digitalInput();
     QByteArray dig_out = collector->currentSystem()->system->digitalOutput();
     QList<int> vs = collector->currentSystem()->system->vsource();

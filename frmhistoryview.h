@@ -22,12 +22,21 @@ public:
 private slots:
     void on_listView_clicked(const QModelIndex &index);
 
+    void on_pbPreviousStack_clicked();
+
+    void on_pbNextStack_clicked();
+
+    void updateStackInfo();
+
+    void on_listView_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::frmHistoryView *ui;
     QFileSystemModel *model=nullptr;
-    BMS_BatteryModel *batModel = nullptr;
+    BMS_BatteryModel *batteryModel = nullptr;
     BMS_StackModel *stackModel = nullptr;
     QString m_rootPath="";
+    int m_currentStackIndex = 0;
 };
 
 #endif // FRMHISTORYVIEW_H

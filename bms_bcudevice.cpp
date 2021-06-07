@@ -305,7 +305,8 @@ void BMS_BCUDevice::add_pwm_in(int n)
 //        return ret;
 //    }
 
-    QDataStream& operator << (QDataStream &out, const BMS_BCUDevice *dev){
+    QDataStream &operator<<(QDataStream &out, const BMS_BCUDevice *dev)
+    {
         quint8 bv = 0;
 
         bv = (quint8)dev->m_digitalInput.size();
@@ -362,7 +363,8 @@ void BMS_BCUDevice::add_pwm_in(int n)
         return out;
     }
 
-    QDataStream& operator >> (QDataStream &in, BMS_BCUDevice *dev){
+    QDataStream &operator >> (QDataStream &in, BMS_BCUDevice *dev)
+    {
         quint8 bv;
         int v;
 

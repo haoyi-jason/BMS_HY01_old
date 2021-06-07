@@ -42,6 +42,7 @@ SOURCES += \
         frmstackview.cpp \
         frmtest.cpp \
         inputwin.cpp \
+        loginvalid.cpp \
         main.cpp \
         maininfo.cpp \
         mainwindow.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
         frmstackview.h \
         frmtest.h \
         inputwin.h \
+        loginvalid.h \
         maininfo.h \
         mainwindow.h \
         secs.h \
@@ -79,6 +81,7 @@ FORMS += \
         frmstackconfig.ui \
         frmstackview.ui \
         frmtest.ui \
+        loginvalid.ui \
         maininfo.ui \
         mainwindow.ui \
         stackinfo.ui

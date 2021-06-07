@@ -44,8 +44,16 @@ public:
     int BalancingOnTime;
     int BalancingOffTime;
 
-    friend QDataStream& operator << (QDataStream &out, const BMS_System *sys);
-    friend QDataStream& operator >> (QDataStream &in, BMS_System *sys);
+    friend QDataStream &operator<<(QDataStream &out, const BMS_System *sys);
+//    {
+//        out << sys->Stacks;
+//        out << sys->m_bcuDevice;
+//        foreach (BMS_StackInfo *s, sys->m_stacks) {
+//            out << s;
+//        }
+//        return out;
+//    }
+    friend QDataStream &operator>>(QDataStream &in, BMS_System *sys);
     CAN_Packet* setDigitalOut(int ch, int value);
     CAN_Packet* setVoltageSource(int ch, int value, bool enable);
     void flushBCU();

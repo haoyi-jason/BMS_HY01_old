@@ -220,7 +220,7 @@ void BMS_System::simulate()
     QByteArray data;
     QDataStream ds(&data, QIODevice::ReadWrite);
 
-
+    quint32 total_voltage = 0;
     foreach(BMS_StackInfo *s,m_stacks){
         s->dummyData();
     }
@@ -241,11 +241,9 @@ QByteArray BMS_System::data()
 }
 
 
-QDataStream& operator << (QDataStream &out, const BMS_System *sys){
+QDataStream& operator<<(QDataStream &out, const BMS_System *sys)
+{
     out << sys->Stacks;
-//        foreach(BMS_StackConfig *s,sys->m_stackConfig){
-//            out << s;
-//        }
     out << sys->m_bcuDevice;
     foreach (BMS_StackInfo *s, sys->m_stacks) {
         out << s;

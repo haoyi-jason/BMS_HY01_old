@@ -179,13 +179,14 @@ public:
         }
     }
 
-    void logData(){
-        QByteArray b;
-        QDataStream ds(&b,QIODevice::WriteOnly);
-        ds << this->system;
+    void logData(QByteArray b){
+//        QByteArray b;
+//        QDataStream ds(&b,QIODevice::ReadWrite);
+//        ds << this->system;
         QString path = this->logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss.bin");
         QFile f(path);
-        if(f.open(QIODevice::WriteOnly)){
+        if(f.open(QIODevice::ReadWrite)){
+            //f.write(d);
             QDataStream df(&f);
             df << b;
             f.close();

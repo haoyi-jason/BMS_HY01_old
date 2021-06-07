@@ -19,8 +19,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_hardwareConfig = new frmHardwareConfig();
     m_hardwareConfig->hide();
 
+    QString path;
+
+    if(QSysInfo::productType().contains("win")){
+        path = "./config/system.json";
+    }
+    else{
+       path = QCoreApplication::applicationDirPath()+"/config/system.json";
+    }
+
     collector = new BMSCollector();
-    if(collector->loadConfig("./config/system.json")){
+    if(collector->loadConfig(path)){
         collector->connectServer(0);
         collector->readAllConfig();
     }

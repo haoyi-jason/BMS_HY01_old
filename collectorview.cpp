@@ -2,6 +2,7 @@
 #include "ui_collectorview.h"
 #include <QtCore>
 #include <QSysInfo>
+#include <QMessageBox>
 
 #include "stackinfo.h"
 #include "frmhardwareconfig.h"
@@ -15,12 +16,14 @@
 #include "frmhistoryview.h"
 #include "inputwin.h"
 
+#include "loginvalid.h"
+
 CollectorView::CollectorView(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CollectorView)
 {
     ui->setupUi(this);
-
+    hide();
 
     qDebug()<<"System Type:"<<QSysInfo::productType();
     m_StackWin = new frmStackView(this);
@@ -38,6 +41,29 @@ CollectorView::CollectorView(QWidget *parent) :
     else{
        path = QCoreApplication::applicationDirPath()+"/config/system.json";
     }
+
+//    LoginValid *v = new LoginValid;
+//    if(v->setFileName(path)){
+//        if(v->exec() == QDialog::Rejected){
+//            QMessageBox::warning(this,"錯誤!","密碼驗證失敗!");
+//            exit(-1);
+//        }
+//        else{
+//            m_userID = v->userID();
+//            qDebug()<<"User ID:"<< v->userID();
+//        }
+//    }
+//    else{
+//        QMessageBox::warning(this,"錯誤!","設定檔載入失敗!");
+//        exit(-1);
+//    }
+
+//    delete v;
+
+    if(m_userID == 0){
+        ui->pbHardwareView->setVisible(false);
+    }
+
     m_collector = new BMSCollector();
     if(m_collector->loadConfig(path)){
         m_collector->connectServer(-1);
@@ -101,19 +127,25 @@ void CollectorView::on_pbSystemNavi_clicked()
 
     QPushButton *btn = (QPushButton*)sender();
     if(btn->isChecked()){
-        QString cmd = "/opt/BMS_Controller/bin/BMS_Controller";
-        proc->start(cmd);
-        //QProcess::startDetached(cmd);
-        //proc->setProgram(cmd);
-        //proc->startDetached();
-//        proc->start("sh",QStringList()<<" -c"<<cmd);
-//        proc->waitForFinished();
-        qDebug()<<"Proc Result 3:"<<proc->readAll();
-        QThread::sleep(1);
-        m_collector->connectServer(0);
-        btn->setText("斷線");
+        QString cmd;
+        if(QSysInfo::productType().contains("win")){
+            //cmd = "d:\wsqt\bms_controller\./config/system.json";
+//            btn->setChecked(false);
+        }
+        else{
+            cmd = "/opt/BMS_Controller/bin/BMS_Controller";
+            proc->start(cmd);
+            qDebug()<<"Proc Result 3:"<<proc->readAll();
+            QThread::sleep(1);
+        }
+        if(m_collector->connectServer(0)){
+            btn->setText("斷線");
+            m_HistWin->rootPath(m_collector->currentSystem()->logPath);
+        }
+        else{
+            btn->setChecked(false);
+        }
 
-        m_HistWin->rootPath(m_collector->currentSystem()->logPath);
     }else{
         m_collector->disconnectServer(0);
         btn->setText("連線");

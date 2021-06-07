@@ -1,5 +1,23 @@
 {
-  "bms":[
-	  {"alias":"Local System","ip":"127.0.0.1","port":5001,"log_path":"./log","autoconnect":false}
-  ]
+    "account": [
+        {
+            "level": 255,
+            "name": "user",
+            "passwd": ")&�s\u001fK1,\b�,��\u0006\u001e�K�\\\u001a��]p�d�y�\"\u00071"
+        },
+        {
+            "level": 255,
+            "name": "admin",
+            "passwd": ""
+        }
+    ],
+    "bms": [
+        {
+            "alias": "Local System",
+            "autoconnect": false,
+            "ip": "127.0.0.1",
+            "log_path": "./log",
+            "port": 5001
+        }
+    ]
 }

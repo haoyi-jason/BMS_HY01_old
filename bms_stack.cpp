@@ -85,8 +85,8 @@ ushort BMS_StackInfo::maxStackTemperature(){return m_MaxTemperature;}
 void BMS_StackInfo::maxStackTemperature(ushort x){m_MaxTemperature = x;}
 ushort BMS_StackInfo::minStackTemperature(){return m_MinTemperature;}
 void BMS_StackInfo::minStackTemperature(ushort x){m_MinTemperature = x;}
-ushort BMS_StackInfo::stackVoltage(){return m_StackVoltage;}
-void BMS_StackInfo::stackVoltage(ushort x){m_StackVoltage = x;}
+quint32 BMS_StackInfo::stackVoltage(){return m_StackVoltage;}
+void BMS_StackInfo::stackVoltage(quint32 x){m_StackVoltage = x;}
 short BMS_StackInfo::stackCurrent(){return m_StackCurrent;}
 void BMS_StackInfo::stackCurrent(short x){m_StackCurrent = x;}
 QString BMS_StackInfo::alias(){return m_alias;}
@@ -111,9 +111,19 @@ void BMS_StackInfo::feedData(quint32 identifier, QByteArray data){
 }
 
 void BMS_StackInfo::dummyData(){
+    quint32 stack_v = 0;
     foreach (BMS_BMUDevice *b, m_batteries) {
         b->dummyData();
+        stack_v += b->totalVoltage();
     }
+    this->m_StackVoltage = stack_v;
+    this->m_StackCurrent = 4000;
+    this->m_State = "IDLE";
+    this->m_soc = 100;
+    this->m_soh = 100;
+
+
+
 }
 QByteArray BMS_StackInfo::data()
 {
@@ -135,7 +145,10 @@ QByteArray BMS_StackInfo::data()
     }
     return d;
 }
-QDataStream& operator << (QDataStream &out, const BMS_StackInfo *stack){
+
+
+QDataStream &operator<<(QDataStream &out, const BMS_StackInfo *stack)
+{
     out << stack->m_groupID;
     quint8 nofBat = stack->m_batteries.size();
     out << nofBat;
@@ -145,10 +158,15 @@ QDataStream& operator << (QDataStream &out, const BMS_StackInfo *stack){
     foreach (BMS_BMUDevice *b, stack->m_batteries) {
         out << b;
     }
+    out << stack->m_StackVoltage;
+    out << stack->m_StackCurrent;
+    out << stack->m_soc;
+    out << stack->m_soh;
     return out;
 }
 
-QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack){
+QDataStream &operator >> (QDataStream &in, BMS_StackInfo *stack)
+{
     quint8 nofBat;
     in >> stack->m_groupID;
     in >> nofBat;
@@ -164,11 +182,13 @@ QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack){
         }
     }
 
+
+
     ushort max_v = 0, max_t = 0;
     ushort min_v = 0xffff, min_t = 0xffff;
     int max_v_index=0, max_t_index = 0;
     int min_v_index=0, min_t_index=0;
-    ushort totalVoltage = 0;
+    quint32 totalVoltage = 0;
     for(int i=0;i<stack->m_batteries.size();i++){
 //        foreach (BMS_BMUDevice *b, stack->m_batteries) {
         BMS_BMUDevice *b = stack->m_batteries[i];
@@ -191,10 +211,15 @@ QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack){
         }
         totalVoltage += b->totalVoltage();
     }
+    in >> stack->m_StackVoltage;
+    in >> stack->m_StackCurrent;
+    in >> stack->m_soc;
+    in >> stack->m_soh;
+    if(stack->m_hvcInfo->voltage() != 0){
+        stack->m_StackVoltage = stack->m_hvcInfo->voltage();
+        stack->m_StackCurrent = stack->m_hvcInfo->current();
+    }
 
-    stack->m_StackVoltage = stack->m_hvcInfo->voltage()!=0?stack->m_hvcInfo->voltage():totalVoltage;
-
-    stack->m_StackCurrent = stack->m_hvcInfo->current();
     stack->m_MaxCellVoltage = max_v;
     stack->m_MinCellVoltage = min_v;
     stack->m_MaxCellIndex = max_v_index;
@@ -207,4 +232,14 @@ QDataStream& operator >> (QDataStream &in, BMS_StackInfo *stack){
 QList<BMS_BMUDevice*> BMS_StackInfo::batteries()
 {
     return m_batteries;
+}
+
+void BMS_StackInfo::state(QString v)
+{
+    m_State = v;
+}
+
+QString BMS_StackInfo::state()
+{
+    return m_State;
 }
