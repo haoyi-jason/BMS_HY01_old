@@ -23,9 +23,14 @@ void BMS_HVCInfo::feedData(quint8 id, quint16 msg, QByteArray data){
         ds.setByteOrder(QDataStream::LittleEndian);
         quint16 v;
         ds >> v;
-        m_stackVoltage = v;
+        m_aux1 = v;
+        ds >> v;
+        m_aux2 = v;
+
         ds >> v;
         m_stackCurrent = v;
+        ds >> v;
+        m_stackVoltage = v;
     }
 }
 QDataStream& operator << (QDataStream &out, const BMS_HVCInfo *hvc)

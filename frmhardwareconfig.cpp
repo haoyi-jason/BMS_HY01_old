@@ -135,11 +135,17 @@ void frmHardwareConfig::on_pbSaveParam_clicked()
 
 void frmHardwareConfig::on_pbEnVS0_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
+    m_collector->currentSystem()->setVoltageSource(0,0);
 
 }
 
 void frmHardwareConfig::on_pbEnVS1_clicked()
 {
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
+    m_collector->currentSystem()->setVoltageSource(1,0);
 
 }
 

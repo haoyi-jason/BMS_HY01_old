@@ -119,7 +119,7 @@ void frmStackView::updateStackInfo()
     ui->le_minVoltage->setText(QString::number(stack->minCellVoltage()));
     ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()));
     ui->le_minTemp->setText(QString::number(stack->minStackTemperature()));
-    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()));
+    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()/10.));
     ui->le_current->setText(QString::number(stack->stackCurrent()));
 
     ui->leSOC->setText(QString::number(stack->soc()));

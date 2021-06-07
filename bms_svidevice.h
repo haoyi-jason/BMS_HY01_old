@@ -20,6 +20,7 @@ signals:
 public slots:
 
 private:
+    int m_aux1,m_aux2;
     int m_stackVoltage;
     int m_stackCurrent;
     QList<ushort> m_auxInputs;
