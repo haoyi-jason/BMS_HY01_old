@@ -42,18 +42,19 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="text">
-       <string>系統檢視</string>
+       <string>系統
+檢視</string>
       </property>
      </widget>
     </item>
@@ -111,13 +112,13 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
@@ -136,18 +137,19 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="text">
-       <string>事件檢視</string>
+       <string>事件
+檢視</string>
       </property>
      </widget>
     </item>
@@ -171,18 +173,19 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>120</width>
+        <width>100</width>
         <height>80</height>
        </size>
       </property>
       <property name="text">
-       <string>歷史記錄</string>
+       <string>歷史
+記錄</string>
       </property>
      </widget>
     </item>

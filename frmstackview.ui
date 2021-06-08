@@ -85,7 +85,7 @@
          <enum>QFrame::Box</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page">
          <layout class="QGridLayout" name="gridLayout">
@@ -322,17 +322,17 @@
         </widget>
         <widget class="QWidget" name="page_2">
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="2">
-           <widget class="QPushButton" name="pbDigitalIn_0">
+          <item row="1" column="0">
+           <widget class="QPushButton" name="pbSetDO_1">
             <property name="text">
-             <string>輸入-1</string>
+             <string>輸出-2</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="5">
+          <item row="1" column="3">
            <widget class="QLineEdit" name="leVSourceIn_1">
             <property name="text">
              <string>0</string>
@@ -342,27 +342,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>第一路BMU電源電流(mA):</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
+          <item row="0" column="3">
            <widget class="QLineEdit" name="leVSourceIn_0">
             <property name="inputMethodHints">
              <set>Qt::ImhDigitsOnly</set>
@@ -375,7 +355,34 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>第一路BMU電源電流(mA):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pbDigitalIn_1">
+            <property name="text">
+             <string>輸人-2</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
+           <widget class="QPushButton" name="pbDigitalIn_0">
+            <property name="text">
+             <string>輸入-1</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
            <widget class="QPushButton" name="pbSetDO_0">
             <property name="text">
              <string>輸出-1</string>
@@ -386,44 +393,11 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QPushButton" name="pbDigitalIn_1">
-            <property name="text">
-             <string>輸人-2</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="pbSetDO_1">
-            <property name="text">
-             <string>輸出-2</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
            <widget class="QLabel" name="label_11">
             <property name="text">
              <string>第二路BMU電源電流(mA):</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>

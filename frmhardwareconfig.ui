@@ -16,6 +16,12 @@
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="maximumSize">
+      <size>
+       <width>1280</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="currentIndex">
       <number>1</number>
      </property>
@@ -352,12 +358,236 @@
        <string>功能</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="maximumSize">
+          <size>
+           <width>640</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>ADC Scale - BCU</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="1" column="2">
+           <widget class="FocusEditor" name="leADCCfgValue"/>
+          </item>
+          <item row="1" column="3">
+           <widget class="QPushButton" name="pbADCConfig">
+            <property name="text">
+             <string>Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="cbADCOption">
+            <item>
+             <property name="text">
+              <string>Raw Low</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Raw High</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Eng Low</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Eng High</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QComboBox" name="cbADCChannel">
+            <item>
+             <property name="text">
+              <string>Channel 0</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 5</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 6</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Channel 7</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="pbSaveParam">
+            <property name="text">
+             <string>Save Param</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="maximumSize">
+          <size>
+           <width>640</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>MODBUS</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox">
+            <item>
+             <property name="text">
+              <string>/dev/ttymxc3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/dev/ttymxc4</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkBox">
+            <property name="text">
+             <string>RTU</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QComboBox" name="comboBox_3">
+            <item>
+             <property name="text">
+              <string>NONE</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>EVEN</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ODD</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="comboBox_2">
+            <item>
+             <property name="text">
+              <string>9600</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>19200</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>38400</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>57600</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>115200</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="FocusEditor" name="leTCPPort">
+            <property name="text">
+             <string>502</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkBox_2">
+            <property name="text">
+             <string>TCP</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="FocusEditor" name="leRTUID">
+            <property name="text">
+             <string>1</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_6">
+         <property name="maximumSize">
+          <size>
+           <width>640</width>
+           <height>80</height>
+          </size>
+         </property>
          <property name="title">
           <string>ADC Scale - SVI</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="3">
+           <widget class="QPushButton" name="pbSVIConfig">
+            <property name="text">
+             <string>Config</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QComboBox" name="cbSVIChannel">
             <item>
@@ -405,20 +635,6 @@
           <item row="0" column="2">
            <widget class="FocusEditor" name="leSVIValue"/>
           </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="pbSaveSVI">
-            <property name="text">
-             <string>Save Param</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="pbSVIConfig">
-            <property name="text">
-             <string>Config</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QComboBox" name="cbSVIOption">
             <item>
@@ -444,130 +660,23 @@
            </widget>
           </item>
           <item row="0" column="4">
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>ADC Scale - BCU</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="1" column="3">
-           <widget class="QPushButton" name="pbADCConfig">
-            <property name="text">
-             <string>Config</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QComboBox" name="cbADCChannel">
-            <item>
-             <property name="text">
-              <string>Channel 0</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 1</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 2</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 3</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 5</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 6</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Channel 7</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QPushButton" name="pbSaveParam">
+           <widget class="QPushButton" name="pbSaveSVI">
             <property name="text">
              <string>Save Param</string>
             </property>
            </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="cbADCOption">
-            <item>
-             <property name="text">
-              <string>Raw Low</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Raw High</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Eng Low</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Eng High</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="FocusEditor" name="leADCCfgValue"/>
-          </item>
-          <item row="2" column="4">
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
        </item>
        <item row="3" column="0">
         <widget class="QGroupBox" name="groupBox_7">
+         <property name="maximumSize">
+          <size>
+           <width>640</width>
+           <height>80</height>
+          </size>
+         </property>
          <property name="title">
           <string>Alarm/Warning</string>
          </property>
@@ -599,167 +708,22 @@
          </widget>
         </widget>
        </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="title">
-          <string>MODBUS</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="3">
-           <widget class="QComboBox" name="comboBox_3">
-            <item>
-             <property name="text">
-              <string>NONE</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>EVEN</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ODD</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="text">
-             <string>TCP</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox">
-            <item>
-             <property name="text">
-              <string>/dev/ttymxc3</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/dev/ttymxc4</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="FocusEditor" name="leTCPPort">
-            <property name="text">
-             <string>502</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox">
-            <property name="text">
-             <string>RTU</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QComboBox" name="comboBox_2">
-            <item>
-             <property name="text">
-              <string>9600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>19200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>38400</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>57600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>115200</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="FocusEditor" name="leRTUID">
-            <property name="text">
-             <string>1</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
-           <spacer name="horizontalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_11">
+         <property name="maximumSize">
+          <size>
+           <width>640</width>
+           <height>120</height>
+          </size>
+         </property>
          <property name="title">
           <string>BMU Config</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="1" column="8">
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="0" column="1">
            <widget class="QLabel" name="label_2">
             <property name="text">
              <string>Balancing Voltage(mV)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QCheckBox" name="cbBalancing">
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </item>
@@ -773,25 +737,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="6">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Off Time(sec)</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Enable Balancing</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <widget class="QLineEdit" name="leBMUBON">
+          <item row="1" column="3">
+           <widget class="QLineEdit" name="leBMUHV">
             <property name="maximumSize">
              <size>
               <width>80</width>
@@ -799,17 +746,7 @@
              </size>
             </property>
             <property name="text">
-             <string>40</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QLineEdit" name="leBMUBV">
-            <property name="text">
-             <string>3400</string>
+             <string>10</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -832,23 +769,20 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="7">
-           <widget class="QPushButton" name="pushButton">
+          <item row="0" column="6">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Config</string>
+             <string>Off Time(sec)</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <widget class="QLineEdit" name="leBMUHV">
-            <property name="maximumSize">
-             <size>
-              <width>80</width>
-              <height>16777215</height>
-             </size>
-            </property>
+          <item row="1" column="1" colspan="2">
+           <widget class="QLineEdit" name="leBMUBV">
             <property name="text">
-             <string>10</string>
+             <string>3400</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -859,6 +793,43 @@
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Hystersis(mV)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="7">
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QCheckBox" name="cbBalancing">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QLineEdit" name="leBMUBON">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>40</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Enable Balancing</string>
             </property>
            </widget>
           </item>
