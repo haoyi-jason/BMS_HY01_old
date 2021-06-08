@@ -38,22 +38,57 @@ bool BMSCollector::loadConfig(QString path)
             sys->connection = o["ip"].toString();
             sys->alias = o["alias"].toString();
             sys->port = o["port"].toInt();
+
+            sys->system = new BMS_System();
+            sys->autoConnect = o["autoconnect"].toBool();
+            m_servers.append(sys);
+
             if(QSysInfo::productType().contains("win")){
                 sys->logPath = o["log_path"].toString()+"/"+sys->connection;
             }
             else{
                 sys->logPath = QCoreApplication::applicationDirPath()+ o["log_path"].toString()+"/"+sys->connection;
             }
-            sys->system = new BMS_System();
-            sys->autoConnect = o["autoconnect"].toBool();
-            m_servers.append(sys);
+            sys->system->logPath(sys->logPath);
 
             // create log path
             if(!QDir(sys->logPath).exists()){
                 QDir().mkpath(sys->logPath);
             }
+
+            if(o.contains("enable_log")){
+                sys->system->enableLog(o["enable_log"].toBool());
+            }
+            else{
+                sys->system->enableLog(false);
+            }
+
+            if(o.contains("log_days")){
+                sys->system->logDays(o["log_days"].toInt());
+
+            }
+            else{
+                sys->system->logDays(-1);
+            }
+
+            if(o.contains("log_records")){
+                sys->system->logRecords(o["log_records"].toInt());
+
+            }
+            else{
+                sys->system->logRecords(1000);
+            }
         }
     }
+
+    if(obj.contains("loginpromote")){
+        m_loginPromote = obj["loginpromote"].toBool();
+    }
+}
+
+bool BMSCollector::loginPromote()
+{
+    return m_loginPromote;
 }
 
 bool BMSCollector::connectServer(int id)
@@ -189,7 +224,9 @@ void BMSCollector::handleServerData()
                         QByteArray b;
                         QDataStream d2(&b,QIODevice::ReadWrite);
                         d2 << sys->system;
-                        sys->logData(b);
+                        if(sys->system->enableLog()){
+                            sys->system->log(b);
+                        }
                     //}
                 }
                 else if(ret == hsmsParser::BMS_WRONG_HEADER){

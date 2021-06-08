@@ -29,6 +29,8 @@ private slots:
 
     void on_pbSystemNavi_clicked();
 
+    void on_pbAuth_clicked();
+
 private:
     void hideWindows();
 

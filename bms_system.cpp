@@ -318,14 +318,30 @@ QList<int> BMS_System::vsource(){
     }
 }
 
-void BMS_System::log(QString path, QByteArray data){
+void BMS_System::log(QByteArray data){
     //QString path = QString("%1/%2.bin").arg(m_logPath).arg(QDateTime::currentMSecsSinceEpoch(),16,16,QLatin1Char('0'));
+    QString path = this->m_logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss.bin");
     QFile f(path);
     if(f.open(QIODevice::WriteOnly)){
         QDataStream ds(&f);
         ds << data;
         f.close();
     }
+    QDir dir(this->m_logPath);
+    if(this->m_logRecords > 0){
+        if(dir.count() > (this->m_logRecords+10)){
+            QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+            for(int i=0;i<files.size()-m_logRecords;i++){
+//            for(int i=files.size();i>m_logRecords;--i){
+                const QFileInfo& info = files.at(i);
+                QFile::remove(info.absoluteFilePath());
+            }
+        }
+    }
+    else if(this->m_logDays > 0){
+
+    }
+
 }
 
 void BMS_System::emg_log(QByteArray data){
@@ -347,3 +363,58 @@ QList<int> BMS_System::batteriesPerStack()
     }
     return ret;
 }
+
+CAN_Packet *BMS_System::setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 on, quint16 off)
+{
+    CAN_Packet *ret = nullptr;
+    ret = new CAN_Packet();
+    ret->Command = 0x132;
+    QDataStream ds(&ret->data,QIODevice::WriteOnly);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    quint16 u16;
+    ds << bv;
+    ds << bh;
+    ds << be;
+    u16 = on;
+    if(u16 > 40){
+        u16 = 40;
+    }
+    ds << u16;
+
+    if(off < u16){
+        ds << u16;
+    }
+    else{
+        ds << off;
+    }
+
+    return ret;
+}
+
+bool BMS_System::enableLog()
+{
+    return m_enableLog;
+}
+
+void BMS_System::enableLog(bool enable)
+{
+    m_enableLog = enable;
+}
+
+int BMS_System::logDays()
+{
+    return m_logDays;
+}
+void BMS_System::logDays(int days)
+{
+    m_logDays = days;
+}
+int BMS_System::logRecords()
+{
+    return m_logRecords;
+}
+void BMS_System::logRecords(int recs)
+{
+    m_logRecords = recs;
+}
+

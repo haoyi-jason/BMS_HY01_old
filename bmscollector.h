@@ -32,6 +32,7 @@ public:
     bool loadConfig(QString path); // load from local system
     bool connectServer(int id);
     bool disconnectServer(int id);
+    bool loginPromote();
 signals:
     void configReady();
     void dataReceived();
@@ -42,6 +43,7 @@ public slots:
 private:
     QList<RemoteSystem*> m_servers;
     int m_currentSystemIndex = -1;
+    bool m_loginPromote=true;
 };
 
 #endif // BMSCOLLECTOR_H

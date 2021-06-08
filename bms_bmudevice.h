@@ -2,6 +2,7 @@
 #define BMS_BMUDEVICE_H
 
 #include <QObject>
+#include "bms_def.h"
 
 class BMS_BMUDevice : public QObject
 {
@@ -43,11 +44,15 @@ public:
     ushort cellVoltageDiff();
     int lastSeen();
     void feedData(uint8_t id, uint16_t msg, QByteArray data);
-    void dummyData(ushort vbase=3400, ushort vgap=100, ushort tbase = 25, ushort tgap = 5);
+    void dummyData(ushort vbase=3400, ushort vgap=100, ushort tbase = 250, ushort tgap = 50);
     QByteArray data();
     friend QDataStream& operator << (QDataStream &out, const BMS_BMUDevice *bat);
     friend QDataStream& operator >> (QDataStream &in, BMS_BMUDevice *bat);
     QByteArray ActionPending();
+    QList<ushort> openWire(){return m_openWire;}
+    ushort openWire(int index);
+
+    CAN_Packet *setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 on, quint16 off);
 signals:
 
 public slots:

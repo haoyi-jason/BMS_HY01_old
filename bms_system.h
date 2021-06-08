@@ -60,12 +60,18 @@ public:
     QByteArray digitalInput();
     QByteArray digitalOutput();
     QList<int> vsource();
-    void log(QString path, QByteArray data);
+    void log(QByteArray data);
     void emg_log(QByteArray data);
     void logPath(QString path);
     BMS_BCUDevice* bcu();
     QList<int> batteriesPerStack();
-
+    CAN_Packet *setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 on, quint16 off);
+    bool enableLog();
+    void enableLog(bool enable);
+    int logDays();
+    void logDays(int days);
+    int logRecords();
+    void logRecords(int recs);
 signals:
     void sendPacket(QByteArray data);
 private slots:
@@ -81,6 +87,9 @@ private:
     BMS_BCUDevice *m_bcuDevice=nullptr;
     QString m_logPath="./";
     bool m_loadFromFile=false;
+    bool m_enableLog = false;
+    int m_logDays = -1;
+    int m_logRecords = -1;
     //QList<CANBUSDevice*> m_canbusDevice;
     //MODBUSDevice *m_modbusDev = nullptr;
 

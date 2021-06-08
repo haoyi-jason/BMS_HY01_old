@@ -18,6 +18,8 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leVSourceSet_0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leVSourceSet_1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leADCCfgValue,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leRTUID,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leTCPPort,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -171,5 +173,39 @@ void frmHardwareConfig::on_pbSVIConfig_clicked()
     if(m_collector->currentSystem() == nullptr) return;
     QString command;
     command = QString("SVI:AIMAP:%1:%2:%3").arg(ui->cbSVIChannel->currentIndex()).arg(ui->cbSVIOption->currentIndex()).arg(ui->leSVIValue->text());
+    m_collector->currentSystem()->writeCommand(command);
+}
+
+void frmHardwareConfig::on_pbSaveSVI_clicked()
+{
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
+    m_collector->currentSystem()->writeCommand("SVI:SAVE");
+}
+
+void frmHardwareConfig::on_pushButton_clicked()
+{
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
+    QString command;
+    command = QString("BMU:BV:%1:%2:%3:%4:%5").arg(ui->leBMUBV->text()).arg(ui->leBMUHV->text()).arg(ui->cbBalancing->isChecked()?"1":"0").arg(ui->leBMUBON->text()).arg(ui->leBMUBOFF->text());
+    m_collector->currentSystem()->writeCommand(command);
+}
+
+void frmHardwareConfig::on_pbBMUBE_clicked()
+{
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
+    QString command;
+    command = QString("BMU:BE:1");
+    m_collector->currentSystem()->writeCommand(command);
+}
+
+void frmHardwareConfig::on_pbBMUNBE_clicked()
+{
+    if(m_collector == nullptr) return;
+    if(m_collector->currentSystem() == nullptr) return;
+    QString command;
+    command = QString("BMU:BE:0");
     m_collector->currentSystem()->writeCommand(command);
 }

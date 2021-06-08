@@ -42,28 +42,6 @@ CollectorView::CollectorView(QWidget *parent) :
        path = QCoreApplication::applicationDirPath()+"/config/system.json";
     }
 
-//    LoginValid *v = new LoginValid;
-//    if(v->setFileName(path)){
-//        if(v->exec() == QDialog::Rejected){
-//            QMessageBox::warning(this,"錯誤!","密碼驗證失敗!");
-//            exit(-1);
-//        }
-//        else{
-//            m_userID = v->userID();
-//            qDebug()<<"User ID:"<< v->userID();
-//        }
-//    }
-//    else{
-//        QMessageBox::warning(this,"錯誤!","設定檔載入失敗!");
-//        exit(-1);
-//    }
-
-//    delete v;
-
-    if(m_userID == 0){
-        ui->pbHardwareView->setVisible(false);
-    }
-
     m_collector = new BMSCollector();
     if(m_collector->loadConfig(path)){
         m_collector->connectServer(-1);
@@ -71,6 +49,34 @@ CollectorView::CollectorView(QWidget *parent) :
         m_StackWin->setCollector(m_collector);
         m_HardwareWin->setCollector(m_collector);
     }
+
+    if(m_collector->loginPromote()){
+        LoginValid *v = new LoginValid;
+        if(v->setFileName(path)){
+            if(v->exec() == QDialog::Rejected){
+                QMessageBox::warning(this,"錯誤!","密碼驗證失敗!");
+                exit(-1);
+            }
+            else{
+                m_userID = v->userID();
+                qDebug()<<"User ID:"<< v->userID();
+            }
+        }
+        else{
+            QMessageBox::warning(this,"錯誤!","設定檔載入失敗!");
+            exit(-1);
+        }
+
+        delete v;
+    }
+
+
+    if(m_userID == 0){
+        ui->pbHardwareView->setVisible(false);
+    }else{
+        ui->pbHardwareView->setVisible(true);
+    }
+
 }
 
 CollectorView::~CollectorView()
@@ -139,7 +145,7 @@ void CollectorView::on_pbSystemNavi_clicked()
             QThread::sleep(1);
         }
         if(m_collector->connectServer(0)){
-            btn->setText("斷線");
+            btn->setText("停止");
             m_HistWin->rootPath(m_collector->currentSystem()->logPath);
         }
         else{
@@ -156,4 +162,29 @@ void CollectorView::on_pbSystemNavi_clicked()
         proc->waitForFinished();
         qDebug()<<"Proc Result:"<<proc->readAll();
     }
+}
+
+void CollectorView::on_pbAuth_clicked()
+{
+    QString path;
+    if(QSysInfo::productType().contains("win")){
+        path = "./config/system.json";
+    }
+    else{
+       path = QCoreApplication::applicationDirPath()+"/config/system.json";
+    }
+
+    LoginValid *v = new LoginValid;
+    if(v->setFileName(path)){
+        if(v->exec() == QDialog::Accepted){
+            if(v->userID() == 1){
+                ui->pbHardwareView->setVisible(true);
+            }
+            else{
+                ui->pbHardwareView->setVisible(false);
+            }
+        }
+    }
+
+    delete v;
 }

@@ -1,14 +1,15 @@
 {
+	"loginpromote":false,
     "account": [
         {
-            "level": 255,
+            "level": 1,
             "name": "user",
             "passwd": ")&�s\u001fK1,\b�,��\u0006\u001e�K�\\\u001a��]p�d�y�\"\u00071"
         },
         {
             "level": 255,
             "name": "admin",
-            "passwd": ""
+            "passwd": ")&�s\u001fK1,\b�,��\u0006\u001e�K�\\\u001a��]p�d�y�\"\u00071"
         }
     ],
     "bms": [
@@ -16,7 +17,10 @@
             "alias": "Local System",
             "autoconnect": false,
             "ip": "127.0.0.1",
+            "enable_log":true,
             "log_path": "./log",
+            "log_days":-1,
+            "log_records":200,
             "port": 5001
         }
     ]

@@ -31,33 +31,8 @@
    <string>BMS</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0">
     <item row="1" column="3">
-     <widget class="QPushButton" name="pbEventView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>120</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>120</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>事件檢視</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
      <widget class="QPushButton" name="pbStackView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -82,16 +57,6 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="6">
-     <layout class="QVBoxLayout" name="mainLayout">
-      <property name="spacing">
-       <number>3</number>
-      </property>
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
-      </property>
-     </layout>
-    </item>
     <item row="1" column="1">
      <widget class="QLabel" name="label">
       <property name="maximumSize">
@@ -105,31 +70,6 @@
       </property>
       <property name="pixmap">
        <pixmap resource="resource.qrc">:/img/logo/logo</pixmap>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="4">
-     <widget class="QPushButton" name="pbBatHistory">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>120</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>120</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>歷史記錄</string>
       </property>
      </widget>
     </item>
@@ -161,7 +101,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="5">
+    <item row="1" column="6">
      <widget class="QPushButton" name="pbHardwareView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -182,7 +122,92 @@
        </size>
       </property>
       <property name="text">
-       <string>硬體測試</string>
+       <string>設定</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QPushButton" name="pbEventView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>事件檢視</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="7">
+     <layout class="QVBoxLayout" name="mainLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+     </layout>
+    </item>
+    <item row="1" column="5">
+     <widget class="QPushButton" name="pbBatHistory">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>歷史記錄</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QPushButton" name="pbAuth">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>20</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </item>

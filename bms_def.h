@@ -192,6 +192,16 @@ public:
             f.close();
         }
 
+        // remove old files, keep 1000 only
+        QDir dir(this->logPath);
+        if(dir.count() > 110){
+            QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+            for(int i=files.size();i>100;--i){
+                const QFileInfo& info = files.at(i-1);
+                QFile::remove(info.absoluteFilePath());
+            }
+        }
+
     }
 };
 

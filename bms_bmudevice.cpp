@@ -91,6 +91,13 @@ void BMS_BMUDevice::balancing(int index, ushort x)
 {
     (index < m_balancing.size())?m_balancing[index]=x:0;
 }
+
+ushort BMS_BMUDevice::openWire(int index)
+{
+    return (index<m_openWire.size())?m_openWire[index]:0;
+}
+
+
 void BMS_BMUDevice::balancingVoltage(ushort value)
 {
     m_balancingVoltage = value;
@@ -341,3 +348,31 @@ QByteArray BMS_BMUDevice::ActionPending(){
     }
     return ret;
 }
+
+CAN_Packet *BMS_BMUDevice::setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 on, quint16 off)
+{
+    CAN_Packet *ret = nullptr;
+    ret = new CAN_Packet();
+    ret->Command = 0x132;
+    QDataStream ds(&ret->data,QIODevice::WriteOnly);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    quint16 u16;
+    ds << bv;
+    ds << bh;
+    ds << be;
+    u16 = on;
+    if(u16 > 40){
+        u16 = 40;
+    }
+    ds << u16;
+
+    if(off < u16){
+        ds << u16;
+    }
+    else{
+        ds << off;
+    }
+
+    return ret;
+}
+

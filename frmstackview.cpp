@@ -19,6 +19,9 @@ frmStackView::frmStackView(QWidget *parent) :
     stackModel = new BMS_StackModel();
     ui->lbInfo->setText("");
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    ui->label_6->setText(QString("最高電池溫度( %1C)").arg(QChar(0x00b0)));
+    ui->label_8->setText(QString("最低電池溫度( %1C)").arg(QChar(0x00b0)));
 }
 
 frmStackView::~frmStackView()
@@ -102,6 +105,7 @@ void frmStackView::on_pbNextStack_clicked()
         m_currentStackIndex = 0;
     }
     batteryModel->setStack(stackModel->findStack(m_currentStackIndex));
+
     ui->tableView->viewport()->update();
     updateStackInfo();
 }
@@ -117,10 +121,12 @@ void frmStackView::updateStackInfo()
     BMS_StackInfo *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString::number(stack->maxCellVoltage()));
     ui->le_minVoltage->setText(QString::number(stack->minCellVoltage()));
-    ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()));
-    ui->le_minTemp->setText(QString::number(stack->minStackTemperature()));
-    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()/10.));
-    ui->le_current->setText(QString::number(stack->stackCurrent()));
+    ui->le_maxTemp->setText(QString("%1").arg(stack->maxStackTemperature()/10.,5,'f',2,'0'));
+    ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,5,'f',2,'0'));
+    //ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()/10.));
+//    ui->le_minTemp->setText(QString::number(stack->minStackTemperature()/10.));
+    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()/1000.));
+    ui->le_current->setText(QString::number(stack->stackCurrent()/10.));
 
     ui->leSOC->setText(QString::number(stack->soc()));
     ui->leState->setText(stack->state());

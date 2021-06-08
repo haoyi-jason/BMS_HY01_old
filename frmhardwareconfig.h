@@ -52,6 +52,14 @@ private slots:
 
     void on_pbSVIConfig_clicked();
 
+    void on_pbSaveSVI_clicked();
+
+    void on_pushButton_clicked();
+
+    void on_pbBMUBE_clicked();
+
+    void on_pbBMUNBE_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

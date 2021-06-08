@@ -91,7 +91,7 @@ void LoginValid::on_pbOk_clicked()
                             QString p=QString(QCryptographicHash::hash(ui->lePasswd->text().toUtf8(),QCryptographicHash::Sha256));
                             o["passwd"] = p;
                             ui->lePasswd_2->setVisible(false);
-                            arr[0] = o;
+                            arr[index] = o;
                             obj["account"] = arr;
                             d.setObject(obj);
                             if(f.open(QIODevice::ReadWrite)){

@@ -16,13 +16,15 @@ BMS_BatteryModel::BMS_BatteryModel(QObject *parent):
     QAbstractTableModel(parent)
 {
     for(int i=0;i<12;i++){
-        m_header << QString("Cell_%1").arg(i);
+        m_header << QString("C_%1(mV)").arg(i+1);
     }
     for(int i=0;i<5;i++){
-        m_header << QString("NTC_%1").arg(i);
+        m_header << QString("T_%1(%2C)").arg(i+1).arg(QChar(0xb0));
     }
-    m_header << "Voltage SUM";
+    m_header << "BATV(mV)";
     m_activeStack = nullptr;
+
+
 }
 
 BMS_BatteryModel::~BMS_BatteryModel()
@@ -48,33 +50,55 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     if(m_activeStack == nullptr) return QVariant();
     int row = index.row();
     int col = index.column();
+    ushort v;
     switch(role){
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return m_activeStack->queueData(row,col);
+        v = m_activeStack->queueData(row,col);
+        if(col < m_activeStack->batteries().at(0)->cellCount()){
+            return QVariant(v);
+        }
+        else if(col < (m_activeStack->batteries().at(0)->cellCount() + m_activeStack->batteries().at(0)->ntcCount())){
+            QString disp = QString("%1").arg(v/10.,5,'f',2,'0');
+            return QVariant(disp);
+        }
+        else{
+            return QVariant(v);
+        }
     case Qt::FontRole:
         break;
     case Qt::BackgroundRole:
-        if(m_activeStack->queueData(row,col+17)==1){
-            return QVariant((QColor(Qt::red)));
+    {
+        BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
+        if(bmu != nullptr){
+            ushort ow = bmu->openWire(col);
+            ushort bl = bmu->balancing(col);
+            if(ow == 0 && bl==0){
+                return QVariant();
+            }
+            else if(ow != 0){
+                return QVariant(QColor(Qt::red));
+            }
+            else if(bl != 0){
+                return QVariant(QColor(Qt::yellow));
+            }
         }
-        else{
-            return QVariant();
-        }
+    }
     case Qt::TextAlignmentRole:
         return (Qt::AlignRight);
     case Qt::CheckStateRole:
         break;
     case Qt::ForegroundRole:
-        if(m_activeStack->queueData(row,col)>3445){
-            return QVariant(QColor(Qt::green));
-        }
-        else if(m_activeStack->queueData(row,col)>3425){
-            return QVariant(QColor(Qt::blue));
-        }
-        else{
-            return QVariant();
-        }
+//        if(m_activeStack->queueData(row,col)>3445){
+//            return QVariant(QColor(Qt::green));
+//        }
+//        else if(m_activeStack->queueData(row,col)>3425){
+//            return QVariant(QColor(Qt::blue));
+//        }
+//        else{
+//            return QVariant();
+//        }
+        return QVariant();
         break;
     }
     return QVariant();
