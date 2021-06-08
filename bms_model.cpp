@@ -42,7 +42,10 @@ int BMS_BatteryModel::rowCount(const QModelIndex &parent) const
 
 int BMS_BatteryModel::columnCount(const QModelIndex &parent) const
 {
-    return m_header.size();
+    if(m_activeStack == nullptr) return 0;
+    int g1 = m_activeStack->batteries().at(0)->cellCount();
+    int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount();
+    return g2+1;
 }
 
 QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
@@ -106,8 +109,17 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
 
 QVariant BMS_BatteryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if(m_activeStack == nullptr) return QVariant();
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal){
-        return QString(m_header.at(section));
+        int g1 = m_activeStack->batteries().at(0)->cellCount();
+        int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount();
+        if(section < g1){
+            return QVariant(QString("C%1(mV)").arg(section+1));
+        }
+        else if(section < g2){
+            return QVariant(QString("T%1(%2C").arg(section-g1+1).arg(QChar(0xb0)));
+        }
+        return QString("BAT_VOLT");
     }
     else if(role == Qt::DisplayRole && orientation == Qt::Vertical){
         int g = m_activeStack->groupID();

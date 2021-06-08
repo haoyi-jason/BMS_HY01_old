@@ -101,7 +101,7 @@ void frmStackView::on_pbPreviousStack_clicked()
 void frmStackView::on_pbNextStack_clicked()
 {
     m_currentStackIndex++;
-    if(m_currentStackIndex==stackModel->rowCount()){
+    if(m_currentStackIndex==collector->currentSystem()->system->Stacks){
         m_currentStackIndex = 0;
     }
     batteryModel->setStack(stackModel->findStack(m_currentStackIndex));
@@ -125,11 +125,13 @@ void frmStackView::updateStackInfo()
     ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,5,'f',2,'0'));
     //ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()/10.));
 //    ui->le_minTemp->setText(QString::number(stack->minStackTemperature()/10.));
-    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()/1000.));
+    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()/10.));
     ui->le_current->setText(QString::number(stack->stackCurrent()/10.));
 
     ui->leSOC->setText(QString::number(stack->soc()));
     ui->leState->setText(stack->state());
+
+    ui->le_maxDiff->setText(QString::number(stack->cellVoltDiff()));
 
     QByteArray dig_in = collector->currentSystem()->system->digitalInput();
     QByteArray dig_out = collector->currentSystem()->system->digitalOutput();

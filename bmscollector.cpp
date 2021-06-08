@@ -215,18 +215,22 @@ void BMSCollector::handleServerData()
                 quint8 ret = hsmsParser::getHeader(sys->data,&len,&hlen);
                 if(ret == hsmsParser::BMS_STACK){
                     //if(sys->data.size() >= len){
-                        qDebug()<<"Receive stack packet";
+                        //qDebug()<<"Receive stack packet";
                         sys->data.remove(0,hlen);
                         QDataStream d(&sys->data,QIODevice::ReadOnly);
+                        //qDebug()<<"Feed start";
                         d >> sys->system;
+                        //qDebug()<<"Feed 1";
                         emit dataReceived();
                         sys->data.remove(0,len);
                         QByteArray b;
                         QDataStream d2(&b,QIODevice::ReadWrite);
                         d2 << sys->system;
+                        //qDebug()<<"Feed 2";
                         if(sys->system->enableLog()){
                             sys->system->log(b);
                         }
+                        //qDebug()<<"Feed end";
                     //}
                 }
                 else if(ret == hsmsParser::BMS_WRONG_HEADER){

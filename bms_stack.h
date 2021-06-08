@@ -43,6 +43,9 @@ public:
     int minCellVoltIndex();
     void minCellVoltIndex(int x);
 
+    ushort cellVoltDiff();
+    void cellVoltDiff(ushort x);
+
     ushort maxStackTemperature();
     void maxStackTemperature(ushort x);
     ushort minStackTemperature();
@@ -106,7 +109,7 @@ private:
     ushort m_soh;
     QString m_alias;
     uint8_t m_groupID;
-
+    ushort m_CellVoltDiff;
 };
 
 

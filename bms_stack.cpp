@@ -81,6 +81,10 @@ void BMS_StackInfo::minCellVoltage(ushort x){m_MinCellVoltage = x;}
 int BMS_StackInfo::minCellVoltIndex(){return m_MinCellIndex;}
 void BMS_StackInfo::minCellVoltIndex(int x){m_MinCellIndex = x;}
 
+ushort BMS_StackInfo::cellVoltDiff(){return m_CellVoltDiff;}
+void BMS_StackInfo::cellVoltDiff(ushort x){m_CellVoltDiff = x;}
+
+
 ushort BMS_StackInfo::maxStackTemperature(){return m_MaxTemperature;}
 void BMS_StackInfo::maxStackTemperature(ushort x){m_MaxTemperature = x;}
 ushort BMS_StackInfo::minStackTemperature(){return m_MinTemperature;}
@@ -220,12 +224,15 @@ QDataStream &operator >> (QDataStream &in, BMS_StackInfo *stack)
         stack->m_StackCurrent = stack->m_hvcInfo->current();
     }
 
+    //qDebug()<<"Feed into Stack struct:"<<min_t;
+
     stack->m_MaxCellVoltage = max_v;
     stack->m_MinCellVoltage = min_v;
     stack->m_MaxCellIndex = max_v_index;
     stack->m_MinCellIndex = min_v_index;
     stack->m_MaxTemperature = max_t;
     stack->m_MinTemperature = min_t;
+    stack->m_CellVoltDiff = max_v - min_v;
     stack->m_soc = 100;
 }
 

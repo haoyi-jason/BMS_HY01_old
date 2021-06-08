@@ -138,35 +138,42 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
         m_lastSeen = QDateTime::currentMSecsSinceEpoch();
         QDataStream ds(&data,QIODevice::ReadOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
+        int max_cell = m_cellVoltage.size();
+        int max_ntc = m_packTemperature.size();
         switch (msg) {
         case 0x110:
             for(int i=0;i<4;i++){
-                ds >> m_cellVoltage[i];
+                if(i < max_cell)
+                    ds >> m_cellVoltage[i];
             }
             break;
         case 0x111:
-            for(int i=0;i<4;i++){
-                ds >> m_cellVoltage[i+4];
+            for(int i=4;i<8;i++){
+                if(i < max_cell)
+                    ds >> m_cellVoltage[i];
             }
             break;
         case 0x112:
-            for(int i=0;i<4;i++){
-                ds >> m_cellVoltage[i+8];
+            for(int i=8;i<12;i++){
+                if(i < max_cell)
+                    ds >> m_cellVoltage[i];
             }
             break;
         case 0x113:
             for(int i=0;i<4;i++){
-                ds >> m_packTemperature[i];
+                if(i < max_ntc)
+                    ds >> m_packTemperature[i];
             }
             break;
         case 0x114:
-            ds >> m_packTemperature[4];
+            if(4 < max_ntc)
+                ds >> m_packTemperature[4];
             break;
         case 0x115:{
             ushort balancing,openWire;
             ds >> balancing;
             ds >> openWire;
-            for(int i=0;i<m_cellVoltage.count();i++){
+            for(int i=0;i<max_cell;i++){
                 if((balancing & (1 <<i)) == (1 << i)){
                     m_balancing[i] = 1;
                 }
