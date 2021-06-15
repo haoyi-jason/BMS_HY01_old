@@ -223,38 +223,43 @@ public:
     int logDays = -1;
     int logRecords = 1000;
     void setDigitalOut(int id, int value){
-        QString msg = QString("DO:%1:%2").arg(id).arg(value);
-        if(socket != nullptr){
-            socket->write(msg.toUtf8());
-        }
+        QString msg = QString("BCU:DO:%1:%2").arg(id).arg(value);
+        writeCommand(msg);
+//        if(socket != nullptr){
+//            socket->write(msg.toUtf8());
+//        }
     }
 
     void setVoltageSource(int id, int value){
-        QString msg = QString("VO:%1:%2").arg(id).arg(value);
-        if(socket != nullptr){
-            socket->write(msg.toUtf8());
-        }
+        QString msg = QString("BCU:VO:%1:%2").arg(id).arg(value);
+        writeCommand(msg);
+//        if(socket != nullptr){
+//            socket->write(msg.toUtf8());
+//        }
     }
 
     void openSerialPort(QString name, int baudrate, int parity, int stopBits){
         QString msg = QString("PORT:OPEN:%1:%2:%3:%4").arg(name).arg(baudrate).arg(parity).arg(stopBits);
-        if(socket != nullptr){
-            socket->write(msg.toUtf8());
-        }
+        writeCommand(msg);
+//        if(socket != nullptr){
+//            socket->write(msg.toUtf8());
+//        }
     }
 
     void closeSerialPort(QString name){
         QString msg = QString("PORT:CLOSE:%1").arg(name);
-        if(socket != nullptr){
-            socket->write(msg.toUtf8());
-        }
+        writeCommand(msg);
+//        if(socket != nullptr){
+//            socket->write(msg.toUtf8());
+//        }
     }
 
     void writeSerialPort(QString name, QString data){
         QString msg = QString("PORT:WRITE:%1:%2").arg(name).arg(data);
-        if(socket != nullptr){
-            socket->write(msg.toUtf8());
-        }
+        writeCommand(msg);
+//        if(socket != nullptr){
+//            socket->write(msg.toUtf8());
+//        }
 
     }
     void writeCommand(QString command){

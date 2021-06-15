@@ -208,5 +208,6 @@ void frmStackView::on_clearAlarmClicked()
     if(collector == nullptr) return;
     if(collector->currentSystem() == nullptr) return;
 
-    collector->currentSystem()->system->clearAlarm();
+    //collector->currentSystem()->system->clearAlarm();
+    collector->currentSystem()->writeCommand("SYS:ALMRST");
 }

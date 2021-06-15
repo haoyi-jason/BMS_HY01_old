@@ -126,7 +126,7 @@ QVariant BMS_BatteryModel::headerData(int section, Qt::Orientation orientation, 
             return QVariant(QString("C%1(mV)").arg(section+1));
         }
         else if(section < g2){
-            return QVariant(QString("T%1(%2C").arg(section-g1+1).arg(QChar(0xb0)));
+            return QVariant(QString("T%1(%2C)").arg(section-g1+1).arg(QChar(0xb0)));
         }
         return QString("BAT_VOLT");
     }

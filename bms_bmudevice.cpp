@@ -185,7 +185,7 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
         case 0x114:
             if(4 < max_ntc){
                 ds >> m_packTemperature[4];
-                m_packTemperature[i] += m_simTempBase[i];
+                m_packTemperature[4] += m_simTempBase[4];
             }
             break;
         case 0x115:{
