@@ -17,6 +17,7 @@
 #include "inputwin.h"
 
 #include "loginvalid.h"
+#include "frmeventview.h"
 
 CollectorView::CollectorView(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +32,8 @@ CollectorView::CollectorView(QWidget *parent) :
     m_HardwareWin->hide();
     m_HistWin = new frmHistoryView(this);
     m_HistWin->hide();
+    m_evtView = new frmEventView(this);
+    m_evtView->hide();
 
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
@@ -89,6 +92,7 @@ void CollectorView::hideWindows()
     m_StackWin->hide();
     m_HardwareWin->hide();
     m_HistWin->hide();
+    m_evtView->hide();
 }
 
 void CollectorView::on_pbStackView_clicked()
@@ -122,6 +126,17 @@ void CollectorView::on_pbBatHistory_clicked()
         ui->mainLayout->removeWidget(mainWidget);
     }
     mainWidget = m_HistWin;
+    ui->mainLayout->addWidget(mainWidget);
+    mainWidget->show();
+}
+void CollectorView::on_pbEventView_clicked()
+{
+    hideWindows();
+    if(mainWidget != nullptr){
+        mainWidget->hide();
+        ui->mainLayout->removeWidget(mainWidget);
+    }
+    mainWidget = m_evtView;
     ui->mainLayout->addWidget(mainWidget);
     mainWidget->show();
 }
@@ -188,3 +203,4 @@ void CollectorView::on_pbAuth_clicked()
 
     delete v;
 }
+

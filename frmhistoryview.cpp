@@ -88,7 +88,7 @@ void frmHistoryView::updateStackInfo()
 //    message += QString("目前在第 [ %1 ] 簇").arg(m_currentStackIndex+1);
     //ui->lbInfo->setText(message);
 
-    BMS_StackInfo *stack = stackModel->findStack(m_currentStackIndex);
+    BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString::number(stack->maxCellVoltage()));
     ui->le_minVoltage->setText(QString::number(stack->minCellVoltage()));
     ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()));

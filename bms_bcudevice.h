@@ -37,6 +37,7 @@ public:
     friend QDataStream& operator >> (QDataStream &in, BMS_BCUDevice *dev);
     CAN_Packet* ActionPending();
 
+    int digitalOutState(int id);
 
 signals:
 

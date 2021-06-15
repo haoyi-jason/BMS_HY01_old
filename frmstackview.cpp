@@ -22,6 +22,23 @@ frmStackView::frmStackView(QWidget *parent) :
 
     ui->label_6->setText(QString("最高電池溫度( %1C)").arg(QChar(0x00b0)));
     ui->label_8->setText(QString("最低電池溫度( %1C)").arg(QChar(0x00b0)));
+
+    QGridLayout *gl = new QGridLayout;
+    QWidget *w = new QWidget;
+    for(int i=0;i<11;i++){
+        m_alarmLabels[i] = new QLabel(alarm_string[i],w);
+        m_alarmLabels[i]->setAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+        m_alarmLabels[i]->setFrameShape(QFrame::StyledPanel);
+        m_alarmLabels[i]->setAutoFillBackground(true);
+        gl->addWidget(m_alarmLabels[i],i%2,i/2);
+    }
+
+    m_btnClearAlarm = new QPushButton("清除\n告警",w);
+    connect(m_btnClearAlarm,&QPushButton::clicked,this,&frmStackView::on_clearAlarmClicked);
+    gl->addWidget(m_btnClearAlarm,0,6,2,1);
+
+    w->setLayout(gl);
+    ui->stackedWidget->addWidget(w);
 }
 
 frmStackView::~frmStackView()
@@ -71,10 +88,22 @@ void frmStackView::on_system_config_ready()
 
 void frmStackView::on_system_data_ready()
 {
+    if(activeSystem == nullptr){
+        if(collector->currentSystem() != nullptr){
+            activeSystem = collector->currentSystem()->system;
+        }
+        if(activeSystem != nullptr){
+            stackModel->setStack(activeSystem->stacks());
+            batteryModel->setStack(stackModel->findStack(0));
+            ui->tableView->setModel(batteryModel);
+            m_currentStackIndex = 0;
+        }
+    }
     if(activeSystem != nullptr){
         ui->tableView->viewport()->update();
         updateStackInfo();
     }
+
 }
 
 void frmStackView::on_pbSwitchInfo_clicked()
@@ -118,7 +147,7 @@ void frmStackView::updateStackInfo()
     message += QString("目前在第 [ %1 ] 簇").arg(m_currentStackIndex+1);
     ui->lbInfo->setText(message);
 
-    BMS_StackInfo *stack = stackModel->findStack(m_currentStackIndex);
+    BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString::number(stack->maxCellVoltage()));
     ui->le_minVoltage->setText(QString::number(stack->minCellVoltage()));
     ui->le_maxTemp->setText(QString("%1").arg(stack->maxStackTemperature()/10.,5,'f',2,'0'));
@@ -144,6 +173,21 @@ void frmStackView::updateStackInfo()
     ui->leVSourceIn_0->setText(QString::number(vs[0]));
     ui->leVSourceIn_1->setText(QString::number(vs[1]));
 
+    quint32 alarm = collector->currentSystem()->system->alarmState();
+
+    // feed alarm to ui
+    for(int i=0;i<11;i++){
+        QPalette p = m_alarmLabels[i]->palette();
+        if(alarm & 0x01){
+            p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::red);
+        }
+        else{
+            p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::white);
+        }
+        m_alarmLabels[i]->setPalette(p);
+        alarm >>= 1;
+    }
+
 
 }
 
@@ -157,4 +201,12 @@ void frmStackView::on_pbSetVsource_1_clicked()
 {
 //    int value = ui->leVSourceSet_1->text().toInt();
 //    collector->currentSystem()->setVoltageSource(1,value);
+}
+
+void frmStackView::on_clearAlarmClicked()
+{
+    if(collector == nullptr) return;
+    if(collector->currentSystem() == nullptr) return;
+
+    collector->currentSystem()->system->clearAlarm();
 }

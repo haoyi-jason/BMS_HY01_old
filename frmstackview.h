@@ -10,6 +10,11 @@ class frmStackView;
 
 class BMS_System;
 class BMSCollector;
+class QLabel;
+class QPushButton;
+
+//static QMap<QString, int> alarm_map = {"電池組"};
+static QString alarm_string[]={"電池組過壓","電池組欠壓","電池組過溫","電池組低溫","電芯過壓","電芯欠壓","電池過溫","電池低溫","BMU失聯","BCU失聯","SVI失聯"};
 
 class frmStackView : public QWidget
 {
@@ -39,6 +44,8 @@ private slots:
 
     void on_lineedit_focused(bool state);
 
+    void on_clearAlarmClicked();
+
 private:
     Ui::frmStackView *ui;
     BMS_StackModel *stackModel;
@@ -46,6 +53,8 @@ private:
     BMSCollector *collector;
     int m_currentStackIndex = 0;
     BMS_System *activeSystem = nullptr;
+    QLabel *m_alarmLabels[12];
+    QPushButton *m_btnClearAlarm;
 };
 
 #endif // FRMSTACKVIEW_H

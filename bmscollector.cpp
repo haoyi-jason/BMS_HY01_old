@@ -57,26 +57,28 @@ bool BMSCollector::loadConfig(QString path)
             }
 
             if(o.contains("enable_log")){
-                sys->system->enableLog(o["enable_log"].toBool());
+                //sys->system->enableLog(o["enable_log"].toBool());
+                sys->enableLog = o["enable_log"].toBool();
             }
             else{
-                sys->system->enableLog(false);
+                //sys->system->enableLog(false);
+
             }
 
             if(o.contains("log_days")){
-                sys->system->logDays(o["log_days"].toInt());
-
+                //sys->system->logDays(o["log_days"].toInt());
+                sys->logDays = o["log_days"].toInt();
             }
             else{
-                sys->system->logDays(-1);
+                //sys->system->logDays(-1);
             }
 
             if(o.contains("log_records")){
-                sys->system->logRecords(o["log_records"].toInt());
-
+                //sys->system->logRecords(o["log_records"].toInt());
+                sys->logRecords = o["log_records"].toInt();
             }
             else{
-                sys->system->logRecords(1000);
+                //sys->system->logRecords(1000);
             }
         }
     }
@@ -103,6 +105,7 @@ bool BMSCollector::connectServer(int id)
                     connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                     if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                     s->socket = socket;
+                    s->configReady  =true;
                     readAllConfig();
                 }
             }
@@ -121,6 +124,7 @@ bool BMSCollector::connectServer(int id)
                 connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                 if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                 s->socket = socket;
+                s->configReady = true;
                 readAllConfig();
             }
             else{
@@ -175,7 +179,7 @@ bool BMSCollector::deleteConnection(QTcpSocket *socket)
 
 bool BMSCollector::readConfig(QString connection)
 {
-    QByteArray b = "READ:CFG";
+    QByteArray b = "SYS:CFG";
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
         if(s->connection == connection){
@@ -188,11 +192,10 @@ bool BMSCollector::readConfig(QString connection)
 
 void BMSCollector::readAllConfig()
 {
-    QByteArray b = "READ:CFG";
+    QByteArray b = "SYS:CFG";
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
         qDebug()<<"Write Command"<<b;
-//        s->socket->flush();
         s->socket->write(b);
     }
 }
@@ -223,13 +226,16 @@ void BMSCollector::handleServerData()
                         //qDebug()<<"Feed 1";
                         emit dataReceived();
                         sys->data.remove(0,len);
-                        QByteArray b;
-                        QDataStream d2(&b,QIODevice::ReadWrite);
-                        d2 << sys->system;
                         //qDebug()<<"Feed 2";
                         if(sys->system->enableLog()){
+                            QByteArray b;
+                            QDataStream d2(&b,QIODevice::ReadWrite);
+                            d2 << sys->system;
                             sys->system->log(b);
                         }
+                        // show alarm information
+                        bool set = false;
+
                         //qDebug()<<"Feed end";
                     //}
                 }

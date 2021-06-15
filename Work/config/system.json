@@ -17,7 +17,7 @@
             "alias": "Local System",
             "autoconnect": false,
             "ip": "127.0.0.1",
-            "enable_log":true,
+            "enable_log":false,
             "log_path": "./log",
             "log_days":-1,
             "log_records":200,

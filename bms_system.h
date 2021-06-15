@@ -6,8 +6,8 @@
 
 class BMS_BMUDevice;
 class BMS_BCUDevice;
-class BMS_HVCInfo;
-class BMS_StackInfo;
+class BMS_SVIDevice;
+class BMS_Stack;
 class BMS_StackConfig;
 class QTimer;
 
@@ -15,18 +15,19 @@ class BMS_System : public QObject
 {
     Q_OBJECT
 public:
+
     explicit BMS_System(QObject *parent = nullptr);
-    void SetStackInfo(QList<BMS_StackInfo*> info);
-    void AddStack(BMS_StackInfo *stack);
+    void SetStackInfo(QList<BMS_Stack*> info);
+    void AddStack(BMS_Stack *stack);
     void ClearStack();
-    BMS_StackInfo* findStack(QString stackName);
+    BMS_Stack* findStack(QString stackName);
     bool Configuration(QByteArray data);
     QByteArray Configuration();
     QString alias(){return m_alias;}
     void alias(QString value){m_alias = value;}
-    QList<BMS_StackInfo*> stacks(){return m_stacks;}
+    QList<BMS_Stack*> stacks(){return m_stacks;}
     void generateSystemStructure();
-    void generateDummySystem();
+    //void generateDummySystem();
     void feedData(quint32 identifier, QByteArray data);
 
     void startSimulator(int interval);
@@ -45,14 +46,6 @@ public:
     int BalancingOffTime;
 
     friend QDataStream &operator<<(QDataStream &out, const BMS_System *sys);
-//    {
-//        out << sys->Stacks;
-//        out << sys->m_bcuDevice;
-//        foreach (BMS_StackInfo *s, sys->m_stacks) {
-//            out << s;
-//        }
-//        return out;
-//    }
     friend QDataStream &operator>>(QDataStream &in, BMS_System *sys);
     CAN_Packet* setDigitalOut(int ch, int value);
     CAN_Packet* setVoltageSource(int ch, int value, bool enable);
@@ -62,6 +55,8 @@ public:
     QList<int> vsource();
     void log(QByteArray data);
     void emg_log(QByteArray data);
+    void emg_log(QString msg);
+    void evt_log(QString msg);
     void logPath(QString path);
     BMS_BCUDevice* bcu();
     QList<int> batteriesPerStack();
@@ -72,15 +67,30 @@ public:
     void logDays(int days);
     int logRecords();
     void logRecords(int recs);
+
+    void enableAlarmSystem(bool en);
+    quint32 alarmState();
+    void clearAlarm();
+    int warinig_out_id(){return m_warning_out_id;}
+    bool warinig_latch(){return m_warning_latch;}
+    int alarm_out_id(){return m_alarm_out_id;}
+    bool alarm_latch(){return m_alarm_latch;}
 signals:
     void sendPacket(QByteArray data);
 private slots:
     void simulate();
+    void validState();
 
 public slots:
+    void On_BMU_ov(quint16 mask);
+    void On_BMU_uv(quint16 mask);
+    void On_BMU_ot(quint16 mask);
+    void On_BMU_ut(quint16 mask);
+    void On_SVI_ov();
+    void On_SVI_oc();
 
 private:
-    QList<BMS_StackInfo*> m_stacks;
+    QList<BMS_Stack*> m_stacks;
     QList<BMS_StackConfig*> m_stackConfig;
     QString m_alias;
     QTimer *m_simulateTimer=nullptr;
@@ -90,6 +100,13 @@ private:
     bool m_enableLog = false;
     int m_logDays = -1;
     int m_logRecords = -1;
+    QTimer *m_validTimer = nullptr;
+    int m_validInterval = 5;
+    bool m_simulating = false;
+    int m_alarm_out_id=0;
+    int m_warning_out_id = 0;
+    bool m_warning_latch = true;
+    bool m_alarm_latch = true;
     //QList<CANBUSDevice*> m_canbusDevice;
     //MODBUSDevice *m_modbusDev = nullptr;
 

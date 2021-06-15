@@ -11,6 +11,7 @@ class frmStackView;
 class frmHardwareConfig;
 class BMSCollector;
 class frmHistoryView;
+class frmEventView;
 
 class CollectorView : public QMainWindow
 {
@@ -31,6 +32,8 @@ private slots:
 
     void on_pbAuth_clicked();
 
+    void on_pbEventView_clicked();
+
 private:
     void hideWindows();
 
@@ -43,6 +46,7 @@ private:
     QWidget *mainWidget = nullptr;
     BMSCollector *m_collector = nullptr;
     int m_userID = 1;
+    frmEventView *m_evtView = nullptr;
 };
 
 #endif // COLLECTORVIEW_H

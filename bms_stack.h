@@ -6,7 +6,7 @@
 
 class BMS_BMUDevice;
 class BMS_BCUDevice;
-class BMS_HVCInfo;
+class BMS_SVIDevice;
 
 const QHash<QString,int> HEADER = {
     {"SOC",0},{"STV",1},{"STC",2},
@@ -15,11 +15,11 @@ const QHash<QString,int> HEADER = {
     {"STL",9},{"STLID",10},{"DIFF",11},
 };
 
-class BMS_StackInfo : public QObject
+class BMS_Stack : public QObject
 {
     Q_OBJECT
 public:
-    explicit BMS_StackInfo(QObject *parent = nullptr);
+    explicit BMS_Stack(QObject *parent = nullptr);
     int BatteryCount();
     ushort cellVoltage(int bid, int cid);
     void cellVoltage(int bid, int cid, ushort x);
@@ -28,7 +28,7 @@ public:
     ushort queueData(int bid, int cid);
     void queueData(int bid, int cid, ushort x);
     void addBattery(BMS_BMUDevice *battery);
-    void setHVC(BMS_HVCInfo *hvc);
+    void setHVC(BMS_SVIDevice *hvc);
     ushort soc();
     void set_soc(ushort soc);
     ushort soh();
@@ -60,10 +60,12 @@ public:
     void groupID(int value);
     void enableHVModule();
     void feedData(quint32 identifier, QByteArray data);
-    void dummyData();
+    void simData();
+    void setSimCellData(quint8 id, quint8 cell, ushort v );
+    void setSimTempData(quint8 id, quint8 cell, ushort v );
     QByteArray data();
-    friend QDataStream &operator<<(QDataStream &out, const BMS_StackInfo *stack);
-    friend QDataStream &operator >> (QDataStream &in, BMS_StackInfo *stack);
+    friend QDataStream &operator<<(QDataStream &out, const BMS_Stack *stack);
+    friend QDataStream &operator >> (QDataStream &in, BMS_Stack *stack);
     QList<BMS_BMUDevice *> batteries();
     static QStringList headerInfo()
     {
@@ -89,12 +91,15 @@ public:
 
     QString state();
     void state(QString v);
+    BMS_SVIDevice *sviDevice() const;
+    quint32 alarmState();
+    void clearAlarm();
 signals:
 
 public slots:
 
 private:
-    BMS_HVCInfo *m_hvcInfo=nullptr;  // stack voltage/current
+    BMS_SVIDevice *m_svi=nullptr;  // stack voltage/current
     QList<BMS_BMUDevice*> m_batteries; // point to BMS_BMUDevice
     ushort m_MaxCellVoltage;
     int m_MaxCellIndex;
@@ -110,6 +115,7 @@ private:
     QString m_alias;
     uint8_t m_groupID;
     ushort m_CellVoltDiff;
+    ushort m_simStackVShift=0, m_simStackAShift = 0;
 };
 
 

@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QtCore>
 #include "bms_def.h"
-class BMS_StackInfo;
+class BMS_Stack;
 
 class BMS_BatteryModel:public QAbstractTableModel
 {
@@ -23,7 +23,7 @@ public:
 
     void feedData(); // feed data for battery info
 
-    void setStack(BMS_StackInfo *stack);
+    void setStack(BMS_Stack *stack);
 public slots:
 
 
@@ -31,8 +31,8 @@ signals:
     void editCompleted(const QString&);
 
 private:
-    //QList<BMS_StackInfo*> m_stacks;
-    BMS_StackInfo *m_activeStack;
+    //QList<BMS_Stack*> m_stacks;
+    BMS_Stack *m_activeStack;
     QStringList m_header;
 };
 
@@ -55,13 +55,13 @@ public:
 
     void feedData(); // feed data for battery info
 
-    void setStack(BMS_StackInfo *stack);
-    void addStack(BMS_StackInfo *stack);
+    void setStack(BMS_Stack *stack);
+    void addStack(BMS_Stack *stack);
     void setCurrentStack(int index);
-    void setStack(QList<BMS_StackInfo*> stacks){
+    void setStack(QList<BMS_Stack*> stacks){
         m_stacks = stacks;
     }
-    BMS_StackInfo *findStack(int id);
+    BMS_Stack *findStack(int id);
 public slots:
 
 
@@ -69,11 +69,10 @@ signals:
     void editCompleted(const QString&);
 
 private:
-    QList<BMS_StackInfo*> m_stacks;
-    BMS_StackInfo *m_activeStack;
+    QList<BMS_Stack*> m_stacks;
+    BMS_Stack *m_activeStack;
     QStringList m_header;
 };
-
 
 class BMS_EventModel:public QAbstractTableModel
 {
@@ -90,6 +89,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 //    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 //    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+
+    void appendEvent(BMS_Event *e);
 
 public slots:
 

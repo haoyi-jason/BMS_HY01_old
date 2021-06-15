@@ -23,7 +23,21 @@ namespace bms {
     const int MAX_CELLS = 12;
     const int MAX_NTC = 5;
 
+    enum AlarmID{
+        STACK_OV,
+        STACK_UV,
+        STACK_OT,
+        STACK_UT,
+        CELL_OV,
+        CELL_UV,
+        CELL_OT,
+        CELL_UT,
+        BMU_LOST,
+        BCU_LOST,
+        SVI_LOST
+    };
 }
+
 
 class HW_IOChannel{
 public:
@@ -61,24 +75,72 @@ public:
     int activeTime;
 };
 
-class _EventCriteria{
+class ValueDef{
 public:
-    _EventItem alarmHigh;
-    _EventItem alarmLow;
-    _EventItem warningHigh;
-    _EventItem warningLow;
-    bool autoReset = false;
-    bool isAlarm();
-    bool isWarning();
-    int validBand(int v){
+    qint32 value_set = 0;
+    qint32 value_reset = 0;
+    qint32 holdTime = 0;
+    qint32 activeCount = 0;
+    //bool activeated=false;
+    bool valid(){return (activeCount > holdTime);}
+};
 
-    }
-    int validHigh(int v){
+class EventDef{
+public:
+    ValueDef high_thres;
+    ValueDef low_thres;
+    bool high_active = false;
+    bool low_active = false;
+    bool autoreset = false;
+    QString name = "";
+};
 
-    }
-    int validLow(int v){
+class _EventCriteria
+{
 
+public:
+    ValueDef *alarmHigh = nullptr;
+    ValueDef *alarmLow = nullptr;
+    ValueDef *warningHigh = nullptr;
+    ValueDef *warningLow = nullptr;
+    void validEvents(qint32 tpv){
+        if(alarmHigh != nullptr){
+            if(tpv > alarmHigh->value_set){
+                alarmHigh->activeCount++;
+            }
+            else{
+                alarmHigh->activeCount = 0;
+            }
+        }
+
+        if(warningHigh != nullptr){
+            if(tpv > warningHigh->value_set){
+                warningHigh->activeCount++;
+            }
+            else{
+                warningHigh->activeCount = 0;
+            }
+        }
+
+        if(alarmLow != nullptr){
+            if(tpv < alarmLow->value_set){
+                alarmLow->activeCount++;
+            }
+            else{
+                alarmLow->activeCount = 0;
+            }
+        }
+        if(warningLow != nullptr){
+            if(tpv < warningLow->value_set){
+                warningLow->activeCount++;
+            }
+            else{
+                warningLow->activeCount = 0;
+            }
+        }
     }
+
+    //qint32 tpv = 0; // current value
 };
 
 class _Events{
@@ -109,8 +171,33 @@ class BMS_Event:public QObject{
     Q_OBJECT
 public:
     explicit BMS_Event(QObject *parent = nullptr){}
+    friend QTextStream &operator << (QTextStream &out,const BMS_Event *event){
+        out << QString("%1,").arg(event->m_evtID);
+        out << QString("%1,").arg(event->m_evtLevel);
+        out << QString("%1,").arg(event->m_isAlarm?"TRUE":"FALSE");
+        out << QString("%1,").arg(event->m_isWarning?"TRUE":"FALSE");
+        out << event->m_timeStamp.toString("yyyy:MM:dd hh-mm-ss")<<",";
+        out << event->m_description<<"\n";
+    }
 
-private:
+    bool parse(QString msg){
+        QStringList sl = msg.split(",");
+        if(sl.size() == 6){
+            m_evtID = sl[0].toInt();
+            m_evtLevel = sl[1].toInt();
+            m_isAlarm = sl[2].contains("TRUE");
+            m_isWarning = sl[3].contains("TRUE");
+            m_timeStamp = QDateTime::fromString(sl[4]);
+            m_description = sl[5];
+        }
+        else{
+            return false;
+        }
+    }
+
+
+
+public:
     int m_evtID;
     int m_evtLevel;
     bool m_isAlarm;
@@ -132,11 +219,13 @@ public:
     QString logPath;
     int port;
     bool autoConnect;
+    bool enableLog=false;
+    int logDays = -1;
+    int logRecords = 1000;
     void setDigitalOut(int id, int value){
         QString msg = QString("DO:%1:%2").arg(id).arg(value);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
-//            socket->flush();
         }
     }
 
@@ -144,7 +233,6 @@ public:
         QString msg = QString("VO:%1:%2").arg(id).arg(value);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
-//            socket->flush();
         }
     }
 
@@ -152,7 +240,6 @@ public:
         QString msg = QString("PORT:OPEN:%1:%2:%3:%4").arg(name).arg(baudrate).arg(parity).arg(stopBits);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
-//            socket->flush();
         }
     }
 
@@ -160,7 +247,6 @@ public:
         QString msg = QString("PORT:CLOSE:%1").arg(name);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
-//            socket->flush();
         }
     }
 
@@ -168,14 +254,12 @@ public:
         QString msg = QString("PORT:WRITE:%1:%2").arg(name).arg(data);
         if(socket != nullptr){
             socket->write(msg.toUtf8());
-//            socket->flush();
         }
 
     }
     void writeCommand(QString command){
         if(socket != nullptr){
             socket->write(command.toUtf8());
-//            socket->flush();
         }
     }
 

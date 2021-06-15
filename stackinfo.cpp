@@ -78,7 +78,7 @@ void StackInfo::dummyData()
 {
 
     for(int i=0;i<2;i++){
-        BMS_StackInfo *stack_info = new BMS_StackInfo();
+        BMS_Stack *stack_info = new BMS_Stack();
         for(int j=0;j<12;j++){
             BMS_BMUDevice *bat = new BMS_BMUDevice(12,5);
             QList<ushort> v,t;
@@ -142,8 +142,8 @@ void StackInfo::on_pbPreviousStack_clicked()
 
 void StackInfo::updateStackInfo()
 {
-    BMS_StackInfo *s = stackModel->findStack(m_currentStackIndex);
-//    BMS_StackInfo *s = collector->currentSystem()->system->stacks();
+    BMS_Stack *s = stackModel->findStack(m_currentStackIndex);
+//    BMS_Stack *s = collector->currentSystem()->system->stacks();
 
     QString msg = "系統資訊 IP:";
     msg += activeSystem->connectionString;

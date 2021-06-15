@@ -21,9 +21,11 @@ BMS_BMUDevice::BMS_BMUDevice(int nofCells, int nofTemp,QObject *parent):QObject(
         m_cellVoltage.append(0);
         m_balancing.append(0);
         m_openWire.append(0);
+        m_simVoltBase.append(0);
     }
     for(int i=0;i<nofTemp;i++){
         m_packTemperature.append(0);
+        m_simTempBase.append(0);
     }
 }
 
@@ -140,71 +142,59 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
         ds.setByteOrder(QDataStream::LittleEndian);
         int max_cell = m_cellVoltage.size();
         int max_ntc = m_packTemperature.size();
+        if((msg & 0xFF0) == 0x80){ // emg data
+            quint8 cid = msg & 0xF; // cell id
+            // each packet with 8-byte data for variance of 1-seconds data
+            QByteArray vq = data.mid(0,8);
+            emit emgData(m_devid,cid,m_cellVoltage[cid],vq);
+            return;
+        }
         switch (msg) {
         case 0x110:
             for(int i=0;i<4;i++){
-                if(i < max_cell)
+                if(i < max_cell){
                     ds >> m_cellVoltage[i];
+                    m_cellVoltage[i] += m_simVoltBase[i];
+                }
             }
             break;
         case 0x111:
             for(int i=4;i<8;i++){
-                if(i < max_cell)
+                if(i < max_cell){
                     ds >> m_cellVoltage[i];
+                    m_cellVoltage[i] += m_simVoltBase[i];
+                }
             }
             break;
         case 0x112:
             for(int i=8;i<12;i++){
-                if(i < max_cell)
+                if(i < max_cell){
                     ds >> m_cellVoltage[i];
+                    m_cellVoltage[i] += m_simVoltBase[i];
+                }
             }
             break;
         case 0x113:
             for(int i=0;i<4;i++){
-                if(i < max_ntc)
+                if(i < max_ntc){
                     ds >> m_packTemperature[i];
+                    m_packTemperature[i] += m_simTempBase[i];
+                }
             }
             break;
         case 0x114:
-            if(4 < max_ntc)
+            if(4 < max_ntc){
                 ds >> m_packTemperature[4];
+                m_packTemperature[i] += m_simTempBase[i];
+            }
             break;
         case 0x115:{
             ushort balancing,openWire;
             ds >> balancing;
             ds >> openWire;
-            for(int i=0;i<max_cell;i++){
-                if((balancing & (1 <<i)) == (1 << i)){
-                    m_balancing[i] = 1;
-                }
-                else{
-                    m_balancing[i] = 0;
-                }
-                if((openWire & (1 <<i)) == (1 << i)){
-                    m_openWire[i] = 1;
-                }
-                else{
-                    m_openWire[i] = 0;
-                }
-            }
-            // find max/min values
-            ushort val_max=0, val_min = 0xffff;
-            int val_sum = 0;
-            foreach (ushort v, m_cellVoltage) {
-                val_max = (val_max > v)?val_max:v;
-                val_min = (val_min < v)?val_min:v;
-                val_sum += v;
-            }
-            m_maxVoltage = val_max;
-            m_minVoltage = val_min;
-            m_totalVoltage = val_sum;
-            val_max = 0; val_min = 0xffff;
-            foreach (ushort v, m_packTemperature) {
-                val_max = (val_max > v)?val_max:v;
-                val_min = (val_min < v)?val_min:v;
-            }
-            m_maxTemperature = val_max;
-            m_minTemperature = val_min;
+            m_balancingBit = balancing;
+            m_openWireBit = openWire;
+            this->validAlarmstate();
         }
             break;
         default:
@@ -213,11 +203,185 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
     }
 }
 
-void BMS_BMUDevice::dummyData(ushort vbase, ushort vgap, ushort tbase, ushort tgap){
+void BMS_BMUDevice::validAlarmstate()
+{
+    // find max/min values and over/under threshold
+    ushort val_max=0, val_min = 0xffff;
+    quint16 ov_mask = 0x0;
+    quint16 uv_mask = 0x0;
+    quint16 ot_mask = 0x0;
+    quint16 ut_mask = 0x0;
+
+    quint16 ov_rst_mask = 0x0;
+    quint16 uv_rst_mask = 0x0;
+    quint16 ot_rst_mask = 0x0;
+    quint16 ut_rst_mask = 0x0;
+    int val_sum = 0;
+    for(int i=0;i<m_cellVoltage.size();i++) {
+        ushort v = m_cellVoltage[i];
+        val_max = (val_max > v)?val_max:v;
+        val_min = (val_min < v)?val_min:v;
+        val_sum += v;
+
+        if(v > m_ov_set_ths){
+            ov_mask |= ( 1<< i);
+        }
+        if(v < m_ov_clr_ths){
+            ov_rst_mask |= (1 << i);
+        }
+
+        if(v < m_uv_set_ths){
+            uv_mask |= (1 << i);
+        }
+        if(v > m_uv_clr_ths){
+            uv_rst_mask |= (1 << i);
+        }
+    }
+
+    m_maxVoltage = val_max;
+    m_minVoltage = val_min;
+    m_totalVoltage = val_sum;
+
+    m_ovMask.append(ov_mask);
+    m_uvMask.append(uv_mask);
+    m_ovClrMask.append(ov_rst_mask);
+    m_uvClrMask.append(uv_rst_mask);
+
+    if(m_ovMask.size() > m_holdSec) m_ovMask.removeFirst();
+    if(m_uvMask.size() > m_holdSec) m_uvMask.removeFirst();
+    if(m_ovClrMask.size() > m_holdSec) m_ovClrMask.removeFirst();
+    if(m_uvClrMask.size() > m_holdSec) m_uvClrMask.removeFirst();
+
+    val_max = 0; val_min = 0xffff;
+    for(int i=0;i<m_packTemperature.size();i++) {
+        ushort v = m_packTemperature[i];
+        val_max = (val_max > v)?val_max:v;
+        val_min = (val_min < v)?val_min:v;
+        if(v > m_ot_set_ths){
+            ot_mask |= (1 << i);
+        }
+        if(v < m_ot_clr_ths){
+            ot_rst_mask |= (1 << i);
+        }
+
+        if(v < m_ut_set_ths){
+            ut_mask |= (1 << i);
+        }
+        if(v > m_ut_clr_ths){
+            ut_rst_mask |= (1 << i);
+        }
+    }
+    m_maxTemperature = val_max;
+    m_minTemperature = val_min;
+    m_otMask.append(ot_mask);
+    m_utMask.append(ut_mask);
+    m_otClrMask.append(ot_rst_mask);
+    m_utClrMask.append(ut_rst_mask);
+    // keep last  m_holdSec data
+    if(m_otMask.size() > m_holdSec) m_otMask.removeFirst();
+    if(m_utMask.size() > m_holdSec) m_utMask.removeFirst();
+    if(m_otClrMask.size() > m_holdSec) m_otClrMask.removeFirst();
+    if(m_utClrMask.size() > m_holdSec) m_utClrMask.removeFirst();
+
+}
+
+quint16 BMS_BMUDevice::ovState(quint16 *set,quint16 *clr)
+{
+    if(m_ovMask.size() < m_holdSec) return 0x00;
+    ushort mask_clr = 0xFFFF;
+    ushort mask_set = 0xffff;
+
+    foreach (quint16 v, m_ovMask) {
+        mask_set &= v;
+    }
+    foreach (quint16 v, m_ovClrMask) {
+        mask_clr &= v;
+    }
+    *set = mask_set;
+    *clr = mask_clr;
+
+    return mask_set ^ m_ovSetMask;
+}
+
+quint16 BMS_BMUDevice::uvState(quint16 *set,quint16 *clr)
+{
+    if(m_uvMask.size() < m_holdSec) return 0x00;
+
+    ushort mask_clr = 0xFFFF;
+    ushort mask_set = 0xffff;
+
+    foreach (quint16 v, m_uvMask) {
+        mask_set &= v;
+    }
+    foreach (quint16 v, m_uvClrMask) {
+        mask_clr &= v;
+    }
+    *set = mask_set;
+    *clr = mask_clr;
+
+    return mask_set ^ m_uvSetMask;
+
+}
+
+quint16 BMS_BMUDevice::otState(quint16 *set,quint16 *clr)
+{
+    if(m_otMask.size() < m_holdSec) return 0x0;
+    ushort mask_clr = 0xFFFF;
+    ushort mask_set = 0xffff;
+
+    foreach (quint16 v, m_otMask) {
+        mask_set &= v;
+    }
+    foreach (quint16 v, m_otClrMask) {
+        mask_clr &= v;
+    }
+    *set = mask_set;
+    *clr = mask_clr;
+
+    return mask_set ^ m_otSetMask;
+}
+
+quint16 BMS_BMUDevice::utState(quint16 *set,quint16 *clr)
+{
+    if(m_utMask.size() < m_holdSec) return 0x0;
+
+    ushort mask_clr = 0xFFFF;
+    ushort mask_set = 0xffff;
+
+    foreach (quint16 v, m_utMask) {
+        mask_set &= v;
+    }
+    foreach (quint16 v, m_utClrMask) {
+        mask_clr &= v;
+    }
+    *set = mask_set;
+    *clr = mask_clr;
+
+    return mask_set ^ m_utSetMask;
+}
+bool BMS_BMUDevice::isOV()
+{
+    return (m_ovSetMask != 0x0);
+}
+
+bool BMS_BMUDevice::isUV()
+{
+    return (m_uvSetMask != 0x0);
+}
+bool BMS_BMUDevice::isOT()
+{
+    return (m_otSetMask != 0x0);
+}
+bool BMS_BMUDevice::isUT()
+{
+    return (m_utSetMask != 0x0);
+}
+
+void BMS_BMUDevice::simData(ushort vbase, ushort vgap, ushort tbase, ushort tgap){
     ushort max_val = 0, min_val = 0xffff;
     ushort total = 0;
     for(int i=0;i<m_cellVoltage.size();i++){
-        m_cellVoltage[i] = (ushort)(vbase + QRandomGenerator::global()->bounded(vgap));
+        m_cellVoltage[i] = (ushort)(vbase + QRandomGenerator::global()->bounded(vgap) + m_simVoltBase[i]);
         max_val = (max_val > m_cellVoltage[i])?max_val:m_cellVoltage[i];
         min_val = (min_val < m_cellVoltage[i])?min_val:m_cellVoltage[i];
         total += m_cellVoltage[i];
@@ -228,13 +392,45 @@ void BMS_BMUDevice::dummyData(ushort vbase, ushort vgap, ushort tbase, ushort tg
 
     max_val = 0;min_val = 0xffff;
     for(int i=0;i<m_packTemperature.size();i++){
-        m_packTemperature[i] = (ushort)(tbase + QRandomGenerator::global()->bounded(tgap));
+        m_packTemperature[i] = (ushort)(tbase + QRandomGenerator::global()->bounded(tgap) + m_simTempBase[i]);
         max_val = (max_val > m_packTemperature[i])?max_val:m_packTemperature[i];
         min_val = (min_val < m_packTemperature[i])?min_val:m_packTemperature[i];
     }
     m_maxTemperature = max_val;
     m_minTemperature = min_val;
+
+    this->validAlarmstate();
 }
+
+void BMS_BMUDevice::setSimVolt(quint8 id, quint8 cell, ushort shift)
+{
+    if(ID_OF(id) == m_devid){
+        if(cell < m_simVoltBase.count()){
+            m_simVoltBase[cell] = shift;
+        }
+        else if(cell==0xff){
+            for(int i=0;i<m_simVoltBase.size();i++){
+                m_simVoltBase[i] = shift;
+            }
+        }
+    }
+}
+
+void BMS_BMUDevice::setSimTemp(quint8 id, quint8 tid, ushort shift)
+{
+    if(ID_OF(id) == m_devid){
+        if(tid < m_simTempBase.count()){
+            m_simTempBase[tid] = shift;
+        }
+        else if(tid==-1){
+            for(int i=0;i<m_simTempBase.size();i++){
+                m_simTempBase[i] = shift;
+            }
+        }
+    }
+}
+
+
 QByteArray BMS_BMUDevice::data(){
     QByteArray d;
     QDataStream s(&d,QIODevice::WriteOnly);
@@ -260,19 +456,24 @@ QDataStream &operator<<(QDataStream &out, const BMS_BMUDevice *bat)
     out << bat->m_maxTemperature;
     out << bat->m_minTemperature;
     out << bat->m_totalVoltage;
-
+    out << bat->m_balancingBit;
+    out << bat->m_openWireBit;
+    out << bat->m_ovSetMask;
+    out << bat->m_uvSetMask;
+    out << bat->m_otSetMask;
+    out << bat->m_utSetMask;
     for(int i=0;i<bat->m_cellVoltage.size();i++){
         out << bat->m_cellVoltage[i];
     }
     for(int i=0;i<bat->m_packTemperature.size();i++){
         out << bat->m_packTemperature[i];
     }
-    for(int i=0;i<bat->m_balancing.size();i++){
-        out << bat->m_balancing[i];
-    }
-    for(int i=0;i<bat->m_openWire.size();i++){
-        out << bat->m_openWire[i];
-    }
+//    for(int i=0;i<bat->m_balancing.size();i++){
+//        out << bat->m_balancing[i];
+//    }
+//    for(int i=0;i<bat->m_openWire.size();i++){
+//        out << bat->m_openWire[i];
+//    }
     return out;
 }
 QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
@@ -286,7 +487,12 @@ QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
     in >> bat->m_maxTemperature;
     in >> bat->m_minTemperature;
     in >> bat->m_totalVoltage;
-
+    in >> bat->m_balancingBit;
+    in >> bat->m_openWireBit;
+    in >> bat->m_ovSetMask;
+    in >> bat->m_uvSetMask;
+    in >> bat->m_otSetMask;
+    in >> bat->m_utSetMask;
     ushort max_v = 0,max_t = 0;
     ushort min_v = 0xffff,min_t = 100;
     //bat->m_totalVoltage = 0;
@@ -334,12 +540,12 @@ QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
 //        bat->m_tempHighMask = (quint8)tmpHighMask;
 //        bat->m_tempLowMask = (quint8)tmpLowMask;
     }
-    for(int i=0;i<bat->m_balancing.size();i++){
-        in >> bat->m_balancing[i];
-    }
-    for(int i=0;i<bat->m_openWire.size();i++){
-        in >> bat->m_openWire[i];
-    }
+//    for(int i=0;i<bat->m_balancing.size();i++){
+//        in >> bat->m_balancing[i];
+//    }
+//    for(int i=0;i<bat->m_openWire.size();i++){
+//        in >> bat->m_openWire[i];
+//    }
 //    bat->m_maxVoltage = max_v;
 //    bat->m_maxTemperature = max_t;
 //    bat->m_minVoltage = min_v;
@@ -381,5 +587,27 @@ CAN_Packet *BMS_BMUDevice::setBalancing(quint16 bv, quint8 bh, quint8 be, quint1
     }
 
     return ret;
+}
+
+void BMS_BMUDevice::clearAlarm()
+{
+    m_ovMask.clear();
+    m_uvMask.clear();
+    m_otMask.clear();
+    m_utMask.clear();
+    m_ovSetMask = 0x0;
+    m_uvSetMask = 0x0;
+    m_otSetMask = 0x0;
+    m_utSetMask = 0x0;
+}
+
+bool BMS_BMUDevice::alarm()
+{
+    return m_alarm;
+}
+
+void BMS_BMUDevice::alarm(bool v)
+{
+    m_alarm = v;
 }
 

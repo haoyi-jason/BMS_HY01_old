@@ -58,6 +58,14 @@ void BMS_BCUDevice::add_pwm_in(int n)
         return ret;
     }
 
+    int BMS_BCUDevice::digitalOutState(int id)
+    {
+        if(id < m_digitalOutput.size()){
+            return m_digitalOutput[id]->value();
+        }
+        return -1;
+    }
+
     QByteArray BMS_BCUDevice::getDigitalOutput(){
         int index=0;
         QByteArray ret;

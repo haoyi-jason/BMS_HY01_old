@@ -74,8 +74,9 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     {
         BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
         if(bmu != nullptr){
-            ushort ow = bmu->openWire(col);
-            ushort bl = bmu->balancing(col);
+            ushort cmp = (1<<col);
+            ushort ow = bmu->openwireBit() & cmp;
+            ushort bl = bmu->balancingBit() & cmp;
             if(ow == 0 && bl==0){
                 return QVariant();
             }
@@ -92,15 +93,23 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         break;
     case Qt::ForegroundRole:
-//        if(m_activeStack->queueData(row,col)>3445){
-//            return QVariant(QColor(Qt::green));
-//        }
-//        else if(m_activeStack->queueData(row,col)>3425){
-//            return QVariant(QColor(Qt::blue));
-//        }
-//        else{
-//            return QVariant();
-//        }
+        BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
+        if(bmu != nullptr){
+            if(col < bmu->cellCount()){
+                ushort cmp = (1 << col);
+                ushort ov = bmu->ovSetMask();
+                ushort uv = bmu->uvSetMask();
+                if(ov & cmp){
+                    return QVariant(QColor(Qt::red));
+                }
+                else if(uv & cmp){
+                    return QVariant(QColor(Qt::blue));
+                }
+                else{
+                    return QVariant();
+                }
+            }
+        }
         return QVariant();
         break;
     }
@@ -152,7 +161,7 @@ Qt::ItemFlags BMS_BatteryModel::flags(const QModelIndex &index) const
 //    return true;
 //}
 
-void BMS_BatteryModel::setStack(BMS_StackInfo *stack)
+void BMS_BatteryModel::setStack(BMS_Stack *stack)
 {
 //    this->m_stacks.append(stack);
     this->m_activeStack = stack;
@@ -167,7 +176,7 @@ BMS_StackModel::BMS_StackModel(QObject *parent):
     QAbstractTableModel (parent)
 {
     m_header<<"電量狀態(SOC)"<<"總電壓(V)"<<"總電流(A)"<<"最高溫電池(ID/溫度)" << "最低溫電池(ID/溫度)" << "最大壓差(mV)";
-    //m_header = BMS_StackInfo::headerInfo();
+    //m_header = BMS_Stack::headerInfo();
 }
 
 BMS_StackModel::~BMS_StackModel()
@@ -189,7 +198,7 @@ QVariant BMS_StackModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int col = index.column();
-    BMS_StackInfo *s = m_stacks[row];
+    BMS_Stack *s = m_stacks[row];
     switch(role){
     case Qt::DisplayRole:
     case Qt::EditRole:
@@ -232,7 +241,7 @@ Qt::ItemFlags BMS_StackModel::flags(const QModelIndex &index) const
     return QAbstractTableModel::flags(index);
 }
 
-void BMS_StackModel::addStack(BMS_StackInfo *stack)
+void BMS_StackModel::addStack(BMS_Stack *stack)
 {
     m_stacks.append(stack);
     m_activeStack = m_stacks.last();
@@ -245,7 +254,7 @@ void BMS_StackModel::setCurrentStack(int index)
     }
 }
 
-BMS_StackInfo *BMS_StackModel::findStack(int id)
+BMS_Stack *BMS_StackModel::findStack(int id)
 {
     if(id < m_stacks.size()){
         return m_stacks.at(id);
@@ -259,7 +268,7 @@ BMS_StackInfo *BMS_StackModel::findStack(int id)
 
 BMS_EventModel::BMS_EventModel(QObject *parent):QAbstractTableModel(parent)
 {
-
+    m_header<<"ID"<<"EVID"<<"EVLEVEL"<<"ALARM?"<<"WARNING?"<<"DATE"<<"Description";
 }
 
 BMS_EventModel::~BMS_EventModel()
@@ -269,10 +278,7 @@ BMS_EventModel::~BMS_EventModel()
 
 int BMS_EventModel::rowCount(const QModelIndex &parent) const
 {
-//    if(m_activeStack != nullptr){
-//        return m_activeStack->BatteryCount();
-//    }
-    return 0;
+    return m_events.size();
 }
 
 int BMS_EventModel::columnCount(const QModelIndex &parent) const
@@ -282,13 +288,25 @@ int BMS_EventModel::columnCount(const QModelIndex &parent) const
 
 QVariant BMS_EventModel::data(const QModelIndex &index, int role) const
 {
-//    if(m_activeStack == nullptr) return QVariant();
+    if(m_events.size() == 0) return QVariant();
     int row = index.row();
     int col = index.column();
+
+    BMS_Event *evt = m_events.at(row);
+
     switch(role){
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return QVariant();
+        switch(col){
+        case 0: return QVariant(row);break;
+        case 1: return QVariant(evt->m_evtID);break;
+        case 2: return QVariant(evt->m_evtLevel);break;
+        case 3: return QVariant(evt->m_isAlarm?"TRUE":"FALSE");
+        case 4: return QVariant(evt->m_isWarning?"TRUE":"FALSE");
+        case 5: return QVariant(evt->m_timeStamp.toString("yyyy-MM-dd hhmmss"));
+        case 6: return QVariant(evt->m_description);
+        default: return QVariant();
+        }
     case Qt::FontRole:
         break;
     case Qt::BackgroundRole:
@@ -353,4 +371,10 @@ Qt::ItemFlags BMS_EventModel::flags(const QModelIndex &index) const
 //    return true;
 //}
 
+void BMS_EventModel::appendEvent(BMS_Event *e)
+{
+    if(e != nullptr){
+        m_events.append(e);
+    }
+}
 
