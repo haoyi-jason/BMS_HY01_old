@@ -81,10 +81,10 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
                 return QVariant();
             }
             else if(ow != 0){
-                return QVariant(QColor(Qt::red));
+                return QVariant(QColor(Qt::yellow));
             }
             else if(bl != 0){
-                return QVariant(QColor(Qt::yellow));
+                return QVariant(QColor(Qt::green));
             }
         }
     }

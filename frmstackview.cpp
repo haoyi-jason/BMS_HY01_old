@@ -154,8 +154,8 @@ void frmStackView::updateStackInfo()
     ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,5,'f',2,'0'));
     //ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()/10.));
 //    ui->le_minTemp->setText(QString::number(stack->minStackTemperature()/10.));
-    ui->leTotalVoltage->setText(QString::number(stack->stackVoltage()/10.));
-    ui->le_current->setText(QString::number(stack->stackCurrent()/10.));
+    ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',2,'0'));
+    ui->le_current->setText(QString("%1").arg(stack->stackCurrent()/10.,5,'f',2,'0'));
 
     ui->leSOC->setText(QString::number(stack->soc()));
     ui->leState->setText(stack->state());

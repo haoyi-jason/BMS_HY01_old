@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.13.1, 2021-06-15T19:01:02. -->
+<!-- Written by QtCreator 4.13.1, 2021-06-16T17:49:40. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -278,9 +278,9 @@
        <value type="QString">/home/jason/qtapp/build-BMS_HY01-iMX6-Debug/BMS_HY01</value>
       </valuelist>
       <valuelist type="QVariantList" key="ProjectExplorer.RunConfiguration.LastDeployedHosts">
+       <value type="QString">192.168.0.107</value>
        <value type="QString">192.168.0.115</value>
        <value type="QString">192.168.0.126</value>
-       <value type="QString">192.168.0.107</value>
       </valuelist>
       <valuelist type="QVariantList" key="ProjectExplorer.RunConfiguration.LastDeployedRemotePaths">
        <value type="QString">/opt/BMS_HY01/bin</value>
@@ -295,14 +295,14 @@
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles">false</value>
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.Incremental">true</value>
       <valuelist type="QVariantList" key="RemoteLinux.LastDeployedLocalTimes">
+       <value type="QDateTime">2021-06-15T16:40:18.817</value>
        <value type="QDateTime">2021-06-07T17:03:44.286</value>
        <value type="QDateTime">2021-06-04T15:53:30.373</value>
-       <value type="QDateTime">2021-06-15T16:40:18.817</value>
       </valuelist>
       <valuelist type="QVariantList" key="RemoteLinux.LastDeployedRemoteTimes">
+       <value type="QDateTime">2021-06-15T16:40:22.000</value>
        <value type="QDateTime">2021-06-07T17:03:46.000</value>
        <value type="QDateTime">2021-06-04T15:53:32.000</value>
-       <value type="QDateTime">2021-06-15T16:40:22.000</value>
       </valuelist>
      </valuemap>
      <value type="int" key="ProjectExplorer.BuildStepList.StepsCount">3</value>
