@@ -411,8 +411,8 @@
   <widget class="QListWidget" name="lwFiles">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>90</y>
+     <x>40</x>
+     <y>170</y>
      <width>256</width>
      <height>192</height>
     </rect>
