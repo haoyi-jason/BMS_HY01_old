@@ -87,7 +87,7 @@
   <customwidget>
    <class>FocusEditor</class>
    <extends>QLineEdit</extends>
-   <header location="global">InputWin.h</header>
+   <header location="global">inputwin.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
