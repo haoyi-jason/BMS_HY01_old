@@ -19,6 +19,7 @@ int BMS_SVIDevice::current(){return m_stackCurrent;}
 
 void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
     if(id == SVI_ID){
+        long long now = QDateTime::currentMSecsSinceEpoch();
         QDataStream ds(&data,QIODevice::ReadOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint16 v;
@@ -32,7 +33,11 @@ void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
         ds >> v;
         m_stackVoltage = v;
 
+        // calculate SOC
+
+
         this->validAlarm();
+        m_lastSeen = now;
 
     }
 }

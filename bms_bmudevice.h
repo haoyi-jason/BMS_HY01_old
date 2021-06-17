@@ -95,7 +95,8 @@ public:
     quint16 otSetMask(){return m_otSetMask;}
     void utSetMask(quint16 v){m_utSetMask = v;}
     quint16 utSetMask(){return m_utSetMask;}
-
+    bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
+    void resetValues();
 
 signals:
     void set_ov(quint16);

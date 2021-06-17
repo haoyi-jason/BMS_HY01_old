@@ -2,7 +2,7 @@
 #define BMS_SVIDEVICE_H
 
 #include <QObject>
-
+#include <QDateTime>
 class BMS_SVIDevice : public QObject
 {
     Q_OBJECT
@@ -21,6 +21,8 @@ public:
     bool voltAlarm(){return m_voltAlarm;}
     void ampereAlarm(bool v){m_currentAlarm = v;}
     bool ampereAlarm(){return m_currentAlarm;}
+    int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
+    bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
 signals:
     void set_ov();
     void set_uv();
@@ -42,7 +44,8 @@ private:
     int m_holdSec = 5;
     bool m_voltAlarm = false;
     bool m_currentAlarm = false;
-
+    long long m_lastSeen;
+    int m_soc;
 };
 
 #endif // BMS_SVIDEVICE_H

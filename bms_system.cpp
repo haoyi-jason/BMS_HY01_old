@@ -213,6 +213,14 @@ bool BMS_System::Configuration(QByteArray data)
             if(vs.contains("channels")){
                 int n = vs["channels"].toInt();
                 m_bcuDevice->add_voltage_source(n);
+                if(vs.contains("limit")){
+                    QJsonArray a = vs["limit"].toArray();
+                    if(a.size() == n){
+                        for(int i=0;i<n;i++){
+                            m_bcuDevice->vsource_limit(i,a[i].toInt());
+                        }
+                    }
+                }
             }
         }
     }
@@ -251,25 +259,6 @@ void BMS_System::generateSystemStructure()
     }
 
 }
-
-//void BMS_System::generateDummySystem()
-//{
-//    qDebug()<<"generate dummy system";
-//    m_stacks.clear();
-//    for(int i=1;i<8;i++) // 7 stacks
-//    {
-//        BMS_Stack *info = new BMS_Stack();
-//        for(int j=0;j<20;j++){
-//            BMS_BMUDevice *bat = new BMS_BMUDevice(12,5);
-//            bat->deviceID(GROUP(i)+j+2);
-//            info->addBattery(bat);
-//        }
-//        info->enableHVModule();
-//        info->groupID((i));
-
-//        m_stacks.append(info);
-//    }
-//}
 
 void BMS_System::feedData(quint32 identifier, QByteArray data)
 {
@@ -345,7 +334,13 @@ void BMS_System::validState()
 {
     QString msg;
     // check each battery in stacks and svi
+    ushort minCellVoltage = 0xffff;
     foreach(BMS_Stack *s, m_stacks){
+        // check if svi device lost
+
+//        if(s->sviDevice()->lastSeen() > 5000){
+//            emit deviceLost(GROUP(s->groupID()) | 0x31);
+//        }
         int v = s->sviDevice()->voltageAlarm();
         if(s->sviDevice()->voltAlarm() && v == 0){
             msg = QString("第[%1]簇,過/欠壓[%2]V警報復歸").arg(s->groupID()).arg(s->stackVoltage());
@@ -386,6 +381,11 @@ void BMS_System::validState()
 
         quint16 set,clr,res,cmp;
         foreach(BMS_BMUDevice *b,s->batteries()){
+            // check if bmu lost
+            if(b->deviceLost()){
+                b->resetValues();
+            }
+            minCellVoltage = minCellVoltage > b->minCellVoltage()?b->minCellVoltage():minCellVoltage;
             if((res = b->ovState(&set,&clr)) != 0x00){
                 quint16 mask = b->ovSetMask();
                 for(int i=0;i<b->cellCount();i++){
@@ -460,6 +460,14 @@ void BMS_System::validState()
             }
         }
     }
+
+    // set balancing voltage
+    if(minCellVoltage > this->BalancingVoltage){
+        // broadcast
+        emit setBalancingVoltage(minCellVoltage);
+    }
+
+
 }
 
 QByteArray BMS_System::data()
@@ -648,6 +656,8 @@ CAN_Packet *BMS_System::setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 o
     return ret;
 }
 
+
+
 bool BMS_System::enableLog()
 {
     return m_enableLog;
@@ -723,3 +733,43 @@ void BMS_System::clearAlarm()
         s->clearAlarm();
     }
 }
+
+
+CAN_Packet *BMS_System::broadcastBalancing()
+{
+    if(m_cellMinVoltage == m_currentBalanceVoltage) return nullptr;
+    if(m_cellMinVoltage < BalancingVoltage) return nullptr;
+
+    CAN_Packet *ret = new CAN_Packet;
+    ret->Command = 0x080;
+    ret->remote = false;
+    QDataStream ds(&ret->data,QIODevice::WriteOnly);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    ds << m_cellMinVoltage;
+    m_currentBalanceVoltage = m_cellMinVoltage;
+    return ret;
+
+}
+
+CAN_Packet *BMS_System::startBMUs(bool enable)
+{
+    CAN_Packet *ret = new CAN_Packet;
+    ret->Command = 0x081;
+    ret->remote = false;
+    QDataStream ds(&ret->data,QIODevice::WriteOnly);
+    ds.setByteOrder(QDataStream::LittleEndian);
+    quint8 en = enable?1:0;
+    ds << en;
+    en = 0; ds << en;
+    quint16 reportMS = (quint16)normalReportMS;
+    ds << reportMS;
+    return ret;
+}
+
+CAN_Packet *BMS_System::heartBeat()
+{
+    CAN_Packet *ret = new CAN_Packet;
+    ret->Command = 0x020;
+    ret->remote = true;
+}
+

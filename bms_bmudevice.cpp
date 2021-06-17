@@ -137,7 +137,6 @@ int BMS_BMUDevice::lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_las
 
 void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
     if(id == m_devid){
-        m_lastSeen = QDateTime::currentMSecsSinceEpoch();
         QDataStream ds(&data,QIODevice::ReadOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         int max_cell = m_cellVoltage.size();
@@ -185,7 +184,7 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
         case 0x114:
             if(4 < max_ntc){
                 ds >> m_packTemperature[4];
-                m_packTemperature[i] += m_simTempBase[i];
+                m_packTemperature[4] += m_simTempBase[4];
             }
             break;
         case 0x115:{
@@ -194,6 +193,7 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
             ds >> openWire;
             m_balancingBit = balancing;
             m_openWireBit = openWire;
+            m_lastSeen = QDateTime::currentMSecsSinceEpoch();
             this->validAlarmstate();
         }
             break;
@@ -611,3 +611,13 @@ void BMS_BMUDevice::alarm(bool v)
     m_alarm = v;
 }
 
+void BMS_BMUDevice::resetValues()
+{
+    for(int i=0;i<m_cellVoltage.size();i++){
+        m_cellVoltage[i] = 0;
+    }
+
+    for(int i=0; i< m_packTemperature.size();i++){
+        m_packTemperature[i] = 0;
+    }
+}

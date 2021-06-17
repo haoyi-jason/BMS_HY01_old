@@ -39,6 +39,9 @@ public:
 
     int digitalOutState(int id);
 
+    void vsource_limit(int id, int value);
+    int vsource_limit(int id);
+
 signals:
 
 public slots:
@@ -51,6 +54,7 @@ private:
     QList<HW_IOChannel*> m_voltageSource;
     long long m_lastSeen;
     QList<CAN_Packet*> m_pendingAction;
+
 };
 
 #endif // BMS_BCUDEVICE_H

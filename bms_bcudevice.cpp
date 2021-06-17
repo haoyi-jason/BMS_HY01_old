@@ -92,7 +92,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
             m_digitalOutput[id]->writeValue(state);
             if(m_digitalOutput[id]->valid_write()){
                 ret = new CAN_Packet();
-                ret->Command = 0x140;
+                ret->Command = 0x1140;
                 quint8 b = 0x0;
                 for(int i=0;i<m_digitalOutput.size();i++){
                     b |= (m_digitalOutput[i]->writeValue() << i);
@@ -111,7 +111,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
 
             if(m_voltageSource[id]->valid_write()){
                 ret = new CAN_Packet();
-                ret->Command = 0x180;
+                ret->Command = 0x1180;
                 QDataStream ds(&ret->data,QIODevice::WriteOnly);
                 ds.setByteOrder(QDataStream::LittleEndian);
                 quint16 v;
@@ -130,7 +130,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x160;
+            ret->Command = 0x1160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             quint16 v;
@@ -148,7 +148,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x160;
+            ret->Command = 0x1160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             quint16 v;
@@ -166,7 +166,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x160;
+            ret->Command = 0x1160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
@@ -185,7 +185,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
         CAN_Packet *ret = nullptr;
         if(id < 8){
             ret = new CAN_Packet();
-            ret->Command = 0x160;
+            ret->Command = 0x1160;
             QDataStream ds(&ret->data,QIODevice::WriteOnly);
             ds.setByteOrder(QDataStream::LittleEndian);
             ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
@@ -448,4 +448,14 @@ void BMS_BCUDevice::add_pwm_in(int n)
             m_pendingAction.removeFirst();
         }
         return ret;
+    }
+
+    int BMS_BCUDevice::vsource_limit(int id)
+    {
+        return m_voltageSource[id]->limit();
+    }
+
+    void BMS_BCUDevice::vsource_limit(int id, int value)
+    {
+        m_voltageSource[id]->limit(value);
     }

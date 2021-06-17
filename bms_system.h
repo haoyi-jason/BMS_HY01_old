@@ -61,6 +61,9 @@ public:
     BMS_BCUDevice* bcu();
     QList<int> batteriesPerStack();
     CAN_Packet *setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 on, quint16 off);
+    CAN_Packet *broadcastBalancing();
+    CAN_Packet *startBMUs(bool enable);
+    CAN_Packet *heartBeat();
     bool enableLog();
     void enableLog(bool enable);
     int logDays();
@@ -77,6 +80,8 @@ public:
     bool alarm_latch(){return m_alarm_latch;}
 signals:
     void sendPacket(QByteArray data);
+    void setBalancingVoltage(ushort v);
+    void deviceLost(quint8 devid);
 private slots:
     void simulate();
     void validState();
@@ -109,6 +114,9 @@ private:
     bool m_alarm_latch = true;
     //QList<CANBUSDevice*> m_canbusDevice;
     //MODBUSDevice *m_modbusDev = nullptr;
+    ushort m_currentBalanceVoltage;
+    ushort m_cellMinVoltage;
+    ushort m_cellMaxVoltage;
 
 };
 

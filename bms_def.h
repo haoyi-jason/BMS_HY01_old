@@ -54,17 +54,22 @@ public:
     //void setReadback(int value){m_valueReadBack = value;}
     bool valid(){return (m_valueToWrite == m_value);}
     bool valid_write(){return !(m_valueToWrite == m_value);}
-
+    void limit(int v){m_limit = v;}
+    int limit(){return m_limit;}
 private:
     int m_valueToWrite;
     //int m_valueReadBack;
     int m_value;
+    int m_limit;
 };
 
 class CAN_Packet{
 public:
     quint16 Command;
     QByteArray data;
+    bool readFrame= false;
+    bool writeOK = false;
+    bool remote = false;
 };
 
 class _EventItem{
