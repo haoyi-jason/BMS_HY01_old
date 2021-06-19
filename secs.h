@@ -39,6 +39,7 @@ public:
         BMS_BCU_CMD = 0x04,
         BMS_BMU_CMD = 0x05,
         BMS_SERIAL_DATA,
+        BMS_SYS_DATETIME,
         BMS_ADD_PACKET = 0xFE,
         BMS_WRONG_HEADER = 0xFF,
     };

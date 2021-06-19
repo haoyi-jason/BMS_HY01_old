@@ -78,6 +78,9 @@ public:
     bool warinig_latch(){return m_warning_latch;}
     int alarm_out_id(){return m_alarm_out_id;}
     bool alarm_latch(){return m_alarm_latch;}
+    QDateTime startTime(){return m_startTime;}
+    void startTime(qint64 epoch){m_startTime = QDateTime::fromSecsSinceEpoch(epoch);}
+    //ushort miniCellVoltage(){return m_cellMinVoltage;}
 signals:
     void sendPacket(QByteArray data);
     void setBalancingVoltage(ushort v);
@@ -117,6 +120,7 @@ private:
     ushort m_currentBalanceVoltage;
     ushort m_cellMinVoltage;
     ushort m_cellMaxVoltage;
+    QDateTime m_startTime;
 
 };
 

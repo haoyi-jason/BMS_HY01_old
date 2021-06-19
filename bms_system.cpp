@@ -8,7 +8,7 @@
 
 BMS_System::BMS_System(QObject *parent) : QObject(parent)
 {
-
+    m_startTime = QDateTime::currentDateTime();
 }
 void BMS_System::SetStackInfo(QList<BMS_Stack*> info)
 {
@@ -101,10 +101,10 @@ bool BMS_System::Configuration(QByteArray data)
             }
             if(cob.contains("temp-warning")){
                 QJsonObject cw = cob["temp-warning"].toObject();
-                if(cw.contains("high_set")) cell_ot_set = (ushort)cw["high_set"].toInt();
-                if(cw.contains("high_clr")) cell_ot_clr = (ushort)cw["high_clr"].toInt();
-                if(cw.contains("low_set")) cell_ut_set = (ushort)cw["low_set"].toInt();
-                if(cw.contains("low_clr")) cell_ut_clr = (ushort)cw["low_clr"].toInt();
+                if(cw.contains("high_set")) cell_ot_set = (ushort)(cw["high_set"].toDouble()*10);
+                if(cw.contains("high_clr")) cell_ot_clr = (ushort)(cw["high_clr"].toDouble()*10);
+                if(cw.contains("low_set")) cell_ut_set = (ushort)(cw["low_set"].toDouble()*10);
+                if(cw.contains("low_clr")) cell_ut_clr = (ushort)(cw["low_clr"].toDouble()*10);
             }
         }
         if(crit.contains("stack")){
@@ -147,6 +147,11 @@ bool BMS_System::Configuration(QByteArray data)
     }
     else if(obj.contains("stack")){
         QJsonObject ja = obj["stack"].toObject();
+        float cap = 50;
+        if(ja.contains("capacity")){
+            cap = ja["capacity"].toDouble();
+        }
+
         this->Stacks = ja["count"].toInt();
         int batPerStack = ja["baterries_per_stack"].toInt();
         int cellPerBat = ja["cells_per_battery"].toInt();
@@ -156,6 +161,7 @@ bool BMS_System::Configuration(QByteArray data)
             BMS_Stack *s = new BMS_Stack;
             s->enableHVModule();
             s->groupID(i+1);
+            s->sviDevice()->capacity(cap);
             for(int i=0;i<batPerStack;i++){
                 BMS_BMUDevice *bat = new BMS_BMUDevice(cellPerBat,ntcPerBat);
                 bat->deviceID(i+1);
@@ -171,13 +177,6 @@ bool BMS_System::Configuration(QByteArray data)
                 s->addBattery(bat);
             }
             this->m_stacks.append(s);
-//            BMS_StackConfig *cfg = new BMS_StackConfig();
-//            cfg->m_nofBatteries = ja["baterries_per_stack"].toInt();
-//            cfg->m_nofCellPerBattery = ja["cells_per_battery"].toInt();
-//            cfg->m_nofNTCPerBattery = ja["ntcs_per_stack"].toInt();
-//            cfg->m_hvboard = ja["hv_module"].toBool();
-//            cfg->m_groupID = i+1;
-//            m_stackConfig.append(cfg);
         }
         ret = true;
     }
@@ -292,11 +291,12 @@ void BMS_System::stopSimulator()
 void BMS_System::simulate()
 {
     //feed data to stacks
-    ushort sim_data[4];
-    QByteArray data;
-    QDataStream ds(&data, QIODevice::ReadWrite);
+//    ushort sim_data[4];
+//    QByteArray data;
+//    QDataStream ds(&data, QIODevice::ReadWrite);
 
-    quint32 total_voltage = 0;
+//    quint32 total_voltage = 0;
+
     foreach(BMS_Stack *s,m_stacks){
         s->simData();
     }
@@ -327,6 +327,21 @@ quint32 BMS_System::alarmState()
         alarm |= s->alarmState();
     }
 
+    // check if bcu lost
+    if(m_bcuDevice->deviceLost()){
+        alarm |= bms::BCU_LOST;
+    }
+    // check if svi lost
+    foreach (BMS_Stack *s, m_stacks) {
+        if(s->sviDevice()->deviceLost()){
+            alarm |= bms::BCU_LOST;
+        }
+        foreach (BMS_BMUDevice *b, s->batteries()) {
+            if(b->deviceLost()){
+                alarm |= bms::BMU_LOST;
+            }
+        }
+    }
     return alarm;
 }
 
@@ -382,7 +397,7 @@ void BMS_System::validState()
         quint16 set,clr,res,cmp;
         foreach(BMS_BMUDevice *b,s->batteries()){
             // check if bmu lost
-            if(b->deviceLost()){
+            if(b->deviceLost() && !m_simulating){
                 b->resetValues();
             }
             minCellVoltage = minCellVoltage > b->minCellVoltage()?b->minCellVoltage():minCellVoltage;
@@ -466,7 +481,11 @@ void BMS_System::validState()
         // broadcast
         emit setBalancingVoltage(minCellVoltage);
     }
+    else{
+        minCellVoltage = this->BalancingVoltage;
+    }
 
+    m_cellMinVoltage = minCellVoltage;
 
 }
 
@@ -496,20 +515,6 @@ QDataStream& operator<<(QDataStream &out, const BMS_System *sys)
 QDataStream& operator >> (QDataStream &in, BMS_System *sys)
 {
     in >> sys->Stacks;
-//        if(sys->m_loadFromFile){
-//            for(int i=0;i<sys->Stacks; i++){
-//                BMS_StackConfig *s = new BMS_StackConfig();
-//                sys->m_stackConfig.append(s);
-//            }
-//        }
-//        foreach(BMS_StackConfig *s,sys->m_stackConfig){
-//            in >> s;
-//        }
-
-//        if(sys->m_loadFromFile){
-//            sys->generateSystemStructure();
-//            sys->m_bcuDevice = new BMS_BCUDevice();
-//        }
     if(sys->m_bcuDevice == nullptr){
         sys->m_bcuDevice = new BMS_BCUDevice();
     }

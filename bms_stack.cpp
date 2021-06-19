@@ -120,11 +120,30 @@ void BMS_Stack::simData(){
         b->simData();
         stack_v += b->totalVoltage();
     }
-    this->m_StackVoltage = stack_v;
-    this->m_StackCurrent = 4000;
-    this->m_State = "IDLE";
-    this->m_soc = 100;
-    this->m_soh = 100;
+    if(this->sviDevice() == nullptr){
+        this->m_StackVoltage = stack_v/100;
+        this->m_StackCurrent = 4000;
+        this->m_State = "IDLE";
+        this->m_soc = 100;
+        this->m_soh = 100;
+    }
+    else{
+        this->sviDevice()->voltage(stack_v/100);
+        this->sviDevice()->simData();
+        this->m_StackVoltage = this->sviDevice()->voltage();
+        this->m_StackCurrent = this->sviDevice()->current();
+        if(this->sviDevice()->current() > 5){
+            this->m_State = "CHARGE";
+        }
+        else if(this->sviDevice()->current() <-5){
+            this->m_State = "DISCHARGE";
+        }
+        else{
+            this->m_State = "IDLE";
+        }
+        this->m_soc = this->sviDevice()->soc();
+        this->m_soh = this->sviDevice()->soh();
+    }
 
 
 
@@ -142,6 +161,17 @@ void BMS_Stack::setSimTempData(quint8 id, quint8 cell, ushort v)
         b->setSimTemp(id,cell,v);
     }
 }
+
+//void BMS_Stack::setSimStackVoltage(quint8 gid, int v)
+//{
+
+//}
+
+//void BMS_Stack::setSimStackAmpere(quint8 gid, int v)
+//{
+
+//}
+
 QByteArray BMS_Stack::data()
 {
     QByteArray d;
@@ -172,11 +202,14 @@ QDataStream &operator<<(QDataStream &out, const BMS_Stack *stack)
     //out << stack->m_MaxCellVoltage;
     //out << stack->m_MaxCellIndex;
     out << stack->m_svi;
+
     foreach (BMS_BMUDevice *b, stack->m_batteries) {
         out << b;
     }
-    out << stack->m_StackVoltage;
-    out << stack->m_StackCurrent;
+    quint32 sv = stack->m_StackVoltage + stack->m_simStackVShift;
+    short sa = stack->m_StackCurrent + stack->m_simStackAShift;
+    out << sv;
+    out << sa;
     out << stack->m_soc;
     out << stack->m_soh;
     return out;
@@ -207,7 +240,6 @@ QDataStream &operator >> (QDataStream &in, BMS_Stack *stack)
     int min_v_index=0, min_t_index=0;
     quint32 totalVoltage = 0;
     for(int i=0;i<stack->m_batteries.size();i++){
-//        foreach (BMS_BMUDevice *b, stack->m_batteries) {
         BMS_BMUDevice *b = stack->m_batteries[i];
         in >> b;
         if(b->maxCellVoltage()>max_v){
@@ -246,7 +278,7 @@ QDataStream &operator >> (QDataStream &in, BMS_Stack *stack)
     stack->m_MaxTemperature = max_t;
     stack->m_MinTemperature = min_t;
     stack->m_CellVoltDiff = max_v - min_v;
-    stack->m_soc = 100;
+    //stack->m_soc = 100;
 }
 
 QList<BMS_BMUDevice*> BMS_Stack::batteries()

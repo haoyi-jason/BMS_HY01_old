@@ -74,17 +74,28 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     {
         BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
         if(bmu != nullptr){
-            ushort cmp = (1<<col);
-            ushort ow = bmu->openwireBit() & cmp;
-            ushort bl = bmu->balancingBit() & cmp;
-            if(ow == 0 && bl==0){
-                return QVariant();
+            if(bmu->deviceLost()) return QVariant(QColor(Qt::gray));
+            int g1 = m_activeStack->batteries().at(0)->cellCount();
+            int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount();
+            if(col < g1){
+                ushort cmp = (1<<col);
+                ushort ow = bmu->openwireBit() & cmp;
+                ushort bl = bmu->balancingBit() & cmp;
+                if(ow == 0 && bl==0){
+                    return QVariant();
+                }
+                else if(ow != 0){
+                    return QVariant(QColor(Qt::yellow));
+                }
+                else if(bl != 0){
+                    return QVariant(QColor(Qt::green));
+                }
             }
-            else if(ow != 0){
-                return QVariant(QColor(Qt::yellow));
+            else if(col < g2){
+
             }
-            else if(bl != 0){
-                return QVariant(QColor(Qt::green));
+            else{
+
             }
         }
     }
@@ -95,7 +106,9 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
         if(bmu != nullptr){
-            if(col < bmu->cellCount()){
+            int g1 = bmu->cellCount();
+            int g2 = g1 + bmu->ntcCount();
+            if(col < g1){
                 ushort cmp = (1 << col);
                 ushort ov = bmu->ovSetMask();
                 ushort uv = bmu->uvSetMask();
@@ -108,6 +121,23 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
                 else{
                     return QVariant();
                 }
+            }
+            else if(col < g2){
+                ushort cmp = (1 << col);
+                ushort ot = bmu->otSetMask();
+                ushort ut = bmu->utSetMask();
+                if(ot & cmp){
+                    return QVariant(QColor(Qt::red));
+                }
+                else if(ut & cmp){
+                    return QVariant(QColor(Qt::blue));
+                }
+                else{
+                    return QVariant();
+                }
+            }
+            else{
+                return QVariant();
             }
         }
         return QVariant();

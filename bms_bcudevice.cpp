@@ -2,6 +2,7 @@
 
 BMS_BCUDevice::BMS_BCUDevice(QObject *parent) : QObject(parent)
 {
+    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
 
 }
 
@@ -99,6 +100,9 @@ void BMS_BCUDevice::add_pwm_in(int n)
                 }
                 ret->data.append((quint8)0x0); // output control
                 ret->data.append(b);
+            }
+            if(m_simulating){
+                m_digitalOutput[id]->value(state);
             }
         }
         return ret;
@@ -316,7 +320,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
     QDataStream &operator<<(QDataStream &out, const BMS_BCUDevice *dev)
     {
         quint8 bv = 0;
-
+        out << dev->m_lastSeen;
         bv = (quint8)dev->m_digitalInput.size();
         out << bv;
         bv = (quint8)dev->m_digitalOutput.size();
@@ -375,7 +379,7 @@ void BMS_BCUDevice::add_pwm_in(int n)
     {
         quint8 bv;
         int v;
-
+        in >> dev->m_lastSeen;
         in >> bv;
         if(dev->m_digitalInput.size() == 0){
             for(int i=0;i<bv;i++){

@@ -33,6 +33,7 @@ public:
     bool connectServer(int id);
     bool disconnectServer(int id);
     bool loginPromote();
+    void readInitTime();
 signals:
     void configReady();
     void dataReceived();

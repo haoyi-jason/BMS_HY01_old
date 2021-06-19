@@ -117,18 +117,18 @@ private:
     QList<ushort> m_cellVoltage;
     QList<ushort> m_packTemperature;
     QList<ushort> m_balancing;
-    ushort m_balancingVoltage;
-    ushort m_balancingHystersis;
-    ushort m_balancingONSeconds;
-    ushort m_balancingOFFSeconds;
-    quint8 m_devid;
+    ushort m_balancingVoltage=0;
+    ushort m_balancingHystersis=0;
+    ushort m_balancingONSeconds=0;
+    ushort m_balancingOFFSeconds=0;
+    quint8 m_devid=0;
     QList<ushort> m_openWire;
-    quint8 m_nofCell, m_nofNtc;
-    ushort m_maxVoltage;
-    ushort m_minVoltage;
-    ushort m_maxTemperature;
-    ushort m_minTemperature;
-    ushort m_totalVoltage;
+    quint8 m_nofCell=0, m_nofNtc=0;
+    ushort m_maxVoltage=0;
+    ushort m_minVoltage=0;
+    ushort m_maxTemperature=0;
+    ushort m_minTemperature=0;
+    ushort m_totalVoltage=0;
     long long m_lastSeen;
     QList<QByteArray> m_pendingAction;
 
@@ -137,16 +137,16 @@ private:
     quint16 m_uv_set_ths = 0;
     quint16 m_uv_clr_ths = 0;
 
-    quint16 m_voltHighMask;
-    quint16 m_voltLowMask;
+    quint16 m_voltHighMask=0;
+    quint16 m_voltLowMask=0;
 
-    quint16 m_ot_set_ths;
-    quint16 m_ot_clr_ths;
-    quint16 m_ut_set_ths;
-    quint16 m_ut_clr_ths;
+    quint16 m_ot_set_ths=0;
+    quint16 m_ot_clr_ths=0;
+    quint16 m_ut_set_ths=0;
+    quint16 m_ut_clr_ths=0;
 
-    quint8 m_tempHighMask;
-    quint8 m_tempLowMask;
+    quint8 m_tempHighMask=0;
+    quint8 m_tempLowMask=0;
     QList<BMS_BCUEmgData> m_emgVolt;
     QList<quint16> m_ovMask; // over voltage mask, record on every packet received, check by top system use ored arith
     QList<quint16> m_ovClrMask;

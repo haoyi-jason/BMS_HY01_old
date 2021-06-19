@@ -200,6 +200,14 @@ void BMSCollector::readAllConfig()
     }
 }
 
+void BMSCollector::readInitTime()
+{
+    QByteArray b = "SYS:INIT_TIME";
+    foreach (RemoteSystem *s, m_servers) {
+        s->socket->write(b);
+    }
+}
+
 // todo: move data handling process to timed function
 // handle every system periodically
 void BMSCollector::handleServerData()
@@ -214,7 +222,7 @@ void BMSCollector::handleServerData()
             int len;
             quint8 hlen;
             if(sys->configReady){
-                qDebug()<<"Config ready";
+                //qDebug()<<"Config ready";
                 quint8 ret = hsmsParser::getHeader(sys->data,&len,&hlen);
                 if(ret == hsmsParser::BMS_STACK){
                     //if(sys->data.size() >= len){
@@ -241,6 +249,13 @@ void BMSCollector::handleServerData()
                 }
                 else if(ret == hsmsParser::BMS_WRONG_HEADER){
                     sys->data.clear();
+                }
+                else if(ret == hsmsParser::BMS_SYS_DATETIME){
+                    sys->data.remove(0,hlen);
+                    QDataStream ds(&sys->data,QIODevice::ReadWrite);
+                    qint64 epoch;
+                    ds >> epoch;
+                    sys->system->startTime(epoch);
                 }
             }
             else{

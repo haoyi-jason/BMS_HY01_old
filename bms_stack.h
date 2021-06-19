@@ -63,6 +63,8 @@ public:
     void simData();
     void setSimCellData(quint8 id, quint8 cell, ushort v );
     void setSimTempData(quint8 id, quint8 cell, ushort v );
+//    void setSimStackVoltage(quint8 gid, int v);
+//    void setSimStackAmpere(quint8 gid, int v);
     QByteArray data();
     friend QDataStream &operator<<(QDataStream &out, const BMS_Stack *stack);
     friend QDataStream &operator >> (QDataStream &in, BMS_Stack *stack);

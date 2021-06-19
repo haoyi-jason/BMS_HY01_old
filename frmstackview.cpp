@@ -34,6 +34,7 @@ frmStackView::frmStackView(QWidget *parent) :
     }
 
     m_btnClearAlarm = new QPushButton("清除\n告警",w);
+    m_btnClearAlarm->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Expanding);
     connect(m_btnClearAlarm,&QPushButton::clicked,this,&frmStackView::on_clearAlarmClicked);
     gl->addWidget(m_btnClearAlarm,0,6,2,1);
 
@@ -157,8 +158,17 @@ void frmStackView::updateStackInfo()
     ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',2,'0'));
     ui->le_current->setText(QString("%1").arg(stack->stackCurrent()/10.,5,'f',2,'0'));
 
-    ui->leSOC->setText(QString::number(stack->soc()));
-    ui->leState->setText(stack->state());
+    ui->leSOC->setText(QString("%1").arg(stack->sviDevice()->soc(),5,'f',1,'0'));
+
+    if(stack->stackCurrent() > 10){
+        ui->leState->setText("充電");
+    }
+    else if(stack->stackCurrent() < -10){
+        ui->leState->setText("放電");
+    }
+    else{
+        ui->leState->setText("待機");
+    }
 
     ui->le_maxDiff->setText(QString::number(stack->cellVoltDiff()));
 

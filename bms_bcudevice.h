@@ -42,6 +42,9 @@ public:
     void vsource_limit(int id, int value);
     int vsource_limit(int id);
 
+    void simulating(bool v){m_simulating = v;}
+    bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
+
 signals:
 
 public slots:
@@ -54,7 +57,7 @@ private:
     QList<HW_IOChannel*> m_voltageSource;
     long long m_lastSeen;
     QList<CAN_Packet*> m_pendingAction;
-
+    bool m_simulating = false;
 };
 
 #endif // BMS_BCUDEVICE_H

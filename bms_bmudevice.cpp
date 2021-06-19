@@ -11,6 +11,8 @@ BMS_BMUDevice::BMS_BMUDevice(QObject *parent) : QObject(parent)
     for(int i=0;i<bms::MAX_NTC;i++){
         m_packTemperature.append(0);
     }
+    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
+
 }
 
 BMS_BMUDevice::BMS_BMUDevice(int nofCells, int nofTemp,QObject *parent):QObject(parent)
@@ -468,12 +470,6 @@ QDataStream &operator<<(QDataStream &out, const BMS_BMUDevice *bat)
     for(int i=0;i<bat->m_packTemperature.size();i++){
         out << bat->m_packTemperature[i];
     }
-//    for(int i=0;i<bat->m_balancing.size();i++){
-//        out << bat->m_balancing[i];
-//    }
-//    for(int i=0;i<bat->m_openWire.size();i++){
-//        out << bat->m_openWire[i];
-//    }
     return out;
 }
 QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
@@ -513,43 +509,12 @@ QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
 
     for(int i=0;i<bat->m_cellVoltage.size();i++){
         in >> bat->m_cellVoltage[i];
-//        max_v = bat->m_cellVoltage[i]>max_v?bat->m_cellVoltage[i]:max_v;
-//        min_v = bat->m_cellVoltage[i]<min_v?bat->m_cellVoltage[i]:min_v;
-//        bat->m_totalVoltage += bat->m_cellVoltage[i];
-//        if(bat->m_cellVoltage[i] > bat->m_voltHighThreshold){
-//            tmpHighMask |= (1 << i);
-//        }
-//        if(bat->m_cellVoltage[i] < bat->m_voltLowThreshold){
-//            tmpLowMask |= (1 << i);
-//        }
-//        bat->m_voltHighMask = tmpHighMask;
-//        bat->m_voltLowMask = tmpLowMask;
     }
 
     tmpHighMask = tmpLowMask = 0;
     for(int i=0;i<bat->m_packTemperature.size();i++){
         in >> bat->m_packTemperature[i];
-//        max_t = bat->m_packTemperature[i]>max_t?bat->m_packTemperature[i]:max_t;
-//        min_t = bat->m_packTemperature[i]<min_t?bat->m_packTemperature[i]:min_t;
-//        if(bat->m_packTemperature[i] > bat->m_tempHighThreshold){
-//            tmpHighMask |= (1 << i);
-//        }
-//        if(bat->m_packTemperature[i] < bat->m_tempLowThreshold){
-//            tmpLowMask |= (1 << i);
-//        }
-//        bat->m_tempHighMask = (quint8)tmpHighMask;
-//        bat->m_tempLowMask = (quint8)tmpLowMask;
     }
-//    for(int i=0;i<bat->m_balancing.size();i++){
-//        in >> bat->m_balancing[i];
-//    }
-//    for(int i=0;i<bat->m_openWire.size();i++){
-//        in >> bat->m_openWire[i];
-//    }
-//    bat->m_maxVoltage = max_v;
-//    bat->m_maxTemperature = max_t;
-//    bat->m_minVoltage = min_v;
-//    bat->m_minTemperature = min_t;
     return in;
 }
 
