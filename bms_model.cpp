@@ -158,7 +158,7 @@ QVariant BMS_BatteryModel::headerData(int section, Qt::Orientation orientation, 
         else if(section < g2){
             return QVariant(QString("T%1(%2C)").arg(section-g1+1).arg(QChar(0xb0)));
         }
-        return QString("BAT_VOLT");
+        return QString("SUM");
     }
     else if(role == Qt::DisplayRole && orientation == Qt::Vertical){
         int g = m_activeStack->groupID();
@@ -333,7 +333,7 @@ QVariant BMS_EventModel::data(const QModelIndex &index, int role) const
         case 2: return QVariant(evt->m_evtLevel);break;
         case 3: return QVariant(evt->m_isAlarm?"TRUE":"FALSE");
         case 4: return QVariant(evt->m_isWarning?"TRUE":"FALSE");
-        case 5: return QVariant(evt->m_timeStamp.toString("yyyy-MM-dd hhmmss"));
+        case 5: return QVariant(evt->m_timeStamp);
         case 6: return QVariant(evt->m_description);
         default: return QVariant();
         }

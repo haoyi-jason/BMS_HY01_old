@@ -463,3 +463,8 @@ void BMS_BCUDevice::add_pwm_in(int n)
     {
         m_voltageSource[id]->limit(value);
     }
+
+    void BMS_BCUDevice::simData()
+    {
+        m_lastSeen = QDateTime::currentMSecsSinceEpoch();
+    }

@@ -30,6 +30,7 @@ private slots:
 
     void on_listView_doubleClicked(const QModelIndex &index);
 
+
 private:
     Ui::frmHistoryView *ui;
     QFileSystemModel *model=nullptr;
@@ -37,6 +38,7 @@ private:
     BMS_StackModel *stackModel = nullptr;
     QString m_rootPath="";
     int m_currentStackIndex = 0;
+    int m_totalStacks = 0;
 };
 
 #endif // FRMHISTORYVIEW_H

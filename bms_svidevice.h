@@ -21,12 +21,11 @@ public:
     friend QDataStream& operator << (QDataStream &out, const BMS_SVIDevice *hvc);
     friend QDataStream& operator >> (QDataStream &in, BMS_SVIDevice *hvc);
     void clearAlarm();
-    int voltageAlarm();
-    int currentAlarm();
     void voltAlarm(bool v){m_voltAlarm = v;}
     bool voltAlarm(){return m_voltAlarm;}
     void ampereAlarm(bool v){m_currentAlarm = v;}
     bool ampereAlarm(){return m_currentAlarm;}
+
     int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
     bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
     void setSimVoltage(int v){m_simVolt = v;}
@@ -37,6 +36,34 @@ public:
 
     void calculateState();
     void setSOHTracking(bool state);
+
+    void eventDuration(int v){m_holdSec = v;}
+
+    void ovAlarmSet(int v){m_ovAlarmSet = v;}
+    void ovAlarmClr(int v){m_ovAlarmClr = v;}
+    void ovWarningSet(int v){m_ovWarningSet = v;}
+    void ovWarningClr(int v){m_ovWarningClr = v;}
+
+    void uvAlarmSet(int v){m_uvAlarmSet = v;}
+    void uvAlarmClr(int v){m_uvAlarmClr = v;}
+    void uvWarningSet(int v){m_uvWarningSet = v;}
+    void uvWarningClr(int v){m_uvWarningClr = v;}
+
+    void ovAlarmEn(bool v){m_ovAlarmEn = v;}
+    void ovWarningEn(bool v){m_ovWarningEn = v;}
+    void uvAlarmEn(bool v){m_uvAlarmEn = v;}
+    void uvWarningEn(bool v){m_uvWarningEn = v;}
+
+    int ovAlarm();
+    int uvAlarm();
+    int ovWarning();
+    int uvWarning();
+
+    bool isOvAlarm(){return m_ovAlarmIsSet;}
+    bool isOvWarning(){return m_ovWarningIsSet;}
+    bool isUvAlarm(){return m_uvAlarmIsSet;}
+    bool isUvWarning(){return m_uvWarningIsSet;}
+
     void simData();
 signals:
     void set_ov();
@@ -50,13 +77,6 @@ private:
     int m_stackVoltage = 0;
     int m_stackCurrent=0;
     QList<ushort> m_auxInputs;
-    int m_ovCounts = 0;
-    int m_ocCounts = 0;
-    int m_voltHighThreshold = 1000;
-    int m_voltLowThreshold = 1000;
-    int m_currentHighThreshold = 100;
-    int m_currentLowThreshold = 90;
-    int m_holdSec = 5;
     bool m_voltAlarm = false;
     bool m_currentAlarm = false;
     long long m_lastSeen,m_currentTime;
@@ -66,6 +86,62 @@ private:
     float m_capacity = 50; // Battery's capacity,AH
     bool m_sohTrack = false;
     double m_sohAccum = 0;
+
+    int m_ovAlarmSet = 0;
+    int m_ovAlarmClr = 0;
+    int m_ovWarningSet = 0;
+    int m_ovWarningClr = 0;
+
+    int m_uvAlarmSet = 0;
+    int m_uvAlarmClr = 0;
+    int m_uvWarningSet = 0;
+    int m_uvWarningClr = 0;
+
+    int m_ocAlarmSet = 0;
+    int m_ocAlarmClr = 0;
+    int m_ocWarningSet = 0;
+    int m_ocWarningClr = 0;
+
+    int m_ucAlarmSet = 0;
+    int m_ucAlarmClr = 0;
+    int m_ucWarningSet = 0;
+    int m_ucWarningClr = 0;
+
+    bool m_ovAlarmEn = false;
+    bool m_ovWarningEn = false;
+    bool m_uvAlarmEn = false;
+    bool m_uvWarningEn = false;
+
+    bool m_ocAlarmEn = false;
+    bool m_ocWarningEn = false;
+    bool m_ucAlarmEn = false;
+    bool m_ucWarningEn = false;
+
+    int m_ovAlarmSetCntr = 0;
+    int m_ovAlarmClrCntr = 0;
+    int m_ovWarningSetCntr = 0;
+    int m_ovWarningClrCntr = 0;
+
+    int m_uvAlarmSetCntr = 0;
+    int m_uvAlarmClrCntr = 0;
+    int m_uvWarningSetCntr = 0;
+    int m_uvWarningClrCntr = 0;
+
+    int m_ocAlarmSetCntr = 0;
+    int m_ocAlarmClrCntr = 0;
+    int m_ocWarningSetCntr = 0;
+    int m_ocWarningClrCntr = 0;
+
+    int m_ucAlarmSetCntr = 0;
+    int m_ucAlarmClrCntr = 0;
+    int m_ucWarningSetCntr = 0;
+    int m_ucWarningClrCntr = 0;
+
+    bool m_ovAlarmIsSet = false;
+    bool m_uvAlarmIsSet = false;
+    bool m_ovWarningIsSet = false;
+    bool m_uvWarningIsSet = false;
+    int m_holdSec = 5;
 };
 
 #endif // BMS_SVIDEVICE_H

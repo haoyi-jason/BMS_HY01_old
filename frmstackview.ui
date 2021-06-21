@@ -435,7 +435,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>資訊切換</string>
+         <string>下一頁</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>

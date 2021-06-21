@@ -65,12 +65,28 @@ bool BMS_System::Configuration(QByteArray data)
     path = obj.contains("log_path")?obj["log_path"].toString():"log";
     if(QSysInfo::productType().contains("win")){
         this->m_logPath = "./"+path;
+        QString tmpFile = this->m_logPath + "/test.bin";
+        QFile f(tmpFile);
+        if(f.open(QIODevice::WriteOnly)){
+            QFileInfo info(f);
+            qDebug()<<"Abs path"<<info.absoluteFilePath();
+            this->m_logPath = info.absolutePath();
+        }
+        f.close();
+        f.remove();
     }
     else{
         this->m_logPath = QCoreApplication::applicationDirPath()+ "/" + path;
     }
     this->m_logDays = obj.contains("log_days")?obj["log_days"].toInt():-1;
     this->m_logRecords= obj.contains("log_records")?obj["log_records"].toInt():200;
+
+    QString sysPath = this->m_logPath + "/sys";
+    // check if folder presents
+    if(!QDir(sysPath).exists()){
+        QDir().mkdir(sysPath);
+    }
+
 
     if(obj.contains("balancing")){
         QJsonObject bal = obj["balancing"].toObject();
@@ -92,6 +108,8 @@ bool BMS_System::Configuration(QByteArray data)
     quint16 cell_uv_set = 0, cell_uv_clr = 0;
     quint16 stack_ov_set = 0, stack_ov_clr = 0;
     quint16 stack_oc_set = 0, stack_oc_clr = 0;
+    quint16 stack_uv_set = 0, stack_uv_clr = 0;
+    quint16 stack_uc_set = 0, stack_uc_clr = 0;
     quint16 duration = 5;
 
     if(obj.contains("criteria")){
@@ -118,13 +136,15 @@ bool BMS_System::Configuration(QByteArray data)
             QJsonObject sob = crit["stack"].toObject();
             if(sob.contains("volt-warning")){
                 QJsonObject cw = sob["volt-warning"].toObject();
-                if(cw.contains("high_set")) stack_ov_set = (ushort)cw["high_set"].toInt();
-                if(cw.contains("high_clr")) stack_ov_clr = (ushort)cw["high_clr"].toInt();
+                if(cw.contains("high_set")) stack_ov_set = (ushort)cw["high_set"].toDouble()*10;
+                if(cw.contains("high_clr")) stack_ov_clr = (ushort)cw["high_clr"].toDouble()*10;
+                if(cw.contains("low_set")) stack_uv_set = (ushort)cw["low_set"].toDouble()*10;
+                if(cw.contains("low_clr")) stack_uv_clr = (ushort)cw["low_clr"].toDouble()*10;
             }
             if(sob.contains("current-warning")){
                 QJsonObject cw = sob["current-warning"].toObject();
-                if(cw.contains("high_set")) stack_oc_set = (ushort)cw["high_set"].toInt();
-                if(cw.contains("high_clr")) stack_oc_clr = (ushort)cw["high_clr"].toInt();
+                if(cw.contains("high_set")) stack_oc_set = (ushort)cw["high_set"].toDouble()*10;
+                if(cw.contains("high_clr")) stack_oc_clr = (ushort)cw["high_clr"].toDouble()*10;
             }
         }
     }
@@ -167,6 +187,13 @@ bool BMS_System::Configuration(QByteArray data)
         for(int i=0;i<Stacks;i++){
             BMS_Stack *s = new BMS_Stack;
             s->enableHVModule();
+            s->sviDevice()->ovWarningSet(stack_ov_set);
+            s->sviDevice()->ovWarningClr(stack_ov_clr);
+            s->sviDevice()->ovWarningEn(true);
+            s->sviDevice()->uvWarningSet(stack_uv_set);
+            s->sviDevice()->uvWarningClr(stack_uv_clr);
+            s->sviDevice()->uvWarningEn(true);
+
             s->groupID(i+1);
             s->sviDevice()->capacity(cap);
             for(int i=0;i<batPerStack;i++){
@@ -297,6 +324,7 @@ void BMS_System::simulate()
     foreach(BMS_Stack *s,m_stacks){
         s->simData();
     }
+    m_bcuDevice->simData();
 }
 
 void BMS_System::enableAlarmSystem(bool en)
@@ -326,16 +354,16 @@ quint32 BMS_System::alarmState()
 
     // check if bcu lost
     if(m_bcuDevice->deviceLost()){
-        alarm |= bms::BCU_LOST;
+        alarm |= (1 << bms::BCU_LOST);
     }
     // check if svi lost
     foreach (BMS_Stack *s, m_stacks) {
         if(s->sviDevice()->deviceLost()){
-            alarm |= bms::BCU_LOST;
+            alarm |= (1 << bms::SVI_LOST);
         }
         foreach (BMS_BMUDevice *b, s->batteries()) {
             if(b->deviceLost()){
-                alarm |= bms::BMU_LOST;
+                alarm |= (1 << bms::BMU_LOST);
             }
         }
     }
@@ -353,42 +381,28 @@ void BMS_System::validState()
 //        if(s->sviDevice()->lastSeen() > 5000){
 //            emit deviceLost(GROUP(s->groupID()) | 0x31);
 //        }
-        int v = s->sviDevice()->voltageAlarm();
-        if(s->sviDevice()->voltAlarm() && v == 0){
-            msg = QString("第[%1]簇,過/欠壓[%2]V警報復歸").arg(s->groupID()).arg(s->stackVoltage());
-            s->sviDevice()->voltAlarm(false);
+        switch(s->sviDevice()->ovWarning()){
+        case 1:
+            msg = QString("第[%1]簇 過壓[%2]V警報").arg(s->groupID()).arg(s->stackVoltage()/10);
             evt_log(msg);
-        }
-        else{
-            if(v == 1){
-                msg = QString("第[%1]簇,過壓[%2]V警報").arg(s->groupID()).arg(s->stackVoltage());
-                s->sviDevice()->voltAlarm(true);
-                evt_log(msg);
-            }
-            else if(v == -1){
-                msg = QString("第[%1]簇,欠壓[%2]V警報").arg(s->groupID()).arg(s->stackVoltage());
-                s->sviDevice()->voltAlarm(true);
-                evt_log(msg);
-            }
+            break;
+        case 2:
+            msg = QString("第[%1]簇 過壓[%2]V警報復歸").arg(s->groupID()).arg(s->stackVoltage()/10);
+            evt_log(msg);
+            break;
+        default:break;
         }
 
-        v = s->sviDevice()->currentAlarm();
-        if(s->sviDevice()->ampereAlarm() && v==0){
-            msg = QString("第[%1]簇,過/欠流[%2]V警報復歸").arg(s->groupID()).arg(s->stackCurrent());
-            s->sviDevice()->ampereAlarm(true);
+        switch(s->sviDevice()->uvWarning()){
+        case 1:
+            msg = QString("第[%1]簇 欠壓[%2]V警報").arg(s->groupID()).arg(s->stackVoltage()/10);
             evt_log(msg);
-        }
-        else{
-            if(v == 1){
-                msg = QString("第[%1]簇,過流[%2]V警報").arg(s->groupID()).arg(s->stackCurrent());
-                s->sviDevice()->ampereAlarm(false);
-                evt_log(msg);
-            }
-            else if(v == -1){
-                msg = QString("第[%1]簇,欠流[%2]V警報").arg(s->groupID()).arg(s->stackCurrent());
-                s->sviDevice()->ampereAlarm(false);
-                evt_log(msg);
-            }
+            break;
+        case 2:
+            msg = QString("第[%1]簇 欠壓[%2]V警報復歸").arg(s->groupID()).arg(s->stackVoltage()/10);
+            evt_log(msg);
+            break;
+        default:break;
         }
 
         quint16 set,clr,res,cmp;
@@ -405,11 +419,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池,電芯[%2]過壓[%3]mV警報").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            msg = QString("第[%1]號電池 電芯[%2]過壓[%3]mV警報").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池,電芯[%2]過壓警報清除[%3]mV").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            msg = QString("第[%1]號電池 電芯[%2]過壓警報清除[%3]mV").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
                         }
                         evt_log(msg);
                     }
@@ -441,11 +455,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池,度度[%2]過溫[%3]警報").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            msg = QString("第[%1]號電池,度度[%2]過溫[%3]警報").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池,溫度[%2]過溫警報清除[%3]mV").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            msg = QString("第[%1]號電池,溫度[%2]過溫警報清除[%3]").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
                         }
                         evt_log(msg);
                     }
@@ -459,11 +473,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池,溫度[%2]低溫[%3]警報").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            msg = QString("第[%1]號電池,溫度[%2]低溫[%3]警報").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池,溫度[%2]低溫警報清除[%3]").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            msg = QString("第[%1]號電池,溫度[%2]低溫警報清除[%3]").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
                         }
                         evt_log(msg);
                     }
@@ -507,6 +521,7 @@ QDataStream& operator<<(QDataStream &out, const BMS_System *sys)
         out << s;
     }
     out << sys->m_currentBalanceVoltage;
+    out << sys->m_logPath;
     return out;
 }
 
@@ -526,6 +541,7 @@ QDataStream& operator >> (QDataStream &in, BMS_System *sys)
         in >> s;
     }
     in >> sys->m_currentBalanceVoltage;
+    in >> sys->m_logPath;
     return in;
 }
 //CAN_Packet* BMS_System::setDigitalOut(int ch, int value){
@@ -572,6 +588,7 @@ void BMS_System::rec_log(QByteArray data){
     if(f.open(QIODevice::WriteOnly)){
         QDataStream ds(&f);
         ds << data;
+        //qDebug()<<"Write rec file:"<<f.size() << " bytes";
         f.close();
     }
     QDir dir(this->m_logPath);
@@ -606,12 +623,15 @@ void BMS_System::evt_log(QString msg)
 {
     BMS_Event *evt = new BMS_Event;
     evt->m_description = msg;
-    evt->m_timeStamp = QDateTime::currentDateTime();
+    evt->m_timeStamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
 
-//    QString path = this->m_logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd.log");
-    QString path = this->m_logPath + "/events.log";
+    QString path = this->m_logPath + "/sys";
+    if(!QDir(path).exists()){
+        QDir().mkpath(path);
+    }
+    path += "/events.log";
     QFile f(path);
-    if(f.open(QIODevice::WriteOnly)){
+    if(f.open(QIODevice::WriteOnly | QIODevice::Append)){
         QTextStream ds(&f);
         ds << evt;
         f.close();
@@ -620,15 +640,15 @@ void BMS_System::evt_log(QString msg)
 
 void BMS_System::sys_log(QString msg)
 {
-    BMS_Event *evt = new BMS_Event;
-    evt->m_description = msg;
-    evt->m_timeStamp = QDateTime::currentDateTime();
-
-    QString path = this->m_logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd.log");
+    QString path = this->m_logPath + "/sys";
+    if(!QDir(path).exists()){
+        QDir().mkpath(path);
+    }
+    path += "/" + QDateTime::currentDateTime().toString("yyyyMMdd.log");
     QFile f(path);
     if(f.open(QIODevice::WriteOnly)){
-        QTextStream ds(&f);
-        ds << evt;
+        QTextStream ts(&f);
+        ts << msg;
         f.close();
     }
 }

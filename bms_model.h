@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QtCore>
 #include "bms_def.h"
+#include "bms_stack.h"
 class BMS_Stack;
 
 class BMS_BatteryModel:public QAbstractTableModel

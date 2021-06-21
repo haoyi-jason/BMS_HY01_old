@@ -57,6 +57,7 @@ public:
     void emg_log(QByteArray data);
     void emg_log(QString msg);
     void logPath(QString path);
+    QString logPath(){return m_logPath;}
     BMS_BCUDevice* bcu();
     QList<int> batteriesPerStack();
     CAN_Packet *setBalancing(quint16 bv, quint8 bh, quint8 be, quint16 on, quint16 off);
@@ -80,6 +81,7 @@ public:
     QDateTime startTime(){return m_startTime;}
     void startTime(qint64 epoch){m_startTime = QDateTime::fromSecsSinceEpoch(epoch);}
     //ushort miniCellVoltage(){return m_cellMinVoltage;}
+
 signals:
     void sendPacket(QByteArray data);
     void setBalancingVoltage(ushort v);

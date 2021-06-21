@@ -50,10 +50,12 @@ void frmHistoryView::on_listView_clicked(const QModelIndex &index)
         int sz;
         ds >> sz; // file size truncated, should be solved later...
         ds >> sys;
+        m_totalStacks = sys->stacks().size();
         stackModel->setStack(sys->stacks());
         batteryModel->setStack(stackModel->findStack(0));
         ui->tableView->setModel(batteryModel);
         ui->tableView->viewport()->update();
+        updateStackInfo();
     }
 
 }
@@ -82,11 +84,11 @@ void frmHistoryView::on_pbNextStack_clicked()
 
 void frmHistoryView::updateStackInfo()
 {
-//    QString message;
+    QString message;
 //    message += QString("系統名稱：%1\r\n").arg(collector->currentSystem()->system->alias());
-//    message += QString("系統總簇數：%1\r\n").arg(collector->currentSystem()->system->Stacks);
-//    message += QString("目前在第 [ %1 ] 簇").arg(m_currentStackIndex+1);
-    //ui->lbInfo->setText(message);
+    message += QString("系統總簇數：%1\r\n").arg(m_totalStacks);
+    message += QString("目前在第 [ %1 ] 簇").arg(m_currentStackIndex+1);
+    ui->lblInfo->setText(message);
 
     BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString::number(stack->maxCellVoltage()));
@@ -103,3 +105,4 @@ void frmHistoryView::on_listView_doubleClicked(const QModelIndex &index)
 {
 
 }
+

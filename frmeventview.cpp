@@ -10,7 +10,17 @@ frmEventView::frmEventView(QWidget *parent) :
     m_evtModel = new BMS_EventModel;
     ui->tvEvents->setModel(m_evtModel);
 
-    dummy();
+//    ui->tvEvents->setColumnWidth(0,80);
+//    ui->tvEvents->setColumnWidth(1,80);
+//    ui->tvEvents->setColumnWidth(2,80);
+//    ui->tvEvents->setColumnWidth(3,80);
+//    ui->tvEvents->setColumnWidth(4,80);
+//    ui->tvEvents->setColumnWidth(5,120);
+//    ui->tvEvents->setColumnWidth(6,800);
+//    ui->tvEvents->horizontalHeader()->setSectionResizeMode(6,QHeaderView::Stretch);
+//    ui->tvEvents->horizontalHeader()->setsect
+
+    //dummy();
 }
 
 frmEventView::~frmEventView()
@@ -27,15 +37,20 @@ void frmEventView::setLogFile(QString path)
 {
     QFile f(path);
     if(f.open(QIODevice::ReadOnly)){
+        QTextStream ts(&f);//,QIODevice::ReadOnly | QIODevice::Text);
+        ui->tvEvents->setModel(nullptr);
         m_evtModel->clearEvents();
-        while(!f.atEnd()){
-            QString s = f.readLine();
+        while(!ts.atEnd()){
+            QString s = ts.readLine();
             BMS_Event *e = new BMS_Event;
             e->parse(s);
             m_evtModel->appendEvent(e);
         }
         f.close();
+        ui->tvEvents->setModel(m_evtModel);
+        ui->tvEvents->resizeColumnsToContents();
         ui->tvEvents->viewport()->update();
+
     }
 }
 
@@ -47,7 +62,7 @@ void frmEventView::dummy()
         evt->m_evtLevel = i*5;
         evt->m_isAlarm = true;
         evt->m_isWarning = false;
-        evt->m_timeStamp = QDateTime::currentDateTime().addSecs(i*1000);
+        evt->m_timeStamp = QDateTime::currentDateTime().addSecs(i*1000).toString("yyyyMMdd_hhmmss");
         evt->m_description = QString("Description %1").arg(i+1);
         m_evtModel->appendEvent(evt);
     }

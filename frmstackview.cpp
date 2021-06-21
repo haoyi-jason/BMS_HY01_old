@@ -101,6 +101,7 @@ void frmStackView::on_system_data_ready()
         }
     }
     if(activeSystem != nullptr){
+        ui->tableView->resizeColumnsToContents();
         ui->tableView->viewport()->update();
         updateStackInfo();
     }

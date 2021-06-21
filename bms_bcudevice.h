@@ -43,6 +43,7 @@ public:
     int vsource_limit(int id);
 
     void simulating(bool v){m_simulating = v;}
+    void simData();
     bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
 
 signals:

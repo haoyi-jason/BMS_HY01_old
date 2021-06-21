@@ -177,22 +177,22 @@ class BMS_Event:public QObject{
 public:
     explicit BMS_Event(QObject *parent = nullptr){}
     friend QTextStream &operator << (QTextStream &out,const BMS_Event *event){
-        out << QString("%1,").arg(event->m_evtID);
-        out << QString("%1,").arg(event->m_evtLevel);
-        out << QString("%1,").arg(event->m_isAlarm?"TRUE":"FALSE");
-        out << QString("%1,").arg(event->m_isWarning?"TRUE":"FALSE");
-        out << event->m_timeStamp.toString("yyyy:MM:dd hh-mm-ss")<<",";
+        out << QString("%1;").arg(event->m_evtID);
+        out << QString("%1;").arg(event->m_evtLevel);
+        out << QString("%1;").arg(event->m_isAlarm?"TRUE":"FALSE");
+        out << QString("%1;").arg(event->m_isWarning?"TRUE":"FALSE");
+        out << event->m_timeStamp+";";
         out << event->m_description<<"\n";
     }
 
     bool parse(QString msg){
-        QStringList sl = msg.split(",");
+        QStringList sl = msg.split(";");
         if(sl.size() == 6){
             m_evtID = sl[0].toInt();
             m_evtLevel = sl[1].toInt();
             m_isAlarm = sl[2].contains("TRUE");
             m_isWarning = sl[3].contains("TRUE");
-            m_timeStamp = QDateTime::fromString(sl[4]);
+            m_timeStamp = (sl[4]);
             m_description = sl[5];
         }
         else{
@@ -207,7 +207,7 @@ public:
     int m_evtLevel= 0;
     bool m_isAlarm = false;
     bool m_isWarning = false;
-    QDateTime m_timeStamp;
+    QString m_timeStamp;
     QString m_description;
 
 };
@@ -227,76 +227,18 @@ public:
     bool enableLog=false;
     int logDays = -1;
     int logRecords = 1000;
-    void setDigitalOut(int id, int value){
-        QString msg = QString("BCU:DO:%1:%2").arg(id).arg(value);
-        writeCommand(msg);
-//        if(socket != nullptr){
-//            socket->write(msg.toUtf8());
-//        }
-    }
+    void setDigitalOut(int id, int value);
 
-    void setVoltageSource(int id, int value){
-        QString msg = QString("BCU:VO:%1:%2").arg(id).arg(value);
-        writeCommand(msg);
-//        if(socket != nullptr){
-//            socket->write(msg.toUtf8());
-//        }
-    }
+    void setVoltageSource(int id, int value);
 
-    void openSerialPort(QString name, int baudrate, int parity, int stopBits){
-        QString msg = QString("PORT:OPEN:%1:%2:%3:%4").arg(name).arg(baudrate).arg(parity).arg(stopBits);
-        writeCommand(msg);
-//        if(socket != nullptr){
-//            socket->write(msg.toUtf8());
-//        }
-    }
+    void openSerialPort(QString name, int baudrate, int parity, int stopBits);
 
-    void closeSerialPort(QString name){
-        QString msg = QString("PORT:CLOSE:%1").arg(name);
-        writeCommand(msg);
-//        if(socket != nullptr){
-//            socket->write(msg.toUtf8());
-//        }
-    }
+    void closeSerialPort(QString name);
 
-    void writeSerialPort(QString name, QString data){
-        QString msg = QString("PORT:WRITE:%1:%2").arg(name).arg(data);
-        writeCommand(msg);
-//        if(socket != nullptr){
-//            socket->write(msg.toUtf8());
-//        }
+    void writeSerialPort(QString name, QString data);
+    void writeCommand(QString command);
 
-    }
-    void writeCommand(QString command){
-        if(socket != nullptr){
-            socket->write(command.toUtf8());
-        }
-    }
-
-    void logData(QByteArray b){
-//        QByteArray b;
-//        QDataStream ds(&b,QIODevice::ReadWrite);
-//        ds << this->system;
-        QString path = this->logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss.bin");
-        QFile f(path);
-        if(f.open(QIODevice::ReadWrite)){
-            //f.write(d);
-            QDataStream df(&f);
-            df << b;
-            f.close();
-        }
-
-        // remove old files, keep 1000 only
-        QDir dir(this->logPath);
-        if(dir.count() > 110){
-            QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
-            for(int i=files.size();i>100;--i){
-                const QFileInfo& info = files.at(i-1);
-                QFile::remove(info.absoluteFilePath());
-            }
-        }
-
-    }
+    void logData(QByteArray b);
 };
 
 

@@ -19,6 +19,12 @@
 #include "loginvalid.h"
 #include "frmeventview.h"
 
+#include "bms_bmudevice.h"
+#include "bms_bcudevice.h"
+#include "bms_svidevice.h"
+#include "bms_stack.h"
+#include "bms_system.h"
+
 CollectorView::CollectorView(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CollectorView)
@@ -55,6 +61,7 @@ CollectorView::CollectorView(QWidget *parent) :
 
     if(m_collector->loginPromote()){
         LoginValid *v = new LoginValid;
+        v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
         if(v->setFileName(path)){
             if(v->exec() == QDialog::Rejected){
                 QMessageBox::warning(this,"錯誤!","密碼驗證失敗!");
@@ -128,6 +135,7 @@ void CollectorView::on_pbBatHistory_clicked()
     mainWidget = m_HistWin;
     ui->mainLayout->addWidget(mainWidget);
     mainWidget->show();
+    m_HistWin->rootPath(m_collector->currentSystem()->system->logPath());
 }
 void CollectorView::on_pbEventView_clicked()
 {
@@ -140,7 +148,7 @@ void CollectorView::on_pbEventView_clicked()
     ui->mainLayout->addWidget(mainWidget);
     mainWidget->show();
 
-    QString path = m_collector->currentSystem()->logPath + "/events.log";
+    QString path = m_collector->currentSystem()->system->logPath()+"/sys/events.log";
     m_evtView->setLogFile(path);
 }
 
@@ -170,7 +178,6 @@ void CollectorView::on_pbSystemNavi_clicked()
         if(m_collector->connectServer(0)){
             //log("Start server ok");
             btn->setText("停止");
-            m_HistWin->rootPath(m_collector->currentSystem()->logPath);
         }
         else{
             //log("Start server failed");
@@ -201,6 +208,7 @@ void CollectorView::on_pbAuth_clicked()
     }
 
     LoginValid *v = new LoginValid;
+    v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
     if(v->setFileName(path)){
         if(v->exec() == QDialog::Accepted){
             if(v->userID() == 1){
