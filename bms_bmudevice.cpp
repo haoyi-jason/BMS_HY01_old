@@ -401,6 +401,7 @@ void BMS_BMUDevice::simData(ushort vbase, ushort vgap, ushort tbase, ushort tgap
     m_maxTemperature = max_val;
     m_minTemperature = min_val;
 
+    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
     this->validAlarmstate();
 }
 

@@ -139,6 +139,9 @@ void CollectorView::on_pbEventView_clicked()
     mainWidget = m_evtView;
     ui->mainLayout->addWidget(mainWidget);
     mainWidget->show();
+
+    QString path = m_collector->currentSystem()->logPath + "/events.log";
+    m_evtView->setLogFile(path);
 }
 
 void CollectorView::on_pbSystemNavi_clicked()
@@ -150,32 +153,40 @@ void CollectorView::on_pbSystemNavi_clicked()
     if(btn->isChecked()){
         QString cmd;
         if(QSysInfo::productType().contains("win")){
-            //cmd = "d:\wsqt\bms_controller\./config/system.json";
-//            btn->setChecked(false);
         }
         else{
-            cmd = "/opt/BMS_Controller/bin/BMS_Controller";
-            proc->start(cmd);
-            qDebug()<<"Proc Result 3:"<<proc->readAll();
-            QThread::sleep(1);
+            // check if program is running
+            proc->start("ps -C BMS_Controller");
+            proc->waitForFinished();
+            QStringList sl = QString(proc->readAll()).split("\n");
+            if(sl.size() < 3){ // 1st : header, 2nd: pidxxx, 3rd blank
+                //log("BMC_Controller not launched, try to launch");
+                cmd = "/opt/BMS_Controller/bin/BMS_Controller";
+                proc->start(cmd);
+                qDebug()<<"Proc Result 3:"<<QString(proc->readAll());
+                QThread::sleep(1);
+            }
         }
         if(m_collector->connectServer(0)){
+            //log("Start server ok");
             btn->setText("停止");
             m_HistWin->rootPath(m_collector->currentSystem()->logPath);
         }
         else{
+            //log("Start server failed");
             btn->setChecked(false);
         }
 
     }else{
+        //log("Disconnect from BMS Controller");
         m_collector->disconnectServer(0);
         btn->setText("連線");
 
-        QString cmd = "pkill BMS_Controller";
-        proc->start(cmd);
+//        QString cmd = "pkill BMS_Controller";
+//        proc->start(cmd);
 //        proc->start("sh",QStringList()<<" -c"<<cmd);
-        proc->waitForFinished();
-        qDebug()<<"Proc Result:"<<proc->readAll();
+//        proc->waitForFinished();
+//        qDebug()<<"Proc Result:"<<proc->readAll();
     }
 }
 

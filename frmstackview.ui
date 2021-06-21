@@ -195,7 +195,7 @@
           <item row="0" column="7">
            <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>總電流(安培)</string>
+             <string>電流(安培)</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -280,7 +280,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" rowspan="3">
+          <item row="0" column="1" rowspan="2">
            <widget class="QPushButton" name="pbNextStack">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -305,7 +305,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0" rowspan="3">
+          <item row="0" column="0" rowspan="2">
            <widget class="QPushButton" name="pbPreviousStack">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -315,6 +315,26 @@
             </property>
             <property name="text">
              <string>前一簇</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="lbl_do0">
+            <property name="text">
+             <string>輸出1:關閉</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="lbl_do1">
+            <property name="text">
+             <string>輸出2: 關閉</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>

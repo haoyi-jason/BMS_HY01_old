@@ -145,8 +145,13 @@ void frmStackView::updateStackInfo()
     QString message;
     message += QString("系統名稱：%1\r\n").arg(collector->currentSystem()->system->alias());
     message += QString("系統總簇數：%1\r\n").arg(collector->currentSystem()->system->Stacks);
-    message += QString("目前在第 [ %1 ] 簇").arg(m_currentStackIndex+1);
-    ui->lbInfo->setText(message);
+    message += QString("目前在第 [ %1 ] 簇\n").arg(m_currentStackIndex+1);
+
+    int current = 0;
+    foreach(BMS_Stack *s,collector->currentSystem()->system->stacks()){
+        current += s->stackCurrent();
+    }
+    message += QString("總電流:%1 安培\n").arg(current/10,5,'f',1,'0');
 
     BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString::number(stack->maxCellVoltage()));
@@ -172,16 +177,19 @@ void frmStackView::updateStackInfo()
 
     ui->le_maxDiff->setText(QString::number(stack->cellVoltDiff()));
 
-    QByteArray dig_in = collector->currentSystem()->system->digitalInput();
-    QByteArray dig_out = collector->currentSystem()->system->digitalOutput();
-    QList<int> vs = collector->currentSystem()->system->vsource();
+    QByteArray dig_in = collector->currentSystem()->system->bcu()->getDigitalInput();
+    QByteArray dig_out = collector->currentSystem()->system->bcu()->getDigitalOutput();
+    QList<int> vs = collector->currentSystem()->system->bcu()->getWorkingCurrent();
 
     // update UI
-    ui->pbDigitalIn_0->setChecked((dig_in[0] & 0x01)==0x01?true:false);
-    ui->pbDigitalIn_1->setChecked((dig_in[0] & 0x02)==0x02?true:false);
+//    ui->pbDigitalIn_0->setChecked((dig_in[0] & 0x01)==0x01?true:false);
+//    ui->pbDigitalIn_1->setChecked((dig_in[0] & 0x02)==0x02?true:false);
 
-    ui->leVSourceIn_0->setText(QString::number(vs[0]));
-    ui->leVSourceIn_1->setText(QString::number(vs[1]));
+//    ui->leVSourceIn_0->setText(QString::number(vs[0]));
+//    ui->leVSourceIn_1->setText(QString::number(vs[1]));
+
+    ui->lbl_do0->setText((dig_out[0] & 0x01)==0x01?"輸出[1]開啟":"輸出[1]關閉");
+    ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
 
     quint32 alarm = collector->currentSystem()->system->alarmState();
 
@@ -197,6 +205,8 @@ void frmStackView::updateStackInfo()
         m_alarmLabels[i]->setPalette(p);
         alarm >>= 1;
     }
+
+    ui->lbInfo->setText(message);
 
 
 }

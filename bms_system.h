@@ -47,16 +47,15 @@ public:
 
     friend QDataStream &operator<<(QDataStream &out, const BMS_System *sys);
     friend QDataStream &operator>>(QDataStream &in, BMS_System *sys);
-    CAN_Packet* setDigitalOut(int ch, int value);
-    CAN_Packet* setVoltageSource(int ch, int value, bool enable);
+    //CAN_Packet* setDigitalOut(int ch, int value);
+    //CAN_Packet* setVoltageSource(int ch, int value, bool enable);
     void flushBCU();
     QByteArray digitalInput();
     QByteArray digitalOutput();
     QList<int> vsource();
-    void log(QByteArray data);
+    void rec_log(QByteArray data);
     void emg_log(QByteArray data);
     void emg_log(QString msg);
-    void evt_log(QString msg);
     void logPath(QString path);
     BMS_BCUDevice* bcu();
     QList<int> batteriesPerStack();
@@ -85,6 +84,7 @@ signals:
     void sendPacket(QByteArray data);
     void setBalancingVoltage(ushort v);
     void deviceLost(quint8 devid);
+    void logMessage(QString);
 private slots:
     void simulate();
     void validState();
@@ -96,6 +96,9 @@ public slots:
     void On_BMU_ut(quint16 mask);
     void On_SVI_ov();
     void On_SVI_oc();
+    void log(QString msg);
+    void sys_log(QString msg);
+    void evt_log(QString msg);
 
 private:
     QList<BMS_Stack*> m_stacks;

@@ -25,7 +25,18 @@ void frmEventView::on_pbClearAll_clicked()
 
 void frmEventView::setLogFile(QString path)
 {
-
+    QFile f(path);
+    if(f.open(QIODevice::ReadOnly)){
+        m_evtModel->clearEvents();
+        while(!f.atEnd()){
+            QString s = f.readLine();
+            BMS_Event *e = new BMS_Event;
+            e->parse(s);
+            m_evtModel->appendEvent(e);
+        }
+        f.close();
+        ui->tvEvents->viewport()->update();
+    }
 }
 
 void frmEventView::dummy()

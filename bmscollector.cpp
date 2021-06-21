@@ -105,7 +105,7 @@ bool BMSCollector::connectServer(int id)
                     connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                     if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                     s->socket = socket;
-                    s->configReady  =true;
+                    //s->configReady  =true;
                     readAllConfig();
                 }
             }
@@ -124,7 +124,7 @@ bool BMSCollector::connectServer(int id)
                 connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                 if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                 s->socket = socket;
-                s->configReady = true;
+                //s->configReady = true;
                 readAllConfig();
             }
             else{
@@ -179,7 +179,7 @@ bool BMSCollector::deleteConnection(QTcpSocket *socket)
 
 bool BMSCollector::readConfig(QString connection)
 {
-    QByteArray b = "SYS:CFG";
+    QByteArray b = "SYS:CFGFR";
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
         if(s->connection == connection){
@@ -192,7 +192,7 @@ bool BMSCollector::readConfig(QString connection)
 
 void BMSCollector::readAllConfig()
 {
-    QByteArray b = "SYS:CFG";
+    QByteArray b = "SYS:CFGFR";
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
         qDebug()<<"Write Command"<<b;
@@ -267,7 +267,7 @@ void BMSCollector::handleServerData()
                     sys->data.remove(0,hlen);
                     sys->system->Configuration(sys->data);
                     sys->configReady = true;
-                    emit configReady();
+                    //emit configReady();
                     sys->data.remove(0,len);
                 }
                 else if(ret == hsmsParser::BMS_WRONG_HEADER){

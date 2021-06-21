@@ -36,6 +36,12 @@ BMS_Stack* BMS_System::findStack(QString stackName)
     return stack;
 }
 
+void BMS_System::log(QString msg)
+{
+    QString logText = QString("BMS:%1").arg(msg);
+    emit logMessage(logText);
+}
+
 bool BMS_System::Configuration(QByteArray data)
 {
     bool ret = false;
@@ -44,6 +50,7 @@ bool BMS_System::Configuration(QByteArray data)
     if(d.isNull()){
 
         qDebug()<<"Wrong configuration file";
+        log("Wrong configuration file");
         return false;
     }
     QJsonObject obj = d.object();
@@ -223,9 +230,6 @@ bool BMS_System::Configuration(QByteArray data)
             }
         }
     }
-//    if(ret){
-//        generateSystemStructure();
-//    }
     return ret;
 }
 
@@ -290,18 +294,9 @@ void BMS_System::stopSimulator()
 
 void BMS_System::simulate()
 {
-    //feed data to stacks
-//    ushort sim_data[4];
-//    QByteArray data;
-//    QDataStream ds(&data, QIODevice::ReadWrite);
-
-//    quint32 total_voltage = 0;
-
     foreach(BMS_Stack *s,m_stacks){
         s->simData();
     }
-
-
 }
 
 void BMS_System::enableAlarmSystem(bool en)
@@ -312,11 +307,13 @@ void BMS_System::enableAlarmSystem(bool en)
             connect(m_validTimer,&QTimer::timeout,this,&BMS_System::validState);
         }
         m_validTimer->start(m_validInterval);
+        log("Alarm system enabled");
     }
     else{
         if(m_validTimer != nullptr && m_validTimer->isActive()){
             m_validTimer->stop();
         }
+        log("Alarm system disabled");
     }
 }
 
@@ -509,6 +506,7 @@ QDataStream& operator<<(QDataStream &out, const BMS_System *sys)
     foreach (BMS_Stack *s, sys->m_stacks) {
         out << s;
     }
+    out << sys->m_currentBalanceVoltage;
     return out;
 }
 
@@ -527,19 +525,20 @@ QDataStream& operator >> (QDataStream &in, BMS_System *sys)
     foreach (BMS_Stack *s, sys->m_stacks) {
         in >> s;
     }
+    in >> sys->m_currentBalanceVoltage;
     return in;
 }
-CAN_Packet* BMS_System::setDigitalOut(int ch, int value){
-    if(m_bcuDevice != nullptr){
-        return m_bcuDevice->setDigitalOut(ch,value);
-    }
-    return nullptr;
-}
-CAN_Packet* BMS_System::setVoltageSource(int ch, int value, bool enable){
-    if(m_bcuDevice != nullptr){
-        return m_bcuDevice->setVoltageSource(ch,value,enable);
-    }
-}
+//CAN_Packet* BMS_System::setDigitalOut(int ch, int value){
+//    if(m_bcuDevice != nullptr){
+//        return m_bcuDevice->setDigitalOut(ch,value);
+//    }
+//    return nullptr;
+//}
+//CAN_Packet* BMS_System::setVoltageSource(int ch, int value, bool enable){
+//    if(m_bcuDevice != nullptr){
+//        return m_bcuDevice->setVoltageSource(ch,value,enable);
+//    }
+//}
 
 void BMS_System::flushBCU(){
     if(m_bcuDevice != nullptr){
@@ -565,7 +564,7 @@ QList<int> BMS_System::vsource(){
     }
 }
 
-void BMS_System::log(QByteArray data){
+void BMS_System::rec_log(QByteArray data){
     if(!m_enableLog) return;
     //QString path = QString("%1/%2.bin").arg(m_logPath).arg(QDateTime::currentMSecsSinceEpoch(),16,16,QLatin1Char('0'));
     QString path = this->m_logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss.bin");
@@ -604,6 +603,22 @@ void BMS_System::emg_log(QString msg)
 }
 
 void BMS_System::evt_log(QString msg)
+{
+    BMS_Event *evt = new BMS_Event;
+    evt->m_description = msg;
+    evt->m_timeStamp = QDateTime::currentDateTime();
+
+//    QString path = this->m_logPath + "/" + QDateTime::currentDateTime().toString("yyyyMMdd.log");
+    QString path = this->m_logPath + "/events.log";
+    QFile f(path);
+    if(f.open(QIODevice::WriteOnly)){
+        QTextStream ds(&f);
+        ds << evt;
+        f.close();
+    }
+}
+
+void BMS_System::sys_log(QString msg)
 {
     BMS_Event *evt = new BMS_Event;
     evt->m_description = msg;
@@ -703,7 +718,7 @@ void BMS_System::On_BMU_ov(quint16 mask)
                 str += QString("第(%1)顆電芯過壓 (%2)mV").arg(i+1).arg(dev->cellVoltage(i));
             }
         }
-        this->evt_log(str);
+        this->sys_log(str);
     }
 }
 
@@ -742,7 +757,7 @@ void BMS_System::clearAlarm()
 
 CAN_Packet *BMS_System::broadcastBalancing()
 {
-    if(m_cellMinVoltage == m_currentBalanceVoltage) return nullptr;
+    //if(m_cellMinVoltage == m_currentBalanceVoltage) return nullptr;
     if(m_cellMinVoltage < BalancingVoltage) return nullptr;
 
     CAN_Packet *ret = new CAN_Packet;

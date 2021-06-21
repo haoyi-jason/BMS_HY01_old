@@ -408,3 +408,9 @@ void BMS_EventModel::appendEvent(BMS_Event *e)
     }
 }
 
+void BMS_EventModel::clearEvents()
+{
+    m_events.clear();
+}
+
+

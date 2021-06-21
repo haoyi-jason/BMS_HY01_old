@@ -203,10 +203,10 @@ public:
 
 
 public:
-    int m_evtID;
-    int m_evtLevel;
-    bool m_isAlarm;
-    bool m_isWarning;
+    int m_evtID = 0;
+    int m_evtLevel= 0;
+    bool m_isAlarm = false;
+    bool m_isWarning = false;
     QDateTime m_timeStamp;
     QString m_description;
 
