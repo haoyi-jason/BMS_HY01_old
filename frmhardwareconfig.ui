@@ -842,6 +842,45 @@
       <attribute name="title">
        <string>BMS設定</string>
       </attribute>
+      <widget class="QPushButton" name="pbRestartController">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>60</y>
+         <width>89</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Restart</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pbDisableController">
+       <property name="geometry">
+        <rect>
+         <x>200</x>
+         <y>60</y>
+         <width>89</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Disable</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pbEnableController">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>60</y>
+         <width>89</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>

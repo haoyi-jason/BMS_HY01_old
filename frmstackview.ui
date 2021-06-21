@@ -6,13 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1260</width>
     <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="maximumSize">
    <size>
-    <width>1280</width>
+    <width>1260</width>
     <height>16777215</height>
    </size>
   </property>
@@ -20,10 +26,13 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetNoConstraint</enum>
+   </property>
    <item>
     <widget class="QFrame" name="frame_2">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -32,6 +41,12 @@
       <size>
        <width>0</width>
        <height>120</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>1240</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="frameShape">
@@ -268,7 +283,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>200</width>
+              <width>180</width>
               <height>0</height>
              </size>
             </property>
@@ -320,6 +335,12 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="lbl_do0">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>輸出1:關閉</string>
             </property>
@@ -330,6 +351,12 @@
           </item>
           <item row="2" column="1">
            <widget class="QLabel" name="lbl_do1">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>輸出2: 關閉</string>
             </property>
@@ -354,19 +381,6 @@
           </item>
           <item row="1" column="3">
            <widget class="QLineEdit" name="leVSourceIn_1">
-            <property name="text">
-             <string>0</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLineEdit" name="leVSourceIn_0">
-            <property name="inputMethodHints">
-             <set>Qt::ImhDigitsOnly</set>
-            </property>
             <property name="text">
              <string>0</string>
             </property>
@@ -419,6 +433,19 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="leVSourceIn_0">
+            <property name="inputMethodHints">
+             <set>Qt::ImhDigitsOnly</set>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </widget>
@@ -430,6 +457,12 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="styleSheet">
          <string notr="true"/>
@@ -453,6 +486,18 @@
    </item>
    <item>
     <widget class="QTableView" name="tableView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>1240</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>

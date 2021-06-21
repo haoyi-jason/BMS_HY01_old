@@ -8,6 +8,7 @@
 #include "bms_stack.h"
 #include "bms_system.h"
 #include "inputwin.h"
+#include <QProcess>
 
 
 frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
@@ -208,4 +209,35 @@ void frmHardwareConfig::on_pbBMUNBE_clicked()
     QString command;
     command = QString("BMU:BE:0");
     m_collector->currentSystem()->writeCommand(command);
+}
+
+void frmHardwareConfig::on_pbRestartController_clicked()
+{
+    QProcess *proc = new QProcess;
+
+    proc->start("pkill BMS_Controller");
+    proc->waitForFinished();
+
+    delete proc;
+}
+
+void frmHardwareConfig::on_pbDisableController_clicked()
+{
+    QProcess *proc = new QProcess;
+
+    proc->start("sh",QStringList()<<" -c"<< "systemctl disable bms_controller");
+    proc->waitForFinished();
+
+    delete proc;
+}
+
+void frmHardwareConfig::on_pbEnableController_clicked()
+{
+    QProcess *proc = new QProcess;
+
+    proc->start("sh",QStringList()<< "-c" << "systemctl enable bms_controller");
+    proc->waitForFinished();
+
+    delete proc;
+
 }

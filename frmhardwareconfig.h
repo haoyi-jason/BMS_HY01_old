@@ -60,6 +60,12 @@ private slots:
 
     void on_pbBMUNBE_clicked();
 
+    void on_pbRestartController_clicked();
+
+    void on_pbDisableController_clicked();
+
+    void on_pbEnableController_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

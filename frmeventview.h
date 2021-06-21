@@ -27,6 +27,7 @@ private slots:
 private:
     Ui::frmEventView *ui;
     BMS_EventModel *m_evtModel;
+    QString m_path="";
 };
 
 #endif // FRMEVENTVIEW_H

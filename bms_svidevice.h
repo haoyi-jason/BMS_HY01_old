@@ -27,7 +27,7 @@ public:
     bool ampereAlarm(){return m_currentAlarm;}
 
     int lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
-    bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
+    bool deviceLost();
     void setSimVoltage(int v){m_simVolt = v;}
     void setSimAmpere(int v){m_simAmpere = v;}
     void setSimSOC(int v){m_simSOC = v;}

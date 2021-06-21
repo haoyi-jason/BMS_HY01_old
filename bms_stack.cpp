@@ -309,12 +309,15 @@ quint32 BMS_Stack::alarmState()
         if(b->isUT()) alarm |= (1 << bms::CELL_UT);
         if(b->isOV()) alarm |= (1 << bms::CELL_OV);
         if(b->isUV()) alarm |= (1 << bms::CELL_UV);
+        if(b->deviceLost()) alarm |= (1 <<bms::BMU_LOST);
     }
 
     if(m_svi->isOvWarning())
         alarm |= (1 << bms::STACK_OV);
     if(m_svi->isUvWarning())
         alarm |= (1 << bms::STACK_UV);
+    if(m_svi->deviceLost())
+        alarm |= (1 << bms::SVI_LOST);
 
     return alarm;
 }

@@ -357,16 +357,16 @@ quint32 BMS_System::alarmState()
         alarm |= (1 << bms::BCU_LOST);
     }
     // check if svi lost
-    foreach (BMS_Stack *s, m_stacks) {
-        if(s->sviDevice()->deviceLost()){
-            alarm |= (1 << bms::SVI_LOST);
-        }
-        foreach (BMS_BMUDevice *b, s->batteries()) {
-            if(b->deviceLost()){
-                alarm |= (1 << bms::BMU_LOST);
-            }
-        }
-    }
+//    foreach (BMS_Stack *s, m_stacks) {
+//        if(s->sviDevice()->deviceLost()){
+//            alarm |= (1 << bms::SVI_LOST);
+//        }
+//        foreach (BMS_BMUDevice *b, s->batteries()) {
+//            if(b->deviceLost()){
+//                alarm |= (1 << bms::BMU_LOST);
+//            }
+//        }
+//    }
     return alarm;
 }
 

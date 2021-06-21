@@ -30,12 +30,16 @@ frmEventView::~frmEventView()
 
 void frmEventView::on_pbClearAll_clicked()
 {
-
+    ui->tvEvents->setModel(nullptr);
+    m_evtModel->clearEvents();
+    QFile f(m_path);
+    f.remove();
 }
 
 void frmEventView::setLogFile(QString path)
 {
     QFile f(path);
+    m_path = path;
     if(f.open(QIODevice::ReadOnly)){
         QTextStream ts(&f);//,QIODevice::ReadOnly | QIODevice::Text);
         ui->tvEvents->setModel(nullptr);

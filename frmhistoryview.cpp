@@ -27,6 +27,7 @@ frmHistoryView::frmHistoryView(QWidget *parent) :
 
 void frmHistoryView::rootPath(QString path)
 {
+    qDebug()<<Q_FUNC_INFO<<path;
     m_rootPath = path;
     ui->listView->setRootIndex(model->index(m_rootPath));
     qDebug()<<Q_FUNC_INFO<<" Set rootpath to :"<<path;

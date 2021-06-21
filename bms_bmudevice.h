@@ -95,7 +95,10 @@ public:
     quint16 otSetMask(){return m_otSetMask;}
     void utSetMask(quint16 v){m_utSetMask = v;}
     quint16 utSetMask(){return m_utSetMask;}
-    bool deviceLost(){return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);}
+    bool deviceLost(){
+        //qDebug()<<"Last Seen:"<<QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
+        return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
+    }
     void resetValues();
 
 signals:
@@ -171,6 +174,7 @@ private:
 
     quint16 m_balancingBit = 0x0;
     quint16 m_openWireBit = 0x0;
+    //bool m_devLost = false;
 };
 
 #endif // BMS_BMUDEVICE_H

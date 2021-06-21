@@ -231,16 +231,17 @@ void BMSCollector::handleServerData()
                         QDataStream d(&sys->data,QIODevice::ReadOnly);
                         //qDebug()<<"Feed start";
                         d >> sys->system;
+
                         //qDebug()<<"Feed 1";
                         emit dataReceived();
                         sys->data.remove(0,len);
                         //qDebug()<<"Feed 2";
-                        if(sys->system->enableLog()){
-                            QByteArray b;
-                            QDataStream d2(&b,QIODevice::ReadWrite);
-                            d2 << sys->system;
-                            sys->system->log(b);
-                        }
+//                        if(sys->system->enableLog()){
+//                            QByteArray b;
+//                            QDataStream d2(&b,QIODevice::ReadWrite);
+//                            d2 << sys->system;
+//                            sys->system->log(b);
+//                        }
                         // show alarm information
                         bool set = false;
 

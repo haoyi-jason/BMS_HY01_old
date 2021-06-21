@@ -101,7 +101,7 @@ void frmStackView::on_system_data_ready()
         }
     }
     if(activeSystem != nullptr){
-        ui->tableView->resizeColumnsToContents();
+        //ui->tableView->resizeColumnsToContents();
         ui->tableView->viewport()->update();
         updateStackInfo();
     }
@@ -193,6 +193,7 @@ void frmStackView::updateStackInfo()
     ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
 
     quint32 alarm = collector->currentSystem()->system->alarmState();
+    //qDebug()<<QString("Alarm Code:0x%1").arg(alarm,16);
 
     // feed alarm to ui
     for(int i=0;i<11;i++){

@@ -33,16 +33,18 @@ CollectorView::CollectorView(QWidget *parent) :
     hide();
 
     qDebug()<<"System Type:"<<QSysInfo::productType();
+    qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     m_StackWin = new frmStackView(this);
-    m_HardwareWin = new frmHardwareConfig(this);
+    m_HardwareWin = new frmHardwareConfig();
     m_HardwareWin->hide();
-    m_HistWin = new frmHistoryView(this);
+    m_HistWin = new frmHistoryView();
     m_HistWin->hide();
-    m_evtView = new frmEventView(this);
+    m_evtView = new frmEventView();
     m_evtView->hide();
 
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
+    qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     QString path;
     if(QSysInfo::productType().contains("win")){
         path = "./config/system.json";
@@ -87,6 +89,7 @@ CollectorView::CollectorView(QWidget *parent) :
         ui->pbHardwareView->setVisible(true);
     }
 
+    qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
 }
 
 CollectorView::~CollectorView()

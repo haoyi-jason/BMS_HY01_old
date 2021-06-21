@@ -17,6 +17,11 @@ QByteArray BMS_SVIDevice::data(){
 int BMS_SVIDevice::voltage(){return m_stackVoltage + m_simVolt;}
 int BMS_SVIDevice::current(){return m_stackCurrent + m_simAmpere;}
 
+bool BMS_SVIDevice::deviceLost()
+{
+    return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
+}
+
 void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
     if(id == SVI_ID){
         m_currentTime = QDateTime::currentMSecsSinceEpoch();
@@ -45,6 +50,7 @@ void BMS_SVIDevice::calculateState()
     float sa = (float)(m_stackCurrent+m_simAmpere)/10.;
     float dt = m_currentTime - m_lastSeen;
     m_lastSeen = m_currentTime;
+    //qDebug()<<Q_FUNC_INFO<<"Last seen:"<<m_lastSeen;
 
     float soc_new;
 
@@ -325,6 +331,7 @@ QDataStream& operator << (QDataStream &out, const BMS_SVIDevice *svi)
     int sv = svi->m_stackVoltage + svi->m_simVolt;
     int sa = svi->m_stackCurrent + svi->m_simAmpere;
     float soc = svi->m_soc + svi->m_simSOC;
+    //qDebug()<<"Feed out :"<<svi->m_lastSeen;
     out << svi->m_lastSeen;
     out << sv;
     out << sa;
@@ -362,5 +369,7 @@ QDataStream& operator >> (QDataStream &in, BMS_SVIDevice *svi)
     in >> svi->m_ovWarningIsSet;
     in >> svi->m_uvAlarmIsSet;
     in >> svi->m_uvWarningIsSet;
+
+    //qDebug()<<"Feed in:"<<svi->m_lastSeen;
     return in;
 }
