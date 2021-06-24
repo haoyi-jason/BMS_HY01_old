@@ -16,18 +16,18 @@ class BMS_BMUDevice : public QObject
 public:
     explicit BMS_BMUDevice(QObject *parent = nullptr);
     BMS_BMUDevice(int nofCells, int nofTemp,QObject *parent = nullptr);
-    ushort getCellVoltage(int index);
-    ushort getPackTemperature(int index);
+    short getCellVoltage(int index);
+    short getPackTemperature(int index);
 
-    ushort cellVoltage(int index);
-    QList<ushort> cellVoltages();
-    void cellVoltage(int id, ushort x);
-    void cellVoltages(QList<ushort>x);
+    short cellVoltage(int index);
+    QList<short> cellVoltages();
+    void cellVoltage(int id, short x);
+    void cellVoltages(QList<short>x);
 
-    ushort packTemperature(int index);
-    QList<ushort> packTemperatures();
-    void packTemperature(int id, ushort x);
-    void packTemperatures(QList<ushort>x);
+    short packTemperature(int index);
+    QList<short> packTemperatures();
+    void packTemperature(int id, short x);
+    void packTemperatures(QList<short>x);
 
     ushort balancing(int index);
     QList<ushort> balancing();
@@ -44,7 +44,7 @@ public:
     quint8 ntcCount();
     ushort minCellVoltage();
     ushort maxCellVoltage();
-    ushort totalVoltage();
+    qint32 totalVoltage();
     ushort minPackTemp();
     ushort maxPackTemp();
     ushort cellVoltageDiff();
@@ -117,8 +117,8 @@ signals:
 
 public slots:
 private:
-    QList<ushort> m_cellVoltage;
-    QList<ushort> m_packTemperature;
+    QList<short> m_cellVoltage;
+    QList<short> m_packTemperature;
     QList<ushort> m_balancing;
     ushort m_balancingVoltage=0;
     ushort m_balancingHystersis=0;
@@ -131,7 +131,7 @@ private:
     ushort m_minVoltage=0;
     ushort m_maxTemperature=0;
     ushort m_minTemperature=0;
-    ushort m_totalVoltage=0;
+    qint32 m_totalVoltage=0;
     long long m_lastSeen;
     QList<QByteArray> m_pendingAction;
 

@@ -26,15 +26,15 @@ namespace bms {
     enum AlarmID{
         STACK_OV,
         STACK_UV,
-        STACK_OT,
-        STACK_UT,
         CELL_OV,
         CELL_UV,
         CELL_OT,
         CELL_UT,
         BMU_LOST,
+        SVI_LOST,
+        STACK_OT,
+        STACK_UT,
         BCU_LOST,
-        SVI_LOST
     };
 }
 

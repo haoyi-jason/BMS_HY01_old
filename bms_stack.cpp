@@ -35,7 +35,7 @@ void BMS_Stack::cellVoltage(int bid, int cid, ushort x){
 
 ushort BMS_Stack::packTemp(int bid, int tid){};
 void BMS_Stack::packTemp(int bid, int tid, ushort x){};
-ushort BMS_Stack::queueData(int bid, int cid){
+int32_t BMS_Stack::queueData(int bid, int cid){
     if(bid < m_batteries.size()){
         BMS_BMUDevice *info = m_batteries.at(bid);
         int m = info->cellCount();
@@ -43,12 +43,11 @@ ushort BMS_Stack::queueData(int bid, int cid){
         if(cid < m){
             return info->getCellVoltage(cid);
         }
-        else if(cid < (m+n)){
-            return info->getPackTemperature(cid-info->cellCount());
-        }
-        else if(cid < (m+m+n)){
+        else if(cid == m){
             return info->totalVoltage();
-//            return info->balancing().at(cid-info->cellCount() - info->ntcCount());
+        }
+        else if(cid < (m+n+1)){
+            return info->getPackTemperature(cid - m - 1);
         }
     }
     return 0;

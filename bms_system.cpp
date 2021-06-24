@@ -785,6 +785,10 @@ CAN_Packet *BMS_System::broadcastBalancing()
     ret->remote = false;
     QDataStream ds(&ret->data,QIODevice::WriteOnly);
     ds.setByteOrder(QDataStream::LittleEndian);
+    quint8 b = 0x01;
+    ds << b; // enable balancing
+    b = BalancingHystersis;
+    ds << b;
     ds << m_cellMinVoltage;
     m_currentBalanceVoltage = m_cellMinVoltage;
     return ret;

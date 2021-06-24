@@ -81,7 +81,7 @@ void StackInfo::dummyData()
         BMS_Stack *stack_info = new BMS_Stack();
         for(int j=0;j<12;j++){
             BMS_BMUDevice *bat = new BMS_BMUDevice(12,5);
-            QList<ushort> v,t;
+            QList<short> v,t;
             for(int k=0;k<12;k++){
                 v.append(3000+QRandomGenerator::global()->bounded(500));
             }

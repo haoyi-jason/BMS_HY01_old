@@ -18,28 +18,30 @@ frmStackView::frmStackView(QWidget *parent) :
     batteryModel = new BMS_BatteryModel();
     stackModel = new BMS_StackModel();
     ui->lbInfo->setText("");
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->setFrameShape(QFrame::VLine);
 
     ui->label_6->setText(QString("最高電池溫度( %1C)").arg(QChar(0x00b0)));
     ui->label_8->setText(QString("最低電池溫度( %1C)").arg(QChar(0x00b0)));
 
-    QGridLayout *gl = new QGridLayout;
-    QWidget *w = new QWidget;
-    for(int i=0;i<11;i++){
+//    QGridLayout *gl = new QGridLayout;
+    QHBoxLayout *hl = new QHBoxLayout;
+    QWidget *w = ui->wgAlarm;
+    for(int i=0;i<8;i++){
         m_alarmLabels[i] = new QLabel(alarm_string[i],w);
         m_alarmLabels[i]->setAlignment(Qt::AlignHCenter | Qt::AlignCenter);
         m_alarmLabels[i]->setFrameShape(QFrame::StyledPanel);
         m_alarmLabels[i]->setAutoFillBackground(true);
-        gl->addWidget(m_alarmLabels[i],i%2,i/2);
+        hl->addWidget(m_alarmLabels[i]);
     }
 
-    m_btnClearAlarm = new QPushButton("清除\n告警",w);
-    m_btnClearAlarm->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Expanding);
+    m_btnClearAlarm = new QPushButton("清除告警",w);
+    m_btnClearAlarm->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
     connect(m_btnClearAlarm,&QPushButton::clicked,this,&frmStackView::on_clearAlarmClicked);
-    gl->addWidget(m_btnClearAlarm,0,6,2,1);
+    hl->addWidget(m_btnClearAlarm);
 
-    w->setLayout(gl);
-    ui->stackedWidget->addWidget(w);
+    w->setLayout(hl);
+    //ui->stackedWidget->addWidget(w);
 }
 
 frmStackView::~frmStackView()
@@ -125,6 +127,7 @@ void frmStackView::on_pbPreviousStack_clicked()
         m_currentStackIndex = stackModel->rowCount()-1;
     }
     batteryModel->setStack(stackModel->findStack(m_currentStackIndex));
+    batteryModel->headerDataChanged(Qt::Horizontal,0,stackModel->findStack(m_currentStackIndex)->batteries().count());
     ui->tableView->viewport()->update();
     updateStackInfo();
 }
@@ -136,15 +139,17 @@ void frmStackView::on_pbNextStack_clicked()
         m_currentStackIndex = 0;
     }
     batteryModel->setStack(stackModel->findStack(m_currentStackIndex));
+    batteryModel->headerDataChanged(Qt::Horizontal,0,stackModel->findStack(m_currentStackIndex)->batteries().count());
 
     ui->tableView->viewport()->update();
+
     updateStackInfo();
 }
 
 void frmStackView::updateStackInfo()
 {
     QString message;
-    message += QString("系統名稱：%1\r\n").arg(collector->currentSystem()->system->alias());
+    //message += QString("系統名稱：%1\r\n").arg(collector->currentSystem()->system->alias());
     message += QString("系統總簇數：%1\r\n").arg(collector->currentSystem()->system->Stacks);
     message += QString("目前在第 [ %1 ] 簇\n").arg(m_currentStackIndex+1);
 
@@ -155,14 +160,12 @@ void frmStackView::updateStackInfo()
     message += QString("總電流:%1 安培\n").arg(current/10,5,'f',1,'0');
 
     BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
-    ui->leMaxCellVoltage->setText(QString::number(stack->maxCellVoltage()));
-    ui->le_minVoltage->setText(QString::number(stack->minCellVoltage()));
-    ui->le_maxTemp->setText(QString("%1").arg(stack->maxStackTemperature()/10.,5,'f',2,'0'));
-    ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,5,'f',2,'0'));
-    //ui->le_maxTemp->setText(QString::number(stack->maxStackTemperature()/10.));
-//    ui->le_minTemp->setText(QString::number(stack->minStackTemperature()/10.));
-    ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',2,'0'));
-    ui->le_current->setText(QString("%1").arg(stack->stackCurrent()/10.,5,'f',2,'0'));
+    ui->leMaxCellVoltage->setText(QString("%1").arg(stack->maxCellVoltage()/1000.,5,'f',3,'0'));
+    ui->le_minVoltage->setText(QString("%1").arg(stack->minCellVoltage()/1000.,5,'f',3,'0'));
+    ui->le_maxTemp->setText(QString("%1").arg(stack->maxStackTemperature()/10.,4,'f',1,'0'));
+    ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,4,'f',1,'0'));
+    ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',1,'0'));
+    ui->le_current->setText(QString("%1").arg(stack->stackCurrent()/10.,5,'f',1,'0'));
 
     ui->leSOC->setText(QString("%1").arg(stack->sviDevice()->soc(),5,'f',1,'0'));
 
@@ -196,7 +199,7 @@ void frmStackView::updateStackInfo()
     //qDebug()<<QString("Alarm Code:0x%1").arg(alarm,16);
 
     // feed alarm to ui
-    for(int i=0;i<11;i++){
+    for(int i=0;i<8;i++){
         QPalette p = m_alarmLabels[i]->palette();
         if(alarm & 0x01){
             p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::red);

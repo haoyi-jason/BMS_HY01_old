@@ -81,6 +81,9 @@ CollectorView::CollectorView(QWidget *parent) :
 
         delete v;
     }
+    else{ // hide hardware config in default
+        m_userID = 0;
+    }
 
 
     if(m_userID == 0){

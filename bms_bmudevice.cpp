@@ -31,14 +31,14 @@ BMS_BMUDevice::BMS_BMUDevice(int nofCells, int nofTemp,QObject *parent):QObject(
     }
 }
 
-ushort BMS_BMUDevice::getCellVoltage(int index)
+short BMS_BMUDevice::getCellVoltage(int index)
 {
     if(index < m_cellVoltage.size()){
         return m_cellVoltage.at(index);
     }
     return 0;
 }
-ushort BMS_BMUDevice::getPackTemperature(int index)
+short BMS_BMUDevice::getPackTemperature(int index)
 {
     if(index < m_packTemperature.size()){
         return m_packTemperature.at((index));
@@ -46,36 +46,36 @@ ushort BMS_BMUDevice::getPackTemperature(int index)
     return 0;
 }
 
-ushort BMS_BMUDevice::cellVoltage(int index)
+short BMS_BMUDevice::cellVoltage(int index)
 {
     return (index<m_cellVoltage.size())?m_cellVoltage[index]:0;
 }
-QList<ushort> BMS_BMUDevice::cellVoltages()
+QList<short> BMS_BMUDevice::cellVoltages()
 {
     return m_cellVoltage;
 }
-void BMS_BMUDevice::cellVoltage(int id, ushort x)
+void BMS_BMUDevice::cellVoltage(int id, short x)
 {
     m_cellVoltage[id] = x;
 }
-void BMS_BMUDevice::cellVoltages(QList<ushort>x)
+void BMS_BMUDevice::cellVoltages(QList<short>x)
 {
     m_cellVoltage = x;
 }
 
-ushort BMS_BMUDevice::packTemperature(int index)
+short BMS_BMUDevice::packTemperature(int index)
 {
     return (index<m_packTemperature.size())?m_packTemperature[index]:0;
 }
-QList<ushort> BMS_BMUDevice::packTemperatures()
+QList<short> BMS_BMUDevice::packTemperatures()
 {
     return m_packTemperature;
 }
-void BMS_BMUDevice::packTemperature(int id, ushort x)
+void BMS_BMUDevice::packTemperature(int id, short x)
 {
     m_packTemperature[id] = x;
 }
-void BMS_BMUDevice::packTemperatures(QList<ushort>x)
+void BMS_BMUDevice::packTemperatures(QList<short>x)
 {
     m_packTemperature = x;
 }
@@ -131,7 +131,7 @@ quint8 BMS_BMUDevice::cellCount(){return m_cellVoltage.size();}
 quint8 BMS_BMUDevice::ntcCount(){return m_packTemperature.size();}
 ushort BMS_BMUDevice::minCellVoltage(){return m_minVoltage;}
 ushort BMS_BMUDevice::maxCellVoltage(){return m_maxVoltage;}
-ushort BMS_BMUDevice::totalVoltage(){return m_totalVoltage;}
+qint32 BMS_BMUDevice::totalVoltage(){return m_totalVoltage;}
 ushort BMS_BMUDevice::minPackTemp(){return m_minTemperature;}
 ushort BMS_BMUDevice::maxPackTemp(){return m_maxTemperature;}
 ushort BMS_BMUDevice::cellVoltageDiff(){return (m_maxVoltage>m_minVoltage)?(m_maxVoltage-m_minVoltage):0;}
@@ -218,7 +218,7 @@ void BMS_BMUDevice::validAlarmstate()
     quint16 uv_rst_mask = 0x0;
     quint16 ot_rst_mask = 0x0;
     quint16 ut_rst_mask = 0x0;
-    int val_sum = 0;
+    qint32 val_sum = 0;
     for(int i=0;i<m_cellVoltage.size();i++) {
         ushort v = m_cellVoltage[i];
         val_max = (val_max > v)?val_max:v;
@@ -381,7 +381,7 @@ bool BMS_BMUDevice::isUT()
 
 void BMS_BMUDevice::simData(ushort vbase, ushort vgap, ushort tbase, ushort tgap){
     ushort max_val = 0, min_val = 0xffff;
-    ushort total = 0;
+    qint32 total = 0;
     for(int i=0;i<m_cellVoltage.size();i++){
         m_cellVoltage[i] = (ushort)(vbase + QRandomGenerator::global()->bounded(vgap) + m_simVoltBase[i]);
         max_val = (max_val > m_cellVoltage[i])?max_val:m_cellVoltage[i];
@@ -390,7 +390,7 @@ void BMS_BMUDevice::simData(ushort vbase, ushort vgap, ushort tbase, ushort tgap
     }
     m_maxVoltage = max_val;
     m_minVoltage = min_val;
-    m_totalVoltage = total;
+   // m_totalVoltage = total;
 
     max_val = 0;min_val = 0xffff;
     for(int i=0;i<m_packTemperature.size();i++){

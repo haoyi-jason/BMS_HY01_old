@@ -53,21 +53,27 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     if(m_activeStack == nullptr) return QVariant();
     int row = index.row();
     int col = index.column();
-    ushort v;
+    qint32 v;
     switch(role){
     case Qt::DisplayRole:
-    case Qt::EditRole:
+    case Qt::EditRole:{
         v = m_activeStack->queueData(row,col);
-        if(col < m_activeStack->batteries().at(0)->cellCount()){
-            return QVariant(v);
-        }
-        else if(col < (m_activeStack->batteries().at(0)->cellCount() + m_activeStack->batteries().at(0)->ntcCount())){
-            QString disp = QString("%1").arg(v/10.,5,'f',2,'0');
+        int g1 = m_activeStack->batteries().at(0)->cellCount();
+        int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount() + 1;
+        if(col < g1){
+            QString disp = QString("%1").arg(v/1000.,5,'f',3,'0');
             return QVariant(disp);
         }
-        else{
-            return QVariant(v);
+        else if(col == g1){
+            QString disp = QString("%1").arg(v/1000.,4,'f',1,'0');
+            return QVariant(disp);
         }
+        else if(col < g2){
+            QString disp = QString("%1").arg(v/10.,4,'f',1,'0');
+            return QVariant(disp);
+        }
+    }
+        break;
     case Qt::FontRole:
         break;
     case Qt::BackgroundRole:
@@ -100,7 +106,7 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
         }
     }
     case Qt::TextAlignmentRole:
-        return (Qt::AlignRight);
+        return QVariant(Qt::AlignRight | Qt::AlignVCenter);
     case Qt::CheckStateRole:
         break;
     case Qt::ForegroundRole:
@@ -151,14 +157,16 @@ QVariant BMS_BatteryModel::headerData(int section, Qt::Orientation orientation, 
     if(m_activeStack == nullptr) return QVariant();
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal){
         int g1 = m_activeStack->batteries().at(0)->cellCount();
-        int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount();
+        int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount() + 1;
         if(section < g1){
-            return QVariant(QString("C%1(mV)").arg(section+1));
+            return QVariant(QString("C%1(V)").arg(section+1));
+        }
+        else if(section == g1){
+            return QString("SUM(V)");
         }
         else if(section < g2){
             return QVariant(QString("T%1(%2C)").arg(section-g1+1).arg(QChar(0xb0)));
         }
-        return QString("SUM");
     }
     else if(role == Qt::DisplayRole && orientation == Qt::Vertical){
         int g = m_activeStack->groupID();

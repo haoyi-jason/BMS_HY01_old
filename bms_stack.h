@@ -25,7 +25,7 @@ public:
     void cellVoltage(int bid, int cid, ushort x);
     ushort packTemp(int bid, int tid);
     void packTemp(int bid, int tid, ushort x);
-    ushort queueData(int bid, int cid);
+    int32_t queueData(int bid, int cid);
     void queueData(int bid, int cid, ushort x);
     void addBattery(BMS_BMUDevice *battery);
     void setHVC(BMS_SVIDevice *hvc);
