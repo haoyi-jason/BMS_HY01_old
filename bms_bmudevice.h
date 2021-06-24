@@ -98,6 +98,7 @@ public:
     bool deviceLost(){
         //qDebug()<<"Last Seen:"<<QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
         return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
+        //return m_devLost;
     }
     void resetValues();
 
@@ -143,10 +144,10 @@ private:
     quint16 m_voltHighMask=0;
     quint16 m_voltLowMask=0;
 
-    quint16 m_ot_set_ths=0;
-    quint16 m_ot_clr_ths=0;
-    quint16 m_ut_set_ths=0;
-    quint16 m_ut_clr_ths=0;
+    qint16 m_ot_set_ths=0;
+    qint16 m_ot_clr_ths=0;
+    qint16 m_ut_set_ths=0;
+    qint16 m_ut_clr_ths=0;
 
     quint8 m_tempHighMask=0;
     quint8 m_tempLowMask=0;
@@ -174,7 +175,7 @@ private:
 
     quint16 m_balancingBit = 0x0;
     quint16 m_openWireBit = 0x0;
-    //bool m_devLost = false;
+    bool m_devLost = false;
 };
 
 #endif // BMS_BMUDEVICE_H

@@ -356,17 +356,7 @@ quint32 BMS_System::alarmState()
     if(m_bcuDevice->deviceLost()){
         alarm |= (1 << bms::BCU_LOST);
     }
-    // check if svi lost
-//    foreach (BMS_Stack *s, m_stacks) {
-//        if(s->sviDevice()->deviceLost()){
-//            alarm |= (1 << bms::SVI_LOST);
-//        }
-//        foreach (BMS_BMUDevice *b, s->batteries()) {
-//            if(b->deviceLost()){
-//                alarm |= (1 << bms::BMU_LOST);
-//            }
-//        }
-//    }
+
     return alarm;
 }
 
@@ -786,6 +776,7 @@ CAN_Packet *BMS_System::broadcastBalancing()
     QDataStream ds(&ret->data,QIODevice::WriteOnly);
     ds.setByteOrder(QDataStream::LittleEndian);
     quint8 b = 0x01;
+//    quint8 b = 0x00;
     ds << b; // enable balancing
     b = BalancingHystersis;
     ds << b;

@@ -256,7 +256,7 @@ void BMS_BMUDevice::validAlarmstate()
 
     val_max = 0; val_min = 0xffff;
     for(int i=0;i<m_packTemperature.size();i++) {
-        ushort v = m_packTemperature[i];
+        short v = m_packTemperature[i];
         val_max = (val_max > v)?val_max:v;
         val_min = (val_min < v)?val_min:v;
         if(v > m_ot_set_ths){

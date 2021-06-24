@@ -9,6 +9,8 @@ frmEventView::frmEventView(QWidget *parent) :
     ui->setupUi(this);
     m_evtModel = new BMS_EventModel;
     ui->tvEvents->setModel(m_evtModel);
+    ui->tvEvents->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
 
 //    ui->tvEvents->setColumnWidth(0,80);
 //    ui->tvEvents->setColumnWidth(1,80);

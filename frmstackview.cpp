@@ -164,8 +164,8 @@ void frmStackView::updateStackInfo()
     ui->le_minVoltage->setText(QString("%1").arg(stack->minCellVoltage()/1000.,5,'f',3,'0'));
     ui->le_maxTemp->setText(QString("%1").arg(stack->maxStackTemperature()/10.,4,'f',1,'0'));
     ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,4,'f',1,'0'));
-    ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',1,'0'));
-    ui->le_current->setText(QString("%1").arg(stack->stackCurrent()/10.,5,'f',1,'0'));
+    ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',1));
+    ui->le_current->setText(QString("%1").arg(stack->stackCurrent()/10.,5,'f',1));
 
     ui->leSOC->setText(QString("%1").arg(stack->sviDevice()->soc(),5,'f',1,'0'));
 

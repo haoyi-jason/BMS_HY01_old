@@ -303,12 +303,17 @@ BMS_SVIDevice *BMS_Stack::sviDevice() const
 quint32 BMS_Stack::alarmState()
 {
     quint32 alarm = 0x0;
+    int id = 0;
     foreach(BMS_BMUDevice *b,m_batteries){
         if(b->isOT()) alarm |= (1 << bms::CELL_OT);
         if(b->isUT()) alarm |= (1 << bms::CELL_UT);
         if(b->isOV()) alarm |= (1 << bms::CELL_OV);
         if(b->isUV()) alarm |= (1 << bms::CELL_UV);
-        if(b->deviceLost()) alarm |= (1 <<bms::BMU_LOST);
+        if(b->deviceLost()){
+            alarm |= (1 <<bms::BMU_LOST);
+            qDebug()<< QString("BMU %1 Lost").arg(id);
+        }
+        id++;
     }
 
     if(m_svi->isOvWarning())

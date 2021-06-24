@@ -225,8 +225,14 @@ void frmHardwareConfig::on_pbDisableController_clicked()
 {
     QProcess *proc = new QProcess;
 
-    proc->start("sh",QStringList()<<" -c"<< "systemctl disable bms_controller");
+//    proc->start("sh",QStringList()<<" -c"<< "systemctl stop bms_controller");
+    proc->start("systemctl stop bms_controller");
     proc->waitForFinished();
+    qDebug()<<"Stop controller "<<QString(proc->readAll());
+//    proc->start("sh",QStringList()<<" -c"<< "systemctl disable bms_controller");
+    proc->start("systemctl disable bms_controller");
+    proc->waitForFinished();
+    qDebug()<<"Stop controller "<<QString(proc->readAll());
 
     delete proc;
 }
@@ -235,7 +241,10 @@ void frmHardwareConfig::on_pbEnableController_clicked()
 {
     QProcess *proc = new QProcess;
 
-    proc->start("sh",QStringList()<< "-c" << "systemctl enable bms_controller");
+    proc->start("systemctl enable bms_controller");
+    proc->waitForFinished();
+
+    proc->start("systemctl start bms_controller");
     proc->waitForFinished();
 
     delete proc;

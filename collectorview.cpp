@@ -213,8 +213,11 @@ void CollectorView::on_pbAuth_clicked()
        path = QCoreApplication::applicationDirPath()+"/config/system.json";
     }
 
-    LoginValid *v = new LoginValid;
-    v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
+    LoginValid *v = new LoginValid(this);
+    qDebug()<< "Left Corner"<<this->x()<<" "<<this->y();
+    v->move(this->x()+320,this->y()+320);
+    v->setModal(true);
+    //v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
     if(v->setFileName(path)){
         if(v->exec() == QDialog::Accepted){
             if(v->userID() == 1){

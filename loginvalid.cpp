@@ -16,6 +16,8 @@ LoginValid::LoginValid(QWidget *parent) :
     ui->setupUi(this);
     ui->lePasswd_2->setVisible(false);
 
+
+
     //
     connect(ui->lePasswd,&FocusEditor::focused,this,&LoginValid::on_lineedit_focused);
     connect(ui->lePasswd_2,&FocusEditor::focused,this,&LoginValid::on_lineedit_focused);

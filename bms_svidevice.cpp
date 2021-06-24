@@ -27,7 +27,7 @@ void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
         m_currentTime = QDateTime::currentMSecsSinceEpoch();
         QDataStream ds(&data,QIODevice::ReadOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
-        quint16 v;
+        qint16 v;
         ds >> v;
         m_aux1 = v;
         ds >> v;
