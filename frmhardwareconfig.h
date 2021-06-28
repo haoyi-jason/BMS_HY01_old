@@ -68,6 +68,10 @@ private slots:
 
     void on_pbSetDateTime_clicked();
 
+    void on_pbAlarmToSD_clicked();
+
+    void on_pbRecordToSD_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;

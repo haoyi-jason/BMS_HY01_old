@@ -22,7 +22,9 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leRTUID,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leTCPPort,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
-    ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    //ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    ui->dateEdit->setDateTime(QDateTime::currentDateTime());
+    ui->timeEdit->setTime(QTime::currentTime());
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -256,13 +258,18 @@ void frmHardwareConfig::on_pbEnableController_clicked()
 void frmHardwareConfig::on_pbSetDateTime_clicked()
 {
     QString dts ;
-    QDateTime dt = ui->dateTimeEdit->dateTime();
-    dts = dt.toString("timedatectl set-time \'yyyy-MM-dd hh:mm:00\'");
-    qDebug()<<"Set Time "<<dts;
+//    QDateTime dt = ui->dateTimeEdit->dateTime();
+    QTime t = ui->timeEdit->time();
+    QDate d = ui->dateEdit->date();
+//    dts = dt.toString("timedatectl set-time \'yyyy-MM-dd hh:mm:00\'");
+    dts =QString("timedatectl set-time \"%1 %2\"").arg(d.toString("yyyy-MM-dd")).arg(t.toString("hh:mm:00"));
+    qDebug()<<"Set Time "<<dts.toUtf8();
 
     QProcess *proc = new QProcess();
+    //proc->start("sh",QStringList()<<"-c" << dts.toUtf8());
     proc->start(dts);
     proc->waitForFinished();
+    qDebug()<<"Result"<<QString(proc->readAll());
     delete proc;
 }
 
@@ -277,3 +284,5 @@ void frmHardwareConfig::on_pbRecordToSD_clicked()
 {
 
 }
+
+
