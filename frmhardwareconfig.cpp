@@ -21,6 +21,8 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leADCCfgValue,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leRTUID,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leTCPPort,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
+    ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -248,5 +250,30 @@ void frmHardwareConfig::on_pbEnableController_clicked()
     proc->waitForFinished();
 
     delete proc;
+
+}
+
+void frmHardwareConfig::on_pbSetDateTime_clicked()
+{
+    QString dts ;
+    QDateTime dt = ui->dateTimeEdit->dateTime();
+    dts = dt.toString("timedatectl set-time \'yyyy-MM-dd hh:mm:00\'");
+    qDebug()<<"Set Time "<<dts;
+
+    QProcess *proc = new QProcess();
+    proc->start(dts);
+    proc->waitForFinished();
+    delete proc;
+}
+
+void frmHardwareConfig::on_pbAlarmToSD_clicked()
+{
+    if(QSysInfo::productType().contains("win")) return;
+
+
+}
+
+void frmHardwareConfig::on_pbRecordToSD_clicked()
+{
 
 }

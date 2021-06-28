@@ -66,6 +66,8 @@ private slots:
 
     void on_pbEnableController_clicked();
 
+    void on_pbSetDateTime_clicked();
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;
