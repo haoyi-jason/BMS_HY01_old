@@ -66,7 +66,14 @@ void BMS_Stack::queueData(int bid, int cid, ushort x){
 
 void BMS_Stack::addBattery(BMS_BMUDevice *battery){ this->m_batteries.append(battery);}
 void BMS_Stack::setHVC(BMS_SVIDevice *hvc){    m_svi = hvc;}
-ushort BMS_Stack::soc(){return m_soc;}
+ushort BMS_Stack::soc()
+{
+    if(m_svi == nullptr)
+        return m_soc;
+    else{
+        return (ushort)(m_svi->soc()*10);
+    }
+}
 void BMS_Stack::set_soc(ushort soc){m_soc = soc;}
 ushort BMS_Stack::soh(){return m_soh;}
 void BMS_Stack::soh(ushort x){m_soh = x;}
@@ -88,9 +95,23 @@ ushort BMS_Stack::maxStackTemperature(){return m_MaxTemperature;}
 void BMS_Stack::maxStackTemperature(ushort x){m_MaxTemperature = x;}
 ushort BMS_Stack::minStackTemperature(){return m_MinTemperature;}
 void BMS_Stack::minStackTemperature(ushort x){m_MinTemperature = x;}
-quint32 BMS_Stack::stackVoltage(){return m_StackVoltage;}
+quint32 BMS_Stack::stackVoltage()
+{
+    if(m_svi == nullptr)
+        return m_StackVoltage;
+    else{
+        return m_svi->voltage();
+    }
+}
 void BMS_Stack::stackVoltage(quint32 x){m_StackVoltage = x;}
-short BMS_Stack::stackCurrent(){return m_StackCurrent;}
+short BMS_Stack::stackCurrent()
+{
+    if(m_svi == nullptr)
+        return m_StackCurrent;
+    else{
+        return m_svi->current();
+    }
+}
 void BMS_Stack::stackCurrent(short x){m_StackCurrent = x;}
 QString BMS_Stack::alias(){return m_alias;}
 void BMS_Stack::alias(QString x){m_alias = x;}
@@ -304,6 +325,12 @@ quint32 BMS_Stack::alarmState()
 {
     quint32 alarm = 0x0;
     int id = 0;
+    ushort max_v = 0, max_t = 0;
+    ushort min_v = 0xffff, min_t = 0xffff;
+    int max_v_index=0, max_t_index = 0;
+    int min_v_index=0, min_t_index=0;
+    quint32 totalVoltage = 0;
+
     foreach(BMS_BMUDevice *b,m_batteries){
         if(b->isOT()) alarm |= (1 << bms::CELL_OT);
         if(b->isUT()) alarm |= (1 << bms::CELL_UT);
@@ -313,8 +340,31 @@ quint32 BMS_Stack::alarmState()
             alarm |= (1 <<bms::BMU_LOST);
             qDebug()<< QString("BMU %1 Lost").arg(id);
         }
+        if(b->maxCellVoltage()>max_v){
+            max_v = b->maxCellVoltage();
+            max_v_index = id;
+        }
+        if(b->minCellVoltage()<min_v){
+            min_v = b->minCellVoltage();
+            min_v_index = id;
+        }
+        if(b->maxPackTemp() > max_t){
+            max_t = b->maxPackTemp();
+            max_t_index = id;
+        }
+        if(b->minPackTemp() < min_t){
+            min_t = b->minPackTemp();
+            min_t_index = id;
+        }
         id++;
     }
+    m_MaxCellVoltage = max_v;
+    m_MinCellVoltage = min_v;
+    m_MaxCellIndex = max_v_index;
+    m_MinCellIndex = min_v_index;
+    m_MaxTemperature = max_t;
+    m_MinTemperature = min_t;
+    m_CellVoltDiff = max_v - min_v;
 
     if(m_svi->isOvWarning())
         alarm |= (1 << bms::STACK_OV);

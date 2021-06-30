@@ -10,6 +10,24 @@ public:
     quint8 volt_diff[9];
 };
 
+class BMS_Criteria_Pair{
+public:
+    explicit BMS_Criteria_Pair(){
+        setMask.clear();
+        clrMask.clear();
+    }
+    int set=0,clr=0;
+    QList<quint16> setMask, clrMask;
+    bool enable = false;
+};
+
+class BMS_Criteria_Rule{
+public:
+    BMS_Criteria_Pair alarm_high, alarm_low;
+    BMS_Criteria_Pair warning_high,warning_low;
+};
+
+
 class BMS_BMUDevice : public QObject
 {
     Q_OBJECT
@@ -102,6 +120,27 @@ public:
     }
     void resetValues();
 
+    void setAlarmHighPair(int set, int clr,bool enable = true){
+        m_rules.alarm_high.set = set;
+        m_rules.alarm_high.clr = clr;
+        m_rules.alarm_high.enable = enable;
+    }
+    void setAlarmLowPair(int set, int clr,bool enable = true){
+        m_rules.alarm_low.set = set;
+        m_rules.alarm_low.clr = clr;
+        m_rules.alarm_low.enable = enable;
+    }
+    void setWarningHighPair(int set, int clr,bool enable = true){
+        m_rules.warning_high.set = set;
+        m_rules.warning_high.clr = clr;
+        m_rules.warning_high.enable = enable;
+    }
+    void setWarningLowPair(int set, int clr,bool enable = true){
+        m_rules.warning_low.set = set;
+        m_rules.warning_low.clr = clr;
+        m_rules.warning_low.enable = enable;
+    }
+
 signals:
     void set_ov(quint16);
     void set_uv(quint16);
@@ -176,6 +215,7 @@ private:
     quint16 m_balancingBit = 0x0;
     quint16 m_openWireBit = 0x0;
     bool m_devLost = false;
+    BMS_Criteria_Rule m_rules;
 };
 
 #endif // BMS_BMUDEVICE_H
