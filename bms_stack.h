@@ -121,42 +121,42 @@ private:
 };
 
 
-class BMS_StackConfig:public QObject
-{
-    Q_OBJECT
-public:
-    BMS_StackConfig(){
-        m_nofBatteries = 20;
-        m_nofCellPerBattery  =12;
-        m_nofNTCPerBattery = 5;
-        m_groupID = 1;
-    }
+//class BMS_StackConfig:public QObject
+//{
+//    Q_OBJECT
+//public:
+//    BMS_StackConfig(){
+//        m_nofBatteries = 20;
+//        m_nofCellPerBattery  =12;
+//        m_nofNTCPerBattery = 5;
+//        m_groupID = 1;
+//    }
 
-//private:
-    QString m_name;
-    int m_nofBatteries;
-    int m_nofCellPerBattery;
-    int m_nofNTCPerBattery;
-    int m_groupID;
-    bool m_hvboard;
+////private:
+//    QString m_name;
+//    int m_nofBatteries;
+//    int m_nofCellPerBattery;
+//    int m_nofNTCPerBattery;
+//    int m_groupID;
+//    bool m_hvboard;
 
-    friend QDataStream& operator << (QDataStream &out, BMS_StackConfig *cfg){
-        out << cfg->m_nofBatteries;
-        out << cfg->m_nofCellPerBattery;
-        out << cfg->m_nofNTCPerBattery;
-        out << cfg->m_groupID;
-        out << cfg->m_hvboard;
-        return out;
-    }
+//    friend QDataStream& operator << (QDataStream &out, BMS_StackConfig *cfg){
+//        out << cfg->m_nofBatteries;
+//        out << cfg->m_nofCellPerBattery;
+//        out << cfg->m_nofNTCPerBattery;
+//        out << cfg->m_groupID;
+//        out << cfg->m_hvboard;
+//        return out;
+//    }
 
-    friend QDataStream& operator >> (QDataStream &in, BMS_StackConfig *cfg){
-        in >> cfg->m_nofBatteries;
-        in >> cfg->m_nofCellPerBattery;
-        in >> cfg->m_nofNTCPerBattery;
-        in >> cfg->m_groupID;
-        in >> cfg->m_hvboard;
-        return in;
-    }
-};
+//    friend QDataStream& operator >> (QDataStream &in, BMS_StackConfig *cfg){
+//        in >> cfg->m_nofBatteries;
+//        in >> cfg->m_nofCellPerBattery;
+//        in >> cfg->m_nofNTCPerBattery;
+//        in >> cfg->m_groupID;
+//        in >> cfg->m_hvboard;
+//        return in;
+//    }
+//};
 
 #endif // BMS_STACK_H

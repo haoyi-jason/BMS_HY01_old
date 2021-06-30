@@ -28,6 +28,7 @@ SOURCES += \
         bms_bcudevice.cpp \
         bms_bmudevice.cpp \
         bms_def.cpp \
+        bms_localconfig.cpp \
         bms_model.cpp \
         bms_stack.cpp \
         bms_svidevice.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
         bms_bcudevice.h \
         bms_bmudevice.h \
         bms_def.h \
+        bms_localconfig.h \
         bms_model.h \
         bms_stack.h \
         bms_svidevice.h \

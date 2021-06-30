@@ -156,21 +156,21 @@ bool BMS_System::Configuration(QByteArray data)
         this->m_alarm_latch = evt.contains("alarm_latch")?evt["alarm_latch"].toBool():true;
     }
     if(obj.contains("stacks")){
-        m_stackConfig.clear();
-        QJsonArray ja = obj["stacks"].toArray();
-        Stacks = 0;
-        foreach (QJsonValue o, ja) {
-            BMS_StackConfig *cfg = new BMS_StackConfig();
-            cfg->m_nofBatteries = o["baterries_per_stack"].toInt();
-            cfg->m_nofCellPerBattery = o["cells_per_battery"].toInt();
-            cfg->m_nofNTCPerBattery = o["ntcs_per_stack"].toInt();
-            cfg->m_hvboard = o["hv_module"].toBool();
-            cfg->m_groupID = o["group_id"].toInt();
+//        m_stackConfig.clear();
+//        QJsonArray ja = obj["stacks"].toArray();
+//        Stacks = 0;
+//        foreach (QJsonValue o, ja) {
+//            BMS_StackConfig *cfg = new BMS_StackConfig();
+//            cfg->m_nofBatteries = o["baterries_per_stack"].toInt();
+//            cfg->m_nofCellPerBattery = o["cells_per_battery"].toInt();
+//            cfg->m_nofNTCPerBattery = o["ntcs_per_stack"].toInt();
+//            cfg->m_hvboard = o["hv_module"].toBool();
+//            cfg->m_groupID = o["group_id"].toInt();
 
-            m_stackConfig.append(cfg);
-            Stacks++;
-        }
-        ret = true;
+//            m_stackConfig.append(cfg);
+//            Stacks++;
+//        }
+//        ret = true;
     }
     else if(obj.contains("stack")){
         QJsonObject ja = obj["stack"].toObject();
@@ -270,23 +270,23 @@ QByteArray BMS_System::Configuration()
 
 void BMS_System::generateSystemStructure()
 {
-    m_stacks.clear();
-    foreach(BMS_StackConfig *c, m_stackConfig)
-    {
-        BMS_Stack *info = new BMS_Stack();
-        quint8 id = 1; // bmu id start from 1
-        for(int i=0;i<c->m_nofBatteries;i++){
-            BMS_BMUDevice *bat = new BMS_BMUDevice(c->m_nofCellPerBattery,c->m_nofNTCPerBattery);
-            bat->deviceID(id++);
-            // signal connection
+//    m_stacks.clear();
+//    foreach(BMS_StackConfig *c, m_stackConfig)
+//    {
+//        BMS_Stack *info = new BMS_Stack();
+//        quint8 id = 1; // bmu id start from 1
+//        for(int i=0;i<c->m_nofBatteries;i++){
+//            BMS_BMUDevice *bat = new BMS_BMUDevice(c->m_nofCellPerBattery,c->m_nofNTCPerBattery);
+//            bat->deviceID(id++);
+//            // signal connection
 
-            info->addBattery(bat);
-        }
-        info->enableHVModule();
-        info->groupID(c->m_groupID);
+//            info->addBattery(bat);
+//        }
+//        info->enableHVModule();
+//        info->groupID(c->m_groupID);
 
-        m_stacks.append(info);
-    }
+//        m_stacks.append(info);
+//    }
 
 }
 

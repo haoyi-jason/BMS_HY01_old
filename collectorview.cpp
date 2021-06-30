@@ -44,6 +44,11 @@ CollectorView::CollectorView(QWidget *parent) :
 
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
+//    m_StackWin->hide();;
+//    m_HardwareWin->show();
+//    ui->mainLayout->addWidget(m_HardwareWin);
+//    mainWidget = m_HardwareWin;
+
     qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     QString path;
     if(QSysInfo::productType().contains("win")){

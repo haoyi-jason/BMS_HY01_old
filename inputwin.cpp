@@ -4,7 +4,7 @@
 
 InputWin::InputWin(QWidget *parent) : QDialog(parent)
 {
-    this->resize(320,240);
+    //this->resize(320,240);
 
     inBox1 = new QLineEdit();
     inBox1->setReadOnly(true);
@@ -83,6 +83,7 @@ void InputWin::padClicked()
         }
         break;
     case 10: // dot
+        str += btn->text();
         break;
     case 11: // OK
         if(m_checkInput){

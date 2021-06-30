@@ -9,6 +9,7 @@
 #include "bms_system.h"
 #include "inputwin.h"
 #include <QProcess>
+#include "bms_localconfig.h"
 
 
 frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
@@ -23,6 +24,27 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leTCPPort,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
     ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    connect(ui->leLogRecordCounts,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leCapacity,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leMinBalancingMv,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leBalancingTimeSec,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leNofStacks,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leNofBatteries,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leNofCells,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leNofNtcs,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leHighSet,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leHighClr,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leLowSet,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leLowClr,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leDuration,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
+
+
+    connect(ui->leHighSet,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
+    connect(ui->leHighClr,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
+    connect(ui->leLowSet,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
+    connect(ui->leLowClr,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
+    connect(ui->leDuration,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -165,6 +187,7 @@ void frmHardwareConfig::on_lineedit_focused(bool state)
     w->exec();
 }
 
+
 void frmHardwareConfig::on_pushButton_9_clicked(bool checked)
 {
 
@@ -277,3 +300,422 @@ void frmHardwareConfig::on_pbRecordToSD_clicked()
 {
 
 }
+
+void frmHardwareConfig::setLocalConfig(QString cfgName)
+{
+
+}
+
+
+void frmHardwareConfig::on_pbLoadLocalSetting_clicked()
+{
+    // load from file
+    QString path;
+
+    if(QSysInfo::productType().contains("win")){
+        path = "./config/local2.json";
+    }
+    else{
+       path = QCoreApplication::applicationDirPath()+"/config/local.json";
+    }
+    localConfig.load(path);
+    updateLocalSetting();
+
+}
+
+void frmHardwareConfig::on_pbCellWarning_clicked()
+{
+    CurrentCriteria = "cell-volt-warning";
+
+    ui->lb_hset->setText(tr("高限作動(V)"));
+    ui->lb_hclr->setText(tr("高限復歸(V)"));
+    ui->lb_lset->setText(tr("低限作動(V)"));
+    ui->lb_lclr->setText(tr("低限復歸(V)"));
+
+    ui->leHighSet->setText((localConfig.criteria.cell.volt_warning.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.cell.volt_warning.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.cell.volt_warning.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.cell.volt_warning.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.cell.volt_warning.Duration));
+    ui->leHighSet->setEnabled(true);
+    ui->leHighClr->setEnabled(true);
+}
+
+void frmHardwareConfig::on_pbCellAlarm_clicked()
+{
+    CurrentCriteria = "cell-volt-alarm";
+    ui->lb_hset->setText(tr("高限作動(V)"));
+    ui->lb_hclr->setText(tr("高限復歸(V)"));
+    ui->lb_lset->setText(tr("低限作動(V)"));
+    ui->lb_lclr->setText(tr("低限復歸(V)"));
+    ui->leHighSet->setText((localConfig.criteria.cell.volt_alarm.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.cell.volt_alarm.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.cell.volt_alarm.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.cell.volt_alarm.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.cell.volt_alarm.Duration));
+    ui->leHighSet->setEnabled(true);
+    ui->leHighClr->setEnabled(true);
+}
+
+void frmHardwareConfig::on_pbBatteryWarning_clicked()
+{
+    CurrentCriteria = "cell-temp-warning";
+    ui->lb_hset->setText(QString::fromUtf8("高限作動(\u00b0C)"));
+    ui->lb_hclr->setText(QString::fromUtf8("高限復歸(\u00b0C)"));
+    ui->lb_lset->setText(QString::fromUtf8("低限作動(\u00b0C)"));
+    ui->lb_lclr->setText(QString::fromUtf8("低限復歸(\u00b0C)"));
+    ui->leHighSet->setText((localConfig.criteria.cell.temp_warning.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.cell.temp_warning.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.cell.temp_warning.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.cell.temp_warning.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.cell.temp_warning.Duration));
+    ui->leHighSet->setEnabled(true);
+    ui->leHighClr->setEnabled(true);
+}
+
+void frmHardwareConfig::on_pbBatteryAlarm_clicked()
+{
+    CurrentCriteria = "cell-temp-alarm";
+    ui->lb_hset->setText(QString::fromUtf8("高限作動(\u00b0C)"));
+    ui->lb_hclr->setText(QString::fromUtf8("高限復歸(\u00b0C)"));
+    ui->lb_lset->setText(QString::fromUtf8("低限作動(\u00b0C)"));
+    ui->lb_lclr->setText(QString::fromUtf8("低限復歸(\u00b0C)"));
+    ui->leHighSet->setText((localConfig.criteria.cell.temp_alarm.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.cell.temp_alarm.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.cell.temp_alarm.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.cell.temp_alarm.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.cell.temp_alarm.Duration));
+    ui->leHighSet->setEnabled(true);
+    ui->leHighClr->setEnabled(true);
+}
+
+void frmHardwareConfig::on_pbStackWarning_clicked()
+{
+    CurrentCriteria = "stack-volt-warning";
+    ui->lb_hset->setText(tr("高限作動(V)"));
+    ui->lb_hclr->setText(tr("高限復歸(V)"));
+    ui->lb_lset->setText(tr("低限作動(V)"));
+    ui->lb_lclr->setText(tr("低限復歸(V)"));
+    ui->leHighSet->setText((localConfig.criteria.stack.volt_warning.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.stack.volt_warning.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.stack.volt_warning.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.stack.volt_warning.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.stack.volt_warning.Duration));
+    ui->leHighSet->setEnabled(true);
+    ui->leHighClr->setEnabled(true);
+}
+
+void frmHardwareConfig::on_pbStackAlarm_clicked()
+{
+    CurrentCriteria = "stack-volt-alarm";
+    ui->lb_hset->setText(tr("高限作動(V)"));
+    ui->lb_hclr->setText(tr("高限復歸(V)"));
+    ui->lb_lset->setText(tr("低限作動(V)"));
+    ui->lb_lclr->setText(tr("低限復歸(V)"));
+    ui->leHighSet->setText((localConfig.criteria.stack.volt_alarm.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.stack.volt_alarm.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.stack.volt_alarm.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.stack.volt_alarm.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.stack.volt_alarm.Duration));
+    ui->leHighSet->setEnabled(true);
+    ui->leHighClr->setEnabled(true);
+}
+void frmHardwareConfig::on_pbSOCWarning_clicked()
+{
+    CurrentCriteria = "soc-warning";
+    ui->lb_hset->setText(tr(""));
+    ui->lb_hclr->setText(tr(""));
+    ui->lb_lset->setText(tr("低限作動(%)"));
+    ui->lb_lclr->setText(tr("低限復歸(%)"));
+//    ui->leHighSet->setText((localConfig.criteria.soc.warning.High_Set));
+//    ui->leHighClr->setText((localConfig.criteria.soc.warning.High_Clr));
+    ui->leHighSet->setText(("0"));
+    ui->leHighClr->setText(("0"));
+    ui->leHighSet->setEnabled(false);
+    ui->leHighClr->setEnabled(false);
+    ui->leLowSet->setText((localConfig.criteria.soc.warning.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.soc.warning.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.soc.warning.Duration));
+}
+
+void frmHardwareConfig::on_pbSOCAlarm_clicked()
+{
+    CurrentCriteria = "soc-alarm";
+    ui->lb_hset->setText(tr(""));
+    ui->lb_hclr->setText(tr(""));
+    ui->lb_lset->setText(tr("低限作動(%)"));
+    ui->lb_lclr->setText(tr("低限復歸(%)"));
+//    ui->leHighSet->setText((localConfig.criteria.soc.alarm.High_Set));
+//    ui->leHighClr->setText((localConfig.criteria.soc.alarm.High_Clr));
+    ui->leHighSet->setText(("0"));
+    ui->leHighClr->setText(("0"));
+    ui->leHighSet->setEnabled(false);
+    ui->leHighClr->setEnabled(false);
+    ui->leLowSet->setText((localConfig.criteria.soc.alarm.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.soc.alarm.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.soc.alarm.Duration));
+}
+
+void frmHardwareConfig::on_lineedit_edited(QString text)
+{
+    qDebug()<<Q_FUNC_INFO;
+    FocusEditor *editor = (FocusEditor*)sender();
+    if(CurrentCriteria == "cell-volt-warning"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.cell.volt_warning.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.cell.volt_warning.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.cell.volt_warning.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.cell.volt_warning.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.cell.volt_warning.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "cell-volt-alarm"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.cell.volt_alarm.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.cell.volt_alarm.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.cell.volt_alarm.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.cell.volt_alarm.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.cell.volt_alarm.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "cell-temp-warning"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.cell.temp_warning.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.cell.temp_warning.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.cell.temp_warning.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.cell.temp_warning.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.cell.temp_warning.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "cell-temp-alarm"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.cell.temp_alarm.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.cell.temp_alarm.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.cell.temp_alarm.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.cell.temp_alarm.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.cell.temp_alarm.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "stack-volt-warning"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.stack.volt_warning.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.stack.volt_warning.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.stack.volt_warning.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.stack.volt_warning.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.stack.volt_warning.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "stack-volt-alarm"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.stack.volt_alarm.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.stack.volt_alarm.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.stack.volt_alarm.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.stack.volt_alarm.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.stack.volt_alarm.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "soc-warning"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.soc.warning.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.soc.warning.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.soc.warning.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.soc.warning.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.soc.warning.Duration = text;
+        }
+    }
+    else if(CurrentCriteria == "soc-alarm"){
+        if(editor == ui->leHighSet){
+            localConfig.criteria.soc.alarm.High_Set = text;
+        }
+        else if(editor == ui->leHighClr){
+            localConfig.criteria.soc.alarm.High_Clr = text;
+        }
+        else if(editor == ui->leLowSet){
+            localConfig.criteria.soc.alarm.Low_Set = text;
+        }
+        else if(editor == ui->leLowClr){
+            localConfig.criteria.soc.alarm.Low_Clr = text;
+        }
+        else if(editor == ui->leDuration){
+            localConfig.criteria.soc.alarm.Duration = text;
+        }
+    }
+}
+
+void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
+{
+    QString path;
+
+    if(QSysInfo::productType().contains("win")){
+        path = "./config/local2.json";
+    }
+    else{
+       path = QCoreApplication::applicationDirPath()+"/config/local.json";
+    }
+
+    localConfig.EnableLog = ui->cbEnableLog->isChecked();
+    if(ui->cbRecordType->currentIndex() == 0){ // by day
+        localConfig.LogDays = ui->leLogRecordCounts->text();
+        localConfig.LogRecords =  "-1";
+    }
+    else{ // by record
+        localConfig.LogDays = "-1";
+        localConfig.LogRecords = ui->leLogRecordCounts->text();
+    }
+
+    localConfig.balancing.BalancingVolt = ui->leMinBalancingMv->text();
+    localConfig.balancing.On_TimeSec = ui->leBalancingTimeSec->text();
+    localConfig.balancing.Off_TimeSec = localConfig.balancing.On_TimeSec;
+    localConfig.balancing.HystersisMV = "8";
+
+
+    localConfig.stack.StackCount = ui->leNofStacks->text();
+    localConfig.stack.BatteryPerStack = ui->leNofBatteries->text();
+    localConfig.stack.CellPerBattery = ui->leNofCells->text();
+    localConfig.stack.NTCPerBattery = ui->leNofNtcs->text();
+    localConfig.stack.Capacity = ui->leCapacity->text();
+
+    localConfig.modbus.Enable = ui->cbMBSRTUEnable->isChecked();
+    localConfig.modbus.Port = ui->cbRTUPort->currentText().trimmed();
+    localConfig.modbus.Bitrate = ui->cbRTUBaudrate->currentText().trimmed();
+    localConfig.modbus.Parity = ui->cbRTUParity->currentText().trimmed();
+    localConfig.modbus.ID = ui->leRTUID->text();
+
+
+    localConfig.save(path);
+}
+
+void frmHardwareConfig::updateLocalSetting()
+{
+    ui->cbEnableLog->setChecked(localConfig.EnableLog);
+    if(localConfig.LogDays.toInt() == -1){
+        ui->cbRecordType->setCurrentIndex(1);
+        ui->leLogRecordCounts->setText((localConfig.LogRecords));
+    }
+    else{
+        ui->cbRecordType->setCurrentIndex(1);
+        ui->leLogRecordCounts->setText((localConfig.LogDays));
+    }
+
+    ui->leNofStacks->setText((localConfig.stack.StackCount));
+    ui->leNofBatteries->setText((localConfig.stack.BatteryPerStack));
+    ui->leNofCells->setText((localConfig.stack.CellPerBattery));
+    ui->leNofNtcs->setText((localConfig.stack.NTCPerBattery));
+    ui->leCapacity->setText((localConfig.stack.Capacity));
+
+    CurrentCriteria = "cell-volt-warning";
+    ui->leHighSet->setText((localConfig.criteria.cell.volt_warning.High_Set));
+    ui->leHighClr->setText((localConfig.criteria.cell.volt_warning.High_Clr));
+    ui->leLowSet->setText((localConfig.criteria.cell.volt_warning.Low_Set));
+    ui->leLowClr->setText((localConfig.criteria.cell.volt_warning.Low_Clr));
+    ui->leDuration->setText((localConfig.criteria.cell.volt_warning.Duration));
+
+    ui->leMinBalancingMv->setText((localConfig.balancing.BalancingVolt));
+    ui->leBalancingTimeSec->setText((localConfig.balancing.On_TimeSec));
+
+    ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
+    if(localConfig.modbus.Bitrate == "9600"){
+        ui->cbBaudrate->setCurrentIndex(0);
+    }
+    else if(localConfig.modbus.Bitrate == "19200"){
+        ui->cbBaudrate->setCurrentIndex(1);
+    }
+    else if(localConfig.modbus.Bitrate == "38400"){
+        ui->cbBaudrate->setCurrentIndex(2);
+    }
+    else if(localConfig.modbus.Bitrate == "57600"){
+        ui->cbBaudrate->setCurrentIndex(3);
+    }
+    else if(localConfig.modbus.Bitrate == "115200"){
+        ui->cbBaudrate->setCurrentIndex(4);
+    }
+
+    if(localConfig.modbus.Parity == "NONE"){
+        ui->cbRTUParity->setCurrentIndex(0);
+    }
+    else if(localConfig.modbus.Parity == "EVEN"){
+        ui->cbRTUParity->setCurrentIndex(1);
+    }
+    else if(localConfig.modbus.Parity == "ODD"){
+        ui->cbRTUParity->setCurrentIndex(2);
+    }
+
+    ui->leRTUID->setText(localConfig.modbus.ID);
+}
+
+void frmHardwareConfig::set_backlight(int brightness, bool off)
+{
+    QProcess *proc = new QProcess;
+    QString cmd;
+    if(off){
+        cmd = QString("echo 0 > /sys/class/backlight/backlight-lvds/bl_power");
+        proc->start(cmd);
+        proc->waitForFinished();
+    }
+    else{
+        cmd = QString("echo 1 > /sys/class/backlight/backlight-lvds/bl_power");
+        proc->start(cmd);
+        proc->waitForFinished();
+        cmd = QString("echo %1 > /sys/class/backlight/backlight-lvds/brightness").arg(brightness);
+        proc->start(cmd);
+        proc->waitForFinished();
+    }
+    delete proc;
+}
+

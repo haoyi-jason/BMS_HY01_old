@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "inputwin.h"
+#include "bms_localconfig.h"
 
 namespace Ui {
 class frmHardwareConfig;
@@ -17,6 +18,7 @@ public:
     explicit frmHardwareConfig(QWidget *parent = nullptr);
     ~frmHardwareConfig();
     void setCollector(BMSCollector *c);
+    void setLocalConfig(QString cfgName);
 
 public slots:
     void on_system_config_ready();
@@ -48,6 +50,9 @@ private slots:
     void on_pbEnVS1_clicked();
 
     void on_lineedit_focused(bool state);
+
+    void on_lineedit_edited(QString text);
+
     void on_pushButton_9_clicked(bool checked);
 
     void on_pbSVIConfig_clicked();
@@ -68,9 +73,40 @@ private slots:
 
     void on_pbSetDateTime_clicked();
 
+    void on_pbAlarmToSD_clicked();
+
+    void on_pbRecordToSD_clicked();
+
+    void on_pbLoadLocalSetting_clicked();
+
+    void on_pbCellWarning_clicked();
+
+    void on_pbCellAlarm_clicked();
+
+    void on_pbBatteryWarning_clicked();
+
+    void on_pbBatteryAlarm_clicked();
+
+    void on_pbStackWarning_clicked();
+
+    void on_pbStackAlarm_clicked();
+
+    void on_pbSaveLocalConfig_clicked();
+
+    void on_pbSOCWarning_clicked();
+
+    void on_pbSOCAlarm_clicked();
+
+private:
+    void updateLocalSetting();
+    void set_backlight(int brightness, bool off = false);
+
+
 private:
     Ui::frmHardwareConfig *ui;
     BMSCollector *m_collector;
+    BMS_LocalConfig localConfig;
+    QString CurrentCriteria;
 };
 
 #endif // FRMHARDWARECONFIG_H

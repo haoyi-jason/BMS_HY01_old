@@ -57,6 +57,7 @@ protected:
         if(e->type() == QEvent::MouseButtonRelease){
             emit focused(true);
         }
+        return true;
     }
 
 private:
