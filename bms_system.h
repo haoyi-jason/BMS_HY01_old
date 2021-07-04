@@ -93,6 +93,8 @@ public:
     ushort minBID(){return m_minVBID;}
     ushort minCID(){return m_minVCID;}
 
+    bool isSimulate(){return m_useSimulator;}
+
 signals:
     void sendPacket(QByteArray data);
     void setBalancingVoltage(ushort v);
@@ -141,6 +143,7 @@ private:
     BMS_LocalConfig *m_localConfig;
     quint16 m_eventLogSize = 0xffff;
     quint16 m_maxEvents = 550;
+    bool m_useSimulator = false;
 };
 
 #endif // BMS_SYSTEM_H

@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -986,95 +986,92 @@
          <property name="title">
           <string>背光控制</string>
          </property>
-         <widget class="QLabel" name="label_8">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>40</y>
-            <width>47</width>
-            <height>12</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>亮度</string>
-          </property>
-         </widget>
-         <widget class="QComboBox" name="comboBox">
-          <property name="geometry">
-           <rect>
-            <x>70</x>
-            <y>30</y>
-            <width>69</width>
-            <height>22</height>
-           </rect>
-          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <property name="text">
-            <string>0</string>
-           </property>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>亮度</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <property name="text">
-            <string>1</string>
-           </property>
+           <widget class="QComboBox" name="comboBox">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <item>
+             <property name="text">
+              <string>0</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>5</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>6</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>7</string>
+             </property>
+            </item>
+           </widget>
           </item>
           <item>
-           <property name="text">
-            <string>2</string>
-           </property>
+           <widget class="QCheckBox" name="cbBackLightAutoClose">
+            <property name="text">
+             <string>自動關閉(秒)</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <property name="text">
-            <string>3</string>
-           </property>
+           <widget class="QLineEdit" name="leBackLightAutoSec">
+            <property name="text">
+             <string>30</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <property name="text">
-            <string>4</string>
-           </property>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
-          <item>
-           <property name="text">
-            <string>5</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>6</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>7</string>
-           </property>
-          </item>
-         </widget>
-         <widget class="QCheckBox" name="cbBackLightAutoClose">
-          <property name="geometry">
-           <rect>
-            <x>250</x>
-            <y>30</y>
-            <width>141</width>
-            <height>16</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>自動關閉(秒)</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="leBackLightAutoSec">
-          <property name="geometry">
-           <rect>
-            <x>400</x>
-            <y>30</y>
-            <width>113</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>30</string>
-          </property>
-         </widget>
+         </layout>
         </widget>
        </item>
        <item>

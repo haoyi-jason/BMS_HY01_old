@@ -87,7 +87,7 @@ void frmEventView::reload()
         }
         m_evtModel->setPage(m_currentPage);
         ui->tvEvents->setModel(m_evtModel);
-        ui->tvEvents->resizeColumnsToContents();
+        //ui->tvEvents->resizeColumnsToContents();
         ui->tvEvents->viewport()->update();
     }
     f.close();

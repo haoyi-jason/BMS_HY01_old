@@ -12,7 +12,6 @@
 #include "bms_localconfig.h"
 #include <QMessageBox>
 
-
 frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::frmHardwareConfig)
@@ -822,10 +821,11 @@ void frmHardwareConfig::set_backlight(int brightness, bool off)
     }
     else{
         cmd = QString("echo 1 > /sys/class/backlight/backlight-lvds/bl_power");
-        proc->start(cmd);
+        proc->start("sh", QStringList()<<" -c" << cmd);
         proc->waitForFinished();
         cmd = QString("echo %1 > /sys/class/backlight/backlight-lvds/brightness").arg(brightness);
-        proc->start(cmd);
+        qDebug()<<"Set bL:"<<cmd;
+        proc->start("sh", QStringList()<<" -c" << cmd);
         proc->waitForFinished();
     }
     delete proc;
@@ -873,4 +873,10 @@ void frmHardwareConfig::on_pbSimReset_clicked()
         QString cmd = QString("SIM:RST");
         sys->writeCommand(cmd);
     }
+}
+
+void frmHardwareConfig::on_comboBox_currentIndexChanged(int index)
+{
+    qDebug()<<Q_FUNC_INFO;
+    set_backlight(index);
 }

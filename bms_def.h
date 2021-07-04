@@ -373,8 +373,8 @@ public:
     }
     BMS_Criteria_Pair alarm_high, alarm_low;
     BMS_Criteria_Pair warning_high,warning_low;
-    qint32 Max,Min,Total;
-    qint32 ID_Max,ID_Min;
+    qint32 Max=0,Min=0,Total=0;
+    qint32 ID_Max=-1,ID_Min=-1;
 };
 
 class BMS_Criteria_Single{

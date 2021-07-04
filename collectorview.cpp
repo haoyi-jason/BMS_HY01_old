@@ -53,10 +53,12 @@ CollectorView::CollectorView(QWidget *parent) :
     //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     QString path;
     if(QSysInfo::productType().contains("win")){
-        path = "./config/system.json";
+        //path = "./config/system.json";
+        path = "d:/temp/bms/config/system.json";
     }
     else{
-       path = QCoreApplication::applicationDirPath()+"/config/system.json";
+       //path = QCoreApplication::applicationDirPath()+"/config/system.json";
+        path = "/opt/bms/config/system.json";
     }
 
     m_collector = new BMSCollector();
@@ -89,7 +91,7 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 0;
+        m_userID = 1;
     }
 
     ui->pbBatHistory->setVisible(false);
@@ -247,7 +249,7 @@ void CollectorView::on_pbAuth_clicked()
 
     LoginValid *v = new LoginValid(this);
     qDebug()<< "Left Corner"<<this->x()<<" "<<this->y();
-    v->move(this->x()+320,this->y()+320);
+    v->move(320,320);
     v->setModal(true);
     //v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
     if(v->setFileName(path)){

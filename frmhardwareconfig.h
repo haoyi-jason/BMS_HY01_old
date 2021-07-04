@@ -109,6 +109,8 @@ private slots:
 
     void on_pbSimReset_clicked();
 
+    void on_comboBox_currentIndexChanged(int index);
+
 signals:
     void restart_controller();
 

@@ -62,7 +62,7 @@ bool BMS_System::Configuration2(QByteArray b)
         p = "d:/temp/bms/log";
     }
     else{
-        m_localConfig->record.LogPath+"/sys";
+        p = m_localConfig->record.LogPath;
     }
     if(!QDir(p).exists()){
         QDir().mkdir(p);
@@ -125,6 +125,7 @@ bool BMS_System::Configuration2(QByteArray b)
         m_bcuDevice->add_digital_output(2);
         m_bcuDevice->add_analog_input(8);
         m_bcuDevice->add_voltage_source(2);
+        m_bcuDevice->add_pwm_in(2);
     }
 
     if(m_localConfig->system.ConfigReady){
@@ -133,6 +134,7 @@ bool BMS_System::Configuration2(QByteArray b)
         this->connectionPort = m_localConfig->system.ListenPort.toInt();
         this->m_validInterval = m_localConfig->system.ValidInterval.toInt();
         this->m_enableLog = true;
+        this->m_useSimulator = m_localConfig->system.Simulate;
     }
     if(m_localConfig->record.ConfigReady){
        quint16 n = m_localConfig->record.LogEventCount.toInt()*1.1;
@@ -151,7 +153,7 @@ bool BMS_System::Configuration2(QString path)
         p = "d:/temp/bms/log";
     }
     else{
-        m_localConfig->record.LogPath+"/sys";
+        p = m_localConfig->record.LogPath;
     }
     m_logPath = p;
 
@@ -215,6 +217,7 @@ bool BMS_System::Configuration2(QString path)
         m_bcuDevice->add_digital_output(2);
         m_bcuDevice->add_analog_input(8);
         m_bcuDevice->add_voltage_source(2);
+        m_bcuDevice->add_pwm_in(2);
     }
 
     if(m_localConfig->system.ConfigReady){
@@ -704,11 +707,13 @@ void BMS_System::validState()
                         if((set & cmp)){
                             mask |= cmp;
 //                            msg = QString("第[%1]號電池 電芯[%2]過壓[%3]mV警告").arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000);
-                            evt_log("電芯過壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            qDebug()<<"1";
+                            evt_log("電芯過壓","一級",s->state(),QString("S%1-B%2-C%3 %4V1").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電芯過壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            qDebug()<<"2";
+                            evt_log("電芯過壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V2").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
                 }
@@ -722,11 +727,13 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電芯過壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            qDebug()<<"2";
+                            evt_log("電芯過壓","二級",s->state(),QString("S%1-B%2-C%3 %4V3").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電芯過壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            qDebug()<<"4";
+                            evt_log("電芯過壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V4").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         //evt_log(msg);
                     }
@@ -741,11 +748,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電芯欠壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓","一級",s->state(),QString("S%1-B%2-C%3 %4V5").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電芯欠壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V6").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
                 }
@@ -759,11 +766,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電芯欠壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓","二級",s->state(),QString("S%1-B%2-C%3 %4V7").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電芯欠壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V8").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
                 }
@@ -1056,6 +1063,7 @@ void BMS_System::evt_log(QString evName, QString evLevel, QString State,QString 
     QFile f(fname);
     if(f.open(QIODevice::WriteOnly | QIODevice::Append)){
         QTextStream ds(&f);
+        ds.setCodec(QTextCodec::codecForName("Big5"));
         if(this->m_logRecords == 0xffff){ // first time, count logs
             quint16 n = 0;
             while(!ds.atEnd()){

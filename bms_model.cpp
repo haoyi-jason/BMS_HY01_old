@@ -352,10 +352,10 @@ QVariant BMS_EventModel::data(const QModelIndex &index, int role) const
         case 0: return QVariant(row+1);break;
         case 1: return QVariant(evt->DateString);break;
         case 2: return QVariant(evt->TimeString);break;
-        case 3: return QVariant(evt->EventName);
-        case 4: return QVariant(evt->Level);
-        case 5: return QVariant(evt->State);
-        case 6: return QVariant(evt->Information);
+        case 3: return QVariant(evt->EventName);break;
+        case 4: return QVariant(evt->Level);break;
+        case 5: return QVariant(evt->State);break;
+        case 6: return QVariant(evt->Information);break;
         default: return QVariant();
         }
     case Qt::FontRole:
