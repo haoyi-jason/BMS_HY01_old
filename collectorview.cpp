@@ -42,12 +42,12 @@ CollectorView::CollectorView(QWidget *parent) :
     m_evtView = new frmEventView(this);
     m_evtView->hide();
 
-//    ui->mainLayout->addWidget(m_StackWin);
-//    mainWidget = m_StackWin;
-    m_StackWin->hide();;
-    m_HardwareWin->show();
-    ui->mainLayout->addWidget(m_HardwareWin);
-    mainWidget = m_HardwareWin;
+    ui->mainLayout->addWidget(m_StackWin);
+    mainWidget = m_StackWin;
+//    m_StackWin->hide();;
+//    m_HardwareWin->show();
+//    ui->mainLayout->addWidget(m_HardwareWin);
+//    mainWidget = m_HardwareWin;
 
     connect(m_HardwareWin,&frmHardwareConfig::restart_controller,this,&CollectorView::on_Issue_Restart_Controller);
     //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
@@ -89,7 +89,7 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 1;
+        m_userID = 0;
     }
 
     ui->pbBatHistory->setVisible(false);
