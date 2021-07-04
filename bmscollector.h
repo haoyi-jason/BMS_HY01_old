@@ -37,9 +37,11 @@ public:
 signals:
     void configReady();
     void dataReceived();
+    void controllerOffline();
 
 public slots:
     void handleServerData();
+    void handleSocketDisconnect();
 
 private:
     QList<RemoteSystem*> m_servers;

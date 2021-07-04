@@ -87,10 +87,19 @@ void InputWin::padClicked()
         break;
     case 11: // OK
         if(m_checkInput){
+            int v = inBox1->text().toInt();
+            if((v <= m_maxInput) && (v >= m_minInput)){
+                emit result(inBox1->text());
+                emit QDialog::accept();
+            }
+            else{
 
+            }
         }
-        emit result(inBox1->text());
-        emit QDialog::accept();
+        else{
+            emit result(inBox1->text());
+            emit QDialog::accept();
+        }
         close();
         //hide();
         break;
@@ -108,7 +117,16 @@ void InputWin::padClicked()
         break;
     default:break;
     }
-    inBox1->setText(str);
+    if(m_passChar){
+        int n = str.length();
+        QString b("*");
+        b.repeated(n);
+        inBox1->setText(b);
+
+    }
+    else{
+        inBox1->setText(str);
+    }
 }
 
 void InputWin::setDisplayContent(QString str)
@@ -117,7 +135,18 @@ void InputWin::setDisplayContent(QString str)
     inBox1->selectAll();
 }
 
-void InputWin::setLimit(int &value)
+void InputWin::setLimit(int max, int min)
 {
+    m_minInput = min;
+    m_maxInput = max;
+}
 
+void InputWin::password(bool enable)
+{
+    m_passChar = enable;
+}
+
+void InputWin::checkInput(bool enable)
+{
+    m_checkInput = enable;
 }

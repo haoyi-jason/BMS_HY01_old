@@ -34,8 +34,15 @@ private slots:
 
     void on_pbEventView_clicked();
 
+    void on_Issue_Restart_Controller();
+
+    void on_Controller_Offline();
+
 private:
     void hideWindows();
+
+    virtual bool event(QEvent *event) override;
+
 
 private:
     Ui::CollectorView *ui;

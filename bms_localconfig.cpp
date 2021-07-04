@@ -10,41 +10,50 @@ BMS_LocalConfig::BMS_LocalConfig(QObject *parent) : QObject(parent)
 
 }
 
+void BMS_LocalConfig::load(QByteArray b)
+{
+    QJsonParseError e;
+    QJsonDocument d = QJsonDocument::fromJson(b,&e);
+    if(d.isNull()) return;
+
+    QJsonObject obj = d.object();
+
+    if(obj.contains("system")){
+        QJsonObject ob = obj["system"].toObject();
+        system.parseJson(ob);
+    }
+    if(obj.contains("balancing")){
+        QJsonObject ob = obj["balancing"].toObject();
+        balancing.parseJson(ob);
+    }
+    if(obj.contains("stack")){
+        QJsonObject ob = obj["stack"].toObject();
+        stack.parseJson(ob);
+    }
+    if(obj.contains("criteria")){
+        QJsonObject ob = obj["criteria"].toObject();
+        criteria.parseJson(ob);
+    }
+    if(obj.contains("log")){
+        QJsonObject ob = obj["log"].toObject();
+        record.parseJson(ob);
+    }
+    if(obj.contains("modbus")){
+        QJsonObject ob = obj["modbus"].toObject();
+        modbus.parseJson(ob);
+    }
+    if(obj.contains("network")){
+        QJsonObject ob = obj["network"].toObject();
+        network.parseJson(ob);
+    }
+}
+
 void BMS_LocalConfig::load(QString fileName)
 {
     QFile f(fileName);
     if(f.open(QIODevice::ReadOnly)){
-        QJsonParseError e;
-        QJsonDocument d = QJsonDocument::fromJson(f.readAll(),&e);
+        load(f.readAll());
         f.close();
-        if(d.isNull()) return;
-
-        QJsonObject obj = d.object();
-
-        if(obj.contains("balancing")){
-            QJsonObject ob = obj["balancing"].toObject();
-            balancing.parseJson(ob);
-        }
-        if(obj.contains("stack")){
-            QJsonObject ob = obj["stack"].toObject();
-            stack.parseJson(ob);
-        }
-        if(obj.contains("criteria")){
-            QJsonObject ob = obj["criteria"].toObject();
-            criteria.parseJson(ob);
-        }
-        if(obj.contains("enable_log")){
-            EnableLog = obj["enable_log"].toBool();
-        }
-        if(obj.contains("log_days")){
-            LogDays = obj["log_days"].toString();
-        }
-        if(obj.contains("log_records")){
-            LogRecords = obj["log_records"].toString();
-        }
-        if(obj.contains("simulate")){
-            Simulate = obj["simulate"].toBool();
-        }
     }
 
 }
@@ -59,39 +68,33 @@ void BMS_LocalConfig::save(QString fileName)
         if(d.isNull()) return ;
         QJsonObject obj = d.object();
         QJsonObject *ob;
-        //if(obj.contains("balancing")){
-            //ob = obj["balancing"].toObject();
-            ob = new QJsonObject;
-            balancing.feedJson(ob);
-            obj["balancing"] = *ob;
-        //}
-        //if(obj.contains("stack")){
-            //ob = obj["stack"].toObject();
-            ob = new QJsonObject;
-            stack.feedJson(ob);
-            obj["stack"] = *ob;
-        //}
-        //if(obj.contains("criteria")){
-//            ob = obj["criteria"].toObject();
-            ob = new QJsonObject;
-            criteria.feedJson(ob);
-            obj["criteria"] = *ob;
-        //}
-        //if(obj.contains("enable_log")){
-            obj["enable_log"] = EnableLog;
-        //}
-        //if(obj.contains("log_days")){
-            obj["log_days"] = LogDays;
-        //}
-        //if(obj.contains("log_records")){
-            obj["log_records"] = LogRecords;
-        //}
-        //if(obj.contains("simulate")){
-            obj["simulate"] = Simulate;
-        //}
-            ob = new QJsonObject;
-            modbus.feedJson(ob);
-            obj["modbus"] = *ob;
+        ob = new QJsonObject;
+        system.feedJson(ob);
+        obj["system"] = *ob;
+
+        ob = new QJsonObject;
+        balancing.feedJson(ob);
+        obj["balancing"] = *ob;
+
+        ob = new QJsonObject;
+        stack.feedJson(ob);
+        obj["stack"] = *ob;
+
+        ob = new QJsonObject;
+        criteria.feedJson(ob);
+        obj["criteria"] = *ob;
+
+        ob = new QJsonObject;
+        record.feedJson(ob);
+        obj["log"] = *ob;
+
+        ob = new QJsonObject;
+        modbus.feedJson(ob);
+        obj["modbus"] = *ob;
+
+        ob = new QJsonObject;
+        network.feedJson(ob);
+        obj["network"] = *ob;
 
         d.setObject(obj);
         f.open(QIODevice::WriteOnly);

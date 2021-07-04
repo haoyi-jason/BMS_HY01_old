@@ -10,6 +10,7 @@
 #include "inputwin.h"
 #include <QProcess>
 #include "bms_localconfig.h"
+#include <QMessageBox>
 
 
 frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
@@ -40,13 +41,33 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leLowClr,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leDuration,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
-
-
     connect(ui->leHighSet,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
     connect(ui->leHighClr,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
     connect(ui->leLowSet,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
     connect(ui->leLowClr,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
     connect(ui->leDuration,&FocusEditor::textChanged,this,&frmHardwareConfig::on_lineedit_edited);
+
+    connect(ui->leSimSV,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leSimSA,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leSimCV,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leSimPT,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
+    connect(ui->le_ip0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_ip1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_ip2,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_ip3,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+
+    connect(ui->le_gw0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_gw1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_gw2,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_gw3,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+
+    connect(ui->le_nm_0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_nm_1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_nm_2,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+    connect(ui->le_nm_3,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
+
+    load_settings();
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -60,6 +81,8 @@ void frmHardwareConfig::setCollector(BMSCollector *c)
     m_collector = c;
     connect(m_collector,&BMSCollector::configReady,this,&frmHardwareConfig::on_system_config_ready);
     connect(m_collector,&BMSCollector::dataReceived,this,&frmHardwareConfig::on_system_data_ready);
+
+
 }
 
 void frmHardwareConfig::update_collector()
@@ -78,7 +101,27 @@ void frmHardwareConfig::update_collector()
 
 void frmHardwareConfig::on_system_config_ready()
 {
-}
+    BMS_System *system = m_collector->currentSystem()->system;
+    if(system != nullptr){
+        int nof_stack = system->stacks().size();
+        int nof_bat = system->stacks().at(0)->BatteryCount();
+        int nof_cell = system->stacks().at(0)->batteries().at(0)->cellCount();
+        int nof_ntc = system->stacks().at(0)->batteries().at(0)->ntcCount();
+
+        for(int i=0;i<nof_stack;i++){
+            ui->cbSimGroup->addItem(QString("第%1簇").arg(i+1));
+        }
+        for(int i=0;i<nof_bat;i++){
+            ui->cbSimBat->addItem(QString("%1號電池").arg(i+1));
+        }
+        for(int i=0;i<nof_cell;i++){
+            ui->cbSimCID->addItem(QString("電芯-%1").arg(i+1));
+        }
+        for(int i=0;i<nof_ntc;i++){
+            ui->cbSimNID->addItem(QString("溫度-%1").arg(i+1));
+        }
+
+    }}
 
 void frmHardwareConfig::on_system_data_ready()
 {
@@ -180,11 +223,23 @@ void frmHardwareConfig::on_pbEnVS1_clicked()
 
 void frmHardwareConfig::on_lineedit_focused(bool state)
 {
-    qDebug()<<Q_FUNC_INFO;
+    //qDebug()<<Q_FUNC_INFO;
     FocusEditor *editor = (FocusEditor*)sender();
     InputWin *w = new InputWin;
     w->setAttribute(Qt::WA_DeleteOnClose);
     w->setDisplayContent(editor->text());
+    connect(w,&InputWin::result,editor,&FocusEditor::setText);
+    w->exec();
+}
+
+void frmHardwareConfig::on_lineedit_focused_ip(bool state)
+{
+    FocusEditor *editor = (FocusEditor*)sender();
+    InputWin *w = new InputWin;
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->setDisplayContent(editor->text());
+    w->setLimit(255,0);
+    w->checkInput(true);
     connect(w,&InputWin::result,editor,&FocusEditor::setText);
     w->exec();
 }
@@ -314,21 +369,26 @@ void frmHardwareConfig::setLocalConfig(QString cfgName)
 
 }
 
-
-void frmHardwareConfig::on_pbLoadLocalSetting_clicked()
+void frmHardwareConfig::load_settings()
 {
     // load from file
     QString path;
 
     if(QSysInfo::productType().contains("win")){
-        path = "./config/local2.json";
+        //path = "./config/local2.json";
+        path="d:/temp/bms/config/controller.json";
     }
     else{
-       path = QCoreApplication::applicationDirPath()+"/config/local.json";
+       //path = QCoreApplication::applicationDirPath()+"/config/local.json";
+       path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
     }
     localConfig.load(path);
     updateLocalSetting();
+}
 
+void frmHardwareConfig::on_pbLoadLocalSetting_clicked()
+{
+    load_settings();
 }
 
 void frmHardwareConfig::on_pbCellWarning_clicked()
@@ -466,7 +526,7 @@ void frmHardwareConfig::on_pbSOCAlarm_clicked()
 
 void frmHardwareConfig::on_lineedit_edited(QString text)
 {
-    qDebug()<<Q_FUNC_INFO;
+    //qDebug()<<Q_FUNC_INFO;
     FocusEditor *editor = (FocusEditor*)sender();
     if(CurrentCriteria == "cell-volt-warning"){
         if(editor == ui->leHighSet){
@@ -617,15 +677,18 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
        path = QCoreApplication::applicationDirPath()+"/config/local.json";
     }
 
-    localConfig.EnableLog = ui->cbEnableLog->isChecked();
+    localConfig.record.EnableLog = ui->cbEnableLog->isChecked();
     if(ui->cbRecordType->currentIndex() == 0){ // by day
-        localConfig.LogDays = ui->leLogRecordCounts->text();
-        localConfig.LogRecords =  "-1";
+        localConfig.record.LogDays = ui->leLogRecordCounts->text();
+        localConfig.record.LogRecords =  "-1";
     }
     else{ // by record
-        localConfig.LogDays = "-1";
-        localConfig.LogRecords = ui->leLogRecordCounts->text();
+        localConfig.record.LogDays = "-1";
+        localConfig.record.LogRecords = ui->leLogRecordCounts->text();
     }
+
+    localConfig.record.EnableEventLog = ui->cbEnableEvtLog->isChecked();
+    localConfig.record.LogEventCount = ui->leRecordCount->text();
 
     localConfig.balancing.BalancingVolt = ui->leMinBalancingMv->text();
     localConfig.balancing.On_TimeSec = ui->leBalancingTimeSec->text();
@@ -645,21 +708,35 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     localConfig.modbus.Parity = ui->cbRTUParity->currentText().trimmed();
     localConfig.modbus.ID = ui->leRTUID->text();
 
+    //network
+    localConfig.network.Enable = ui->cbEnableNetwork->isChecked();
+    localConfig.network.Dhcp = ui->cbDHCP->isChecked();
+    localConfig.network.ip=QString("%1.%2.%3.%4").arg(ui->le_ip3->text()).arg(ui->le_ip2->text()).arg(ui->le_ip1->text()).arg(ui->le_ip0->text());
+    localConfig.network.gateway=QString("%1.%2.%3.%4").arg(ui->le_gw3->text()).arg(ui->le_gw2->text()).arg(ui->le_gw1->text()).arg(ui->le_gw0->text());
+    localConfig.network.mask=QString("%1.%2.%3.%4").arg(ui->le_nm_3->text()).arg(ui->le_nm_2->text()).arg(ui->le_nm_1->text()).arg(ui->le_nm_0->text());
+
 
     localConfig.save(path);
+
+    if(QMessageBox::information(this,"訊息","設定已修改, 是否重新啟動BMS主程式?",QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes){
+        emit restart_controller();
+    }
+
 }
 
 void frmHardwareConfig::updateLocalSetting()
 {
-    ui->cbEnableLog->setChecked(localConfig.EnableLog);
-    if(localConfig.LogDays.toInt() == -1){
+    ui->cbEnableLog->setChecked(localConfig.record.EnableLog);
+    if(localConfig.record.LogDays.toInt() == -1){
         ui->cbRecordType->setCurrentIndex(1);
-        ui->leLogRecordCounts->setText((localConfig.LogRecords));
+        ui->leLogRecordCounts->setText((localConfig.record.LogRecords));
     }
     else{
-        ui->cbRecordType->setCurrentIndex(1);
-        ui->leLogRecordCounts->setText((localConfig.LogDays));
+        ui->cbRecordType->setCurrentIndex(0);
+        ui->leLogRecordCounts->setText((localConfig.record.LogDays));
     }
+    ui->leRecordCount->setText(localConfig.record.LogEventCount);
+    ui->cbEnableEvtLog->setChecked(localConfig.record.EnableEventLog);
 
     ui->leNofStacks->setText((localConfig.stack.StackCount));
     ui->leNofBatteries->setText((localConfig.stack.BatteryPerStack));
@@ -705,6 +782,33 @@ void frmHardwareConfig::updateLocalSetting()
     }
 
     ui->leRTUID->setText(localConfig.modbus.ID);
+
+    // network
+    ui->cbEnableNetwork->setChecked(localConfig.network.Enable);
+    ui->cbDHCP->setChecked(localConfig.network.Dhcp);
+
+    QStringList sl = localConfig.network.ip.split(".");
+    if(sl.size() == 4){
+        ui->le_ip0->setText(sl[3]);
+        ui->le_ip1->setText(sl[2]);
+        ui->le_ip2->setText(sl[1]);
+        ui->le_ip3->setText(sl[0]);
+    }
+    sl = localConfig.network.gateway.split(".");
+    if(sl.size() == 4){
+        ui->le_gw0->setText(sl[3]);
+        ui->le_gw1->setText(sl[2]);
+        ui->le_gw2->setText(sl[1]);
+        ui->le_gw3->setText(sl[0]);
+    }
+    sl = localConfig.network.mask.split(".");
+    if(sl.size() == 4){
+        ui->le_nm_0->setText(sl[3]);
+        ui->le_nm_1->setText(sl[2]);
+        ui->le_nm_2->setText(sl[1]);
+        ui->le_nm_3->setText(sl[0]);
+    }
+
 }
 
 void frmHardwareConfig::set_backlight(int brightness, bool off)
@@ -727,3 +831,46 @@ void frmHardwareConfig::set_backlight(int brightness, bool off)
     delete proc;
 }
 
+
+void frmHardwareConfig::on_pbSimSV_clicked()
+{
+    if(m_collector->currentSystem() != nullptr){
+        RemoteSystem *sys = m_collector->currentSystem();
+        QString cmd = QString("SIM:SV:%1:%2").arg((ui->cbSimGroup->currentIndex()+1)).arg(ui->leSimSV->text().toDouble()*10);
+        sys->writeCommand(cmd);
+    }
+}
+
+void frmHardwareConfig::on_pbSimSA_clicked()
+{
+    if(m_collector->currentSystem() != nullptr){
+        RemoteSystem *sys = m_collector->currentSystem();
+        QString cmd = QString("SIM:SA:%1:%2").arg((ui->cbSimGroup->currentIndex()+1)).arg(ui->leSimSA->text().trimmed().toDouble()*10);
+        sys->writeCommand(cmd);
+    }
+}
+
+void frmHardwareConfig::on_pbSimCV_clicked()
+{
+    if(m_collector->currentSystem() != nullptr){
+        RemoteSystem *sys = m_collector->currentSystem();
+        QString cmd = QString("SIM:CV:%1:%2:%3").arg(GROUP(ui->cbSimGroup->currentIndex()+1)+ID(ui->cbSimBat->currentIndex()+1)).arg(ui->cbSimCID->currentIndex()).arg(ui->leSimCV->text().trimmed().toDouble()*1000);
+        sys->writeCommand(cmd);
+    }
+}
+
+void frmHardwareConfig::on_pbSimPT_clicked()
+{
+    RemoteSystem *sys = m_collector->currentSystem();
+    QString cmd = QString("SIM:CT:%1:%2:%3").arg(GROUP(ui->cbSimGroup->currentIndex()+1)+ID(ui->cbSimBat->currentIndex()+1)).arg(ui->cbSimNID->currentIndex()).arg(ui->leSimPT->text().trimmed().toDouble()*10);
+    sys->writeCommand(cmd);
+}
+
+void frmHardwareConfig::on_pbSimReset_clicked()
+{
+    if(m_collector->currentSystem() != nullptr){
+        RemoteSystem *sys = m_collector->currentSystem();
+        QString cmd = QString("SIM:RST");
+        sys->writeCommand(cmd);
+    }
+}

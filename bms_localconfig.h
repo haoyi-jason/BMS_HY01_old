@@ -84,6 +84,7 @@ public:
     QString CellPerBattery ;
     QString NTCPerBattery ;
     QString Capacity ;
+    bool ConfigReady;
     bool parseJson(QJsonObject o){
         if(o.contains("count")){
             StackCount = o["count"].toString();
@@ -100,6 +101,7 @@ public:
         if(o.contains("capacity")){
             Capacity = o["capacity"].toString();
         }
+        ConfigReady = true;
         return true;
     }
 
@@ -201,6 +203,7 @@ public:
     BMS_CrieteriaSpec volt_alarm;
     BMS_CrieteriaSpec temp_warning;
     BMS_CrieteriaSpec temp_alarm;
+    bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("volt-warning")){
             QJsonObject ob = o["volt-warning"].toObject();
@@ -218,6 +221,7 @@ public:
             QJsonObject ob = o["temp-alarm"].toObject();
             temp_alarm.parseJson(ob);
         }
+        ConfigReady = true;
         return true;
     }
 
@@ -255,6 +259,7 @@ class BMS_CriteriaSOC{
 public:
     BMS_CrieteriaSpec warning;
     BMS_CrieteriaSpec alarm;
+    bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("warning")){
             QJsonObject ob = o["warning"].toObject();
@@ -264,6 +269,7 @@ public:
             QJsonObject ob = o["alarm"].toObject();
             alarm.parseJson(ob);
         }
+        ConfigReady = true;
         return true;
     }
 
@@ -291,6 +297,7 @@ public:
     BMS_CriteriaConfig cell;
     BMS_CriteriaConfig stack;
     BMS_CriteriaSOC soc;
+    bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("cell")){
             QJsonObject ob = o["cell"].toObject();
@@ -304,6 +311,7 @@ public:
             QJsonObject ob = o["soc"].toObject();
             soc.parseJson(ob);
         }
+        ConfigReady = true;
         return true;
     }
 
@@ -331,17 +339,18 @@ public:
 
 class BMS_EventConfig{
 public:
-    qint32 warning_out = 0;
-    qint32 alarm_out = 1;
+    QString warning_out;
+    QString alarm_out;
     bool warning_latch = true;
     bool alarm_latch = true;
+    bool ConfigReady = false;
     bool parseJson(QJsonObject o)
     {
         if(o.contains("warning_out")){
-            warning_out = o["warning_out"].toInt();
+            warning_out = o["warning_out"].toString();
         }
         if(o.contains("alarm_out")){
-            warning_out = o["alarm_out"].toInt();
+            warning_out = o["alarm_out"].toString();
         }
         if(o.contains("warning_latch")){
             warning_out = o["warning_latch"].toBool();
@@ -349,6 +358,7 @@ public:
         if(o.contains("alarm_latch")){
             warning_out = o["alarm_latch"].toBool();
         }
+        ConfigReady = true;
         return true;
     }
     void feedJson(QJsonObject *o){
@@ -360,22 +370,124 @@ public:
     }
 };
 
+class BMS_RecordConfig{
+public:
+    bool EnableLog;
+    bool EnableEventLog;
+    QString LogDays;
+    QString LogRecords;
+    QString LogEventCount;
+    QString LogPath;
+    bool ConfigReady = false;
+    bool parseJson(QJsonObject o){
+        if(o.contains("log_days"))
+            LogDays = o["log_days"].toString().trimmed();
+        if(o.contains("log_path"))
+            LogPath = o["log_path"].toString().trimmed();
+        if(o.contains("log_records"))
+            LogRecords = o["log_records"].toString().trimmed();
+        if(o.contains("event_log_count"))
+            LogEventCount = o["event_log_count"].toString().trimmed();
+        if(o.contains("enableLog"))
+            EnableLog = o["enableLog"].toBool();
+        if(o.contains("enableEventLog"))
+            EnableEventLog = o["enableEventLog"].toBool();
+        ConfigReady = true;
+        return true;
+    }
+
+    void feedJson(QJsonObject *o){
+        (*o)["log_days"] = LogDays;
+        (*o)["log_path"] = LogPath;
+        (*o)["log_records"] = LogRecords;
+        (*o)["event_log_count"] = LogEventCount;
+        (*o)["enableLog"] = EnableLog;
+        (*o)["enableEventLog"] = EnableEventLog;
+    }
+
+
+};
+
+class BMS_SystemConfig{
+public:
+    QString Alias;
+    QString ValidInterval;
+    QString HostIP;
+    QString ListenPort;
+    bool Simulate;
+    bool ConfigReady = false;
+    bool parseJson(QJsonObject o){
+        if(o.contains("simulate"))
+            Simulate = o["simulate"].toBool();
+        if(o.contains("valid_interval"))
+            ValidInterval = o["valid_interval"].toString().trimmed();
+        if(o.contains("alias"))
+            Alias = o["alias"].toString().trimmed();
+        if(o.contains("host_ip"))
+            HostIP = o["host_ip"].toString();
+        if(o.contains("port"))
+            ListenPort = o["port"].toString();
+        ConfigReady = true;
+        return true;
+    }
+
+    void feedJson(QJsonObject *o){
+        (*o)["simulate"] = Simulate;
+        (*o)["valid_interval"] = ValidInterval;
+        (*o)["alias"] = Alias;
+        (*o)["host_ip"] = HostIP;
+        (*o)["port"]=ListenPort;
+    }
+};
+
+class BMS_NetworkConfig{
+public:
+    bool Enable;
+    bool Dhcp;
+    QString ip;
+    QString gateway;
+    QString mask;
+    bool ConfigReady = false;
+    bool parseJson(QJsonObject o){
+        if(o.contains("enabled")){
+            Enable = o["enabled"].toBool();
+        }
+        if(o.contains("dhcp"))
+            Dhcp = o["dhcp"].toBool();
+        if(o.contains("ip"))
+            ip = o["ip"].toString().trimmed();
+        if(o.contains("gateway"))
+            gateway = o["gateway"].toString().trimmed();
+        if(o.contains("net_mask"))
+            mask = o["net_mask"].toString().trimmed();
+        ConfigReady = true;
+        return true;
+    }
+    void feedJson(QJsonObject *o){
+        (*o)["enabled"] = Enable;
+        (*o)["dhcp"] = Dhcp;
+        (*o)["ip"] = ip;
+        (*o)["gateway"] = gateway;
+        (*o)["net_mask"] = mask;
+    }
+};
+
 class BMS_LocalConfig : public QObject
 {
     Q_OBJECT
 public:
+    BMS_SystemConfig system;
     BMS_BalancingConfig balancing;
     BMS_StackConfig stack;
     BMS_BCUConfig bcu;
     BMS_SystemCriteriaConfig criteria;
+    BMS_RecordConfig record;
     BMS_MODBUSConfig modbus;
+    BMS_NetworkConfig network;
 
-    bool EnableLog;
-    QString LogDays;
-    QString LogRecords;
-    bool Simulate;
     explicit BMS_LocalConfig(QObject *parent = nullptr);
     void load(QString fileName);
+    void load(QByteArray b);
     void save(QString fileName);
     void genDefault(QString fileName);
 

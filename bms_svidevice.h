@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QDateTime>
+#include "bms_def.h"
+
 class BMS_SVIDevice : public QObject
 {
     Q_OBJECT
@@ -49,6 +51,9 @@ public:
     void uvWarningSet(int v){m_uvWarningSet = v;}
     void uvWarningClr(int v){m_uvWarningClr = v;}
 
+    void vWarningDuration(int v){m_holdSec = v;}
+    void vAlarmDuration(int v){m_holdSecAlarm = v;}
+
     void ovAlarmEn(bool v){m_ovAlarmEn = v;}
     void ovWarningEn(bool v){m_ovWarningEn = v;}
     void uvAlarmEn(bool v){m_uvAlarmEn = v;}
@@ -58,13 +63,59 @@ public:
     int uvAlarm();
     int ovWarning();
     int uvWarning();
+    int socWarning();
+    int socAlarm();
 
-    bool isOvAlarm(){return m_ovAlarmIsSet;}
-    bool isOvWarning(){return m_ovWarningIsSet;}
-    bool isUvAlarm(){return m_uvAlarmIsSet;}
-    bool isUvWarning(){return m_uvWarningIsSet;}
+    bool isOvAlarm(){return m_SVRule.alarm_high.Enabled;}
+    bool isOvWarning(){return m_SVRule.warning_high.Enabled;}
+    bool isUvAlarm(){return m_SVRule.alarm_low.Enabled;}
+    bool isUvWarning(){return m_SVRule.warning_low.Enabled;}
+    bool isSOCAlarm(){return m_SOCRule.alarm_low.Enabled;}
+    bool isSOCWarning(){return m_SOCRule.warning_low.Enabled;}
 
     void simData();
+
+    void setSVAlarmHighPair(int set, int clr, int HoldCount = 5,bool enable = true){
+        m_SVRule.alarm_high.set = set;
+        m_SVRule.alarm_high.clr = clr;
+        m_SVRule.alarm_high.Enable = enable;
+        m_SVRule.alarm_high.Size = HoldCount;
+    }
+
+    void setSVAlarmLowPair(int set, int clr, int HoldCount = 5,bool enable = true){
+        m_SVRule.alarm_low.set = set;
+        m_SVRule.alarm_low.clr = clr;
+        m_SVRule.alarm_low.Enable = enable;
+        m_SVRule.alarm_low.Size = HoldCount;
+    }
+    void setSVWarningHighPair(int set,int clr, int HoldCount = 5,bool enable = true){
+        m_SVRule.warning_high.set = set;
+        m_SVRule.warning_high.clr = clr;
+        m_SVRule.warning_high.Enable = enable;
+        m_SVRule.warning_high.Size = HoldCount;
+    }
+
+    void setSVWarningLowPair(int set,int clr, int HoldCount = 5,bool enable = true){
+        m_SVRule.warning_low.set = set;
+        m_SVRule.warning_low.clr = clr;
+        m_SVRule.warning_low.Enable = enable;
+        m_SVRule.warning_low.Size = HoldCount;
+    }
+
+    void setSOCWarningLowPair(int set, int clr, int HoldCount = 5, bool enable = true){
+        m_SOCRule.warning_low.set = set;
+        m_SOCRule.warning_low.clr = clr;
+        m_SOCRule.warning_low.Enable = enable;
+        m_SOCRule.warning_low.Size = HoldCount;
+    }
+
+    void setSOCAlarmLowPair(int set, int clr, int HoldCount = 5, bool enable = true){
+        m_SOCRule.alarm_low.set = set;
+        m_SOCRule.alarm_low.clr = clr;
+        m_SOCRule.alarm_low.Enable = enable;
+        m_SOCRule.alarm_low.Size = HoldCount;
+    }
+
 signals:
     void set_ov();
     void set_uv();
@@ -142,6 +193,12 @@ private:
     bool m_ovWarningIsSet = false;
     bool m_uvWarningIsSet = false;
     int m_holdSec = 5;
+    int m_holdSecAlarm = 5;
+
+    BMS_CriteriaRule_Single m_SVRule;
+    BMS_CriteriaRule_Single m_SOCRule;
+
+//    BMS_Criteria_Rule m_STrules;
 };
 
 #endif // BMS_SVIDEVICE_H

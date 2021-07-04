@@ -129,12 +129,16 @@ void BMS_BMUDevice::deviceID(quint8 value)
 }
 quint8 BMS_BMUDevice::cellCount(){return m_cellVoltage.size();}
 quint8 BMS_BMUDevice::ntcCount(){return m_packTemperature.size();}
-ushort BMS_BMUDevice::minCellVoltage(){return m_minVoltage;}
-ushort BMS_BMUDevice::maxCellVoltage(){return m_maxVoltage;}
-qint32 BMS_BMUDevice::totalVoltage(){return m_totalVoltage;}
-ushort BMS_BMUDevice::minPackTemp(){return m_minTemperature;}
-ushort BMS_BMUDevice::maxPackTemp(){return m_maxTemperature;}
-ushort BMS_BMUDevice::cellVoltageDiff(){return (m_maxVoltage>m_minVoltage)?(m_maxVoltage-m_minVoltage):0;}
+short BMS_BMUDevice::minCellVoltage(){return m_CVrules.Min;}
+short BMS_BMUDevice::maxCellVoltage(){return m_CVrules.Max;}
+qint32 BMS_BMUDevice::totalVoltage(){return m_CVrules.Total;}
+short BMS_BMUDevice::minPackTemp(){return (short)m_CTrules.Min;}
+short BMS_BMUDevice::maxPackTemp(){return (short)m_CTrules.Max;}
+ushort BMS_BMUDevice::maxCID(){return m_CVrules.ID_Max;}
+ushort BMS_BMUDevice::minCID(){return m_CVrules.ID_Min;}
+ushort BMS_BMUDevice::maxTID(){return m_CTrules.ID_Max;}
+ushort BMS_BMUDevice::minTID(){return m_CTrules.ID_Min;}
+short BMS_BMUDevice::cellVoltageDiff(){return (m_maxVoltage>m_minVoltage)?(m_maxVoltage-m_minVoltage):0;}
 int BMS_BMUDevice::lastSeen(){return QDateTime::currentMSecsSinceEpoch() - m_lastSeen;}
 
 void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
@@ -155,7 +159,8 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
             for(int i=0;i<4;i++){
                 if(i < max_cell){
                     ds >> m_cellVoltage[i];
-                    m_cellVoltage[i] += m_simVoltBase[i];
+                    //m_cellVoltage[i] += m_simVoltBase[i];
+                    m_cellVoltage[i] = m_simVoltBase[i]==0?m_cellVoltage[i]:m_simVoltBase[i];
                 }
             }
             break;
@@ -163,7 +168,8 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
             for(int i=4;i<8;i++){
                 if(i < max_cell){
                     ds >> m_cellVoltage[i];
-                    m_cellVoltage[i] += m_simVoltBase[i];
+//                    m_cellVoltage[i] += m_simVoltBase[i];
+                    m_cellVoltage[i] = m_simVoltBase[i]==0?m_cellVoltage[i]:m_simVoltBase[i];
                 }
             }
             break;
@@ -171,7 +177,8 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
             for(int i=8;i<12;i++){
                 if(i < max_cell){
                     ds >> m_cellVoltage[i];
-                    m_cellVoltage[i] += m_simVoltBase[i];
+//                    m_cellVoltage[i] += m_simVoltBase[i];
+                    m_cellVoltage[i] = m_simVoltBase[i]==0?m_cellVoltage[i]:m_simVoltBase[i];
                 }
             }
             break;
@@ -179,14 +186,16 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
             for(int i=0;i<4;i++){
                 if(i < max_ntc){
                     ds >> m_packTemperature[i];
-                    m_packTemperature[i] += m_simTempBase[i];
+//                    m_packTemperature[i] += m_simTempBase[i];
+                    m_packTemperature[i] = m_simTempBase[i]==0?m_packTemperature[i]:m_simTempBase[i];
                 }
             }
             break;
         case 0x114:
             if(4 < max_ntc){
                 ds >> m_packTemperature[4];
-                m_packTemperature[4] += m_simTempBase[4];
+//                m_packTemperature[4] += m_simTempBase[4];
+                m_packTemperature[4] = m_simTempBase[4]==0?m_packTemperature[4]:m_simTempBase[4];
             }
             break;
         case 0x115:{
@@ -195,7 +204,6 @@ void BMS_BMUDevice::feedData(uint8_t id, uint16_t msg, QByteArray data){
             ds >> openWire;
             m_balancingBit = balancing;
             m_openWireBit = openWire;
-            m_lastSeen = QDateTime::currentMSecsSinceEpoch();
             this->validAlarmstate();
         }
             break;
@@ -219,71 +227,17 @@ void BMS_BMUDevice::validAlarmstate()
     quint16 ot_rst_mask = 0x0;
     quint16 ut_rst_mask = 0x0;
     qint32 val_sum = 0;
-    for(int i=0;i<m_cellVoltage.size();i++) {
-        ushort v = m_cellVoltage[i];
-        val_max = (val_max > v)?val_max:v;
-        val_min = (val_min < v)?val_min:v;
-        val_sum += v;
 
-        if(v > m_ov_set_ths){
-            ov_mask |= ( 1<< i);
-        }
-        if(v < m_ov_clr_ths){
-            ov_rst_mask |= (1 << i);
-        }
+    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
+    m_CVrules.valid(m_cellVoltage);
+    m_CTrules.valid(m_packTemperature);
 
-        if(v < m_uv_set_ths){
-            uv_mask |= (1 << i);
-        }
-        if(v > m_uv_clr_ths){
-            uv_rst_mask |= (1 << i);
-        }
-    }
+    m_maxVoltage = m_CVrules.Max;
+    m_minVoltage = m_CVrules.Min;
+    m_totalVoltage = m_CVrules.Total;
 
-    m_maxVoltage = val_max;
-    m_minVoltage = val_min;
-    m_totalVoltage = val_sum;
-
-    m_ovMask.append(ov_mask);
-    m_uvMask.append(uv_mask);
-    m_ovClrMask.append(ov_rst_mask);
-    m_uvClrMask.append(uv_rst_mask);
-
-    if(m_ovMask.size() > m_holdSec) m_ovMask.removeFirst();
-    if(m_uvMask.size() > m_holdSec) m_uvMask.removeFirst();
-    if(m_ovClrMask.size() > m_holdSec) m_ovClrMask.removeFirst();
-    if(m_uvClrMask.size() > m_holdSec) m_uvClrMask.removeFirst();
-
-    val_max = 0; val_min = 0xffff;
-    for(int i=0;i<m_packTemperature.size();i++) {
-        short v = m_packTemperature[i];
-        val_max = (val_max > v)?val_max:v;
-        val_min = (val_min < v)?val_min:v;
-        if(v > m_ot_set_ths){
-            ot_mask |= (1 << i);
-        }
-        if(v < m_ot_clr_ths){
-            ot_rst_mask |= (1 << i);
-        }
-
-        if(v < m_ut_set_ths){
-            ut_mask |= (1 << i);
-        }
-        if(v > m_ut_clr_ths){
-            ut_rst_mask |= (1 << i);
-        }
-    }
-    m_maxTemperature = val_max;
-    m_minTemperature = val_min;
-    m_otMask.append(ot_mask);
-    m_utMask.append(ut_mask);
-    m_otClrMask.append(ot_rst_mask);
-    m_utClrMask.append(ut_rst_mask);
-    // keep last  m_holdSec data
-    if(m_otMask.size() > m_holdSec) m_otMask.removeFirst();
-    if(m_utMask.size() > m_holdSec) m_utMask.removeFirst();
-    if(m_otClrMask.size() > m_holdSec) m_otClrMask.removeFirst();
-    if(m_utClrMask.size() > m_holdSec) m_utClrMask.removeFirst();
+    m_maxTemperature = m_CTrules.Max;
+    m_minTemperature = m_CTrules.Min;
 
 }
 
@@ -304,6 +258,40 @@ quint16 BMS_BMUDevice::ovState(quint16 *set,quint16 *clr)
 
     return mask_set ^ m_ovSetMask;
 }
+
+quint16 BMS_BMUDevice::cvWarningOVState(quint16 *set, quint16 *clr)
+{
+    return m_CVrules.warning_high.State(set,clr);
+}
+quint16 BMS_BMUDevice::cvWarningUVState(quint16 *set, quint16 *clr)
+{
+    return m_CVrules.warning_low.State(set,clr);
+}
+quint16 BMS_BMUDevice::cvAlarmOVState(quint16 *set, quint16 *clr)
+{
+    return m_CVrules.alarm_high.State(set,clr);
+}
+quint16 BMS_BMUDevice::cvAlarmUVState(quint16 *set, quint16 *clr)
+{
+    return m_CVrules.alarm_low.State(set,clr);
+}
+quint16 BMS_BMUDevice::ctWarningOVState(quint16 *set, quint16 *clr)
+{
+    return m_CTrules.warning_high.State(set,clr);
+}
+quint16 BMS_BMUDevice::ctWarningUVState(quint16 *set, quint16 *clr)
+{
+    return m_CTrules.warning_low.State(set,clr);
+}
+quint16 BMS_BMUDevice::ctAlarmOVState(quint16 *set, quint16 *clr)
+{
+    return m_CTrules.alarm_high.State(set,clr);
+}
+quint16 BMS_BMUDevice::ctAlarmUVState(quint16 *set, quint16 *clr)
+{
+    return m_CTrules.alarm_low.State(set,clr);
+}
+
 
 quint16 BMS_BMUDevice::uvState(quint16 *set,quint16 *clr)
 {
@@ -361,47 +349,68 @@ quint16 BMS_BMUDevice::utState(quint16 *set,quint16 *clr)
 
     return mask_set ^ m_utSetMask;
 }
+
 bool BMS_BMUDevice::isOV()
 {
-    return (m_ovSetMask != 0x0);
+    return (m_CVrules.warning_high.enabledMask != 0x0);
 }
 
 bool BMS_BMUDevice::isUV()
 {
-    return (m_uvSetMask != 0x0);
+    return (m_CVrules.warning_low.enabledMask != 0x0);
 }
 bool BMS_BMUDevice::isOT()
 {
-    return (m_otSetMask != 0x0);
+    return (m_CTrules.warning_high.enabledMask != 0x0);
 }
 bool BMS_BMUDevice::isUT()
 {
-    return (m_utSetMask != 0x0);
+    return (m_CTrules.warning_low.enabledMask != 0x0);
+}
+
+bool BMS_BMUDevice::isOVA()
+{
+    return (m_CVrules.alarm_high.enabledMask != 0x0);
+}
+
+bool BMS_BMUDevice::isUVA()
+{
+    return (m_CVrules.alarm_low.enabledMask != 0x0);
+}
+bool BMS_BMUDevice::isOTA()
+{
+    return (m_CTrules.alarm_high.enabledMask != 0x0);
+}
+bool BMS_BMUDevice::isUTA()
+{
+    return (m_CTrules.alarm_low.enabledMask != 0x0);
 }
 
 void BMS_BMUDevice::simData(ushort vbase, ushort vgap, ushort tbase, ushort tgap){
-    ushort max_val = 0, min_val = 0xffff;
+//    ushort max_val = 0, min_val = 0xffff;
     qint32 total = 0;
     for(int i=0;i<m_cellVoltage.size();i++){
-        m_cellVoltage[i] = (ushort)(vbase + QRandomGenerator::global()->bounded(vgap) + m_simVoltBase[i]);
-        max_val = (max_val > m_cellVoltage[i])?max_val:m_cellVoltage[i];
-        min_val = (min_val < m_cellVoltage[i])?min_val:m_cellVoltage[i];
-        total += m_cellVoltage[i];
+        m_cellVoltage[i] = m_simVoltBase[i]==0?(ushort)(vbase + QRandomGenerator::global()->bounded(vgap)):m_simVoltBase[i];
+//        max_val = (max_val > m_cellVoltage[i])?max_val:m_cellVoltage[i];
+//        min_val = (min_val < m_cellVoltage[i])?min_val:m_cellVoltage[i];
+//        total += m_cellVoltage[i];
     }
-    m_maxVoltage = max_val;
-    m_minVoltage = min_val;
+//    m_maxVoltage = max_val;
+//    m_minVoltage = min_val;
    // m_totalVoltage = total;
 
-    max_val = 0;min_val = 0xffff;
+//    max_val = 0;min_val = 0xffff;
     for(int i=0;i<m_packTemperature.size();i++){
-        m_packTemperature[i] = (ushort)(tbase + QRandomGenerator::global()->bounded(tgap) + m_simTempBase[i]);
-        max_val = (max_val > m_packTemperature[i])?max_val:m_packTemperature[i];
-        min_val = (min_val < m_packTemperature[i])?min_val:m_packTemperature[i];
+        m_packTemperature[i] = m_simTempBase[i]==0?(ushort)(tbase + QRandomGenerator::global()->bounded(tgap)): m_simTempBase[i];
+//        max_val = (max_val > m_packTemperature[i])?max_val:m_packTemperature[i];
+//        min_val = (min_val < m_packTemperature[i])?min_val:m_packTemperature[i];
     }
-    m_maxTemperature = max_val;
-    m_minTemperature = min_val;
 
-    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
+//    validAlarmstate();
+//    m_maxTemperature = max_val;
+//    m_minTemperature = min_val;
+
+//    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
     this->validAlarmstate();
 }
 
@@ -417,6 +426,11 @@ void BMS_BMUDevice::setSimVolt(quint8 id, quint8 cell, ushort shift)
             }
         }
     }
+    else if(id == 0xff){
+        for(int i=0;i<m_simVoltBase.size();i++){
+            m_simVoltBase[i] = 0x0;
+        }
+    }
 }
 
 void BMS_BMUDevice::setSimTemp(quint8 id, quint8 tid, ushort shift)
@@ -429,6 +443,11 @@ void BMS_BMUDevice::setSimTemp(quint8 id, quint8 tid, ushort shift)
             for(int i=0;i<m_simTempBase.size();i++){
                 m_simTempBase[i] = shift;
             }
+        }
+    }
+    else if(id == 0xff){
+        for(int i=0;i<m_simTempBase.size();i++){
+            m_simTempBase[i] = 0;
         }
     }
 }
@@ -450,7 +469,7 @@ QByteArray BMS_BMUDevice::data(){
 }
 QDataStream &operator<<(QDataStream &out, const BMS_BMUDevice *bat)
 {
-    out << bat->m_lastSeen;
+    out << bat->m_devLost;
     out << bat->m_devid;
     out << bat->m_nofCell;
     out << bat->m_nofNtc;
@@ -465,6 +484,26 @@ QDataStream &operator<<(QDataStream &out, const BMS_BMUDevice *bat)
     out << bat->m_uvSetMask;
     out << bat->m_otSetMask;
     out << bat->m_utSetMask;
+
+    out << bat->m_CVrules.warning_high.enabledMask;
+    out << bat->m_CVrules.warning_low.enabledMask;
+    out << bat->m_CVrules.alarm_high.enabledMask;
+    out << bat->m_CVrules.alarm_low.enabledMask;
+    out << bat->m_CTrules.warning_high.enabledMask;
+    out << bat->m_CTrules.warning_low.enabledMask;
+    out << bat->m_CTrules.alarm_high.enabledMask;
+    out << bat->m_CTrules.alarm_low.enabledMask;
+    out << bat->m_CVrules.Max;
+    out << bat->m_CVrules.Min;
+    out << bat->m_CVrules.ID_Max;
+    out << bat->m_CVrules.ID_Min;
+    out << bat->m_CTrules.Max;
+    out << bat->m_CTrules.Min;
+    out << bat->m_CTrules.ID_Max;
+    out << bat->m_CTrules.ID_Min;
+    out << bat->m_CVrules.Total;
+
+
     for(int i=0;i<bat->m_cellVoltage.size();i++){
         out << bat->m_cellVoltage[i];
     }
@@ -475,7 +514,7 @@ QDataStream &operator<<(QDataStream &out, const BMS_BMUDevice *bat)
 }
 QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
 {
-    in >> bat->m_lastSeen;
+    in >> bat->m_devLost;
     in >> bat->m_devid;
     in >> bat->m_nofCell;
     in >> bat->m_nofNtc;
@@ -490,6 +529,26 @@ QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
     in >> bat->m_uvSetMask;
     in >> bat->m_otSetMask;
     in >> bat->m_utSetMask;
+
+    in >> bat->m_CVrules.warning_high.enabledMask;
+    in >> bat->m_CVrules.warning_low.enabledMask;
+    in >> bat->m_CVrules.alarm_high.enabledMask;
+    in >> bat->m_CVrules.alarm_low.enabledMask;
+    in >> bat->m_CTrules.warning_high.enabledMask;
+    in >> bat->m_CTrules.warning_low.enabledMask;
+    in >> bat->m_CTrules.alarm_high.enabledMask;
+    in >> bat->m_CTrules.alarm_low.enabledMask;
+
+    in >> bat->m_CVrules.Max;
+    in >> bat->m_CVrules.Min;
+    in >> bat->m_CVrules.ID_Max;
+    in >> bat->m_CVrules.ID_Min;
+    in >> bat->m_CTrules.Max;
+    in >> bat->m_CTrules.Min;
+    in >> bat->m_CTrules.ID_Max;
+    in >> bat->m_CTrules.ID_Min;
+    in >> bat->m_CVrules.Total;
+
     ushort max_v = 0,max_t = 0;
     ushort min_v = 0xffff,min_t = 100;
     //bat->m_totalVoltage = 0;
@@ -557,14 +616,17 @@ CAN_Packet *BMS_BMUDevice::setBalancing(quint16 bv, quint8 bh, quint8 be, quint1
 
 void BMS_BMUDevice::clearAlarm()
 {
-    m_ovMask.clear();
-    m_uvMask.clear();
-    m_otMask.clear();
-    m_utMask.clear();
-    m_ovSetMask = 0x0;
-    m_uvSetMask = 0x0;
-    m_otSetMask = 0x0;
-    m_utSetMask = 0x0;
+//    m_ovMask.clear();
+//    m_uvMask.clear();
+//    m_otMask.clear();
+//    m_utMask.clear();
+//    m_ovSetMask = 0x0;
+//    m_uvSetMask = 0x0;
+//    m_otSetMask = 0x0;
+//    m_utSetMask = 0x0;
+
+    m_CVrules.reset();
+    m_CTrules.reset();
 }
 
 bool BMS_BMUDevice::alarm()

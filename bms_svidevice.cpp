@@ -14,11 +14,28 @@ QByteArray BMS_SVIDevice::data(){
     return d;
 }
 
-int BMS_SVIDevice::voltage(){return m_stackVoltage + m_simVolt;}
-int BMS_SVIDevice::current(){return m_stackCurrent + m_simAmpere;}
+//int BMS_SVIDevice::voltage(){return m_stackVoltage + m_simVolt;}
+//int BMS_SVIDevice::current(){return m_stackCurrent + m_simAmpere;}
+
+int BMS_SVIDevice::voltage(){
+    if(m_simVolt == 0)
+        return m_stackVoltage;
+    else {
+        return m_simVolt;
+    }
+}
+int BMS_SVIDevice::current()
+{
+    if(m_simAmpere == 0)
+        return m_stackCurrent;
+    else {
+        return m_simAmpere;
+    }
+}
 
 bool BMS_SVIDevice::deviceLost()
 {
+    //qDebug()<<"SVI:NOW:"<<QDateTime::currentDateTime().toString("hhMMss") << " Last:"<< QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
     return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
 }
 
@@ -38,6 +55,8 @@ void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
         ds >> v;
         m_stackVoltage = v;
 
+        m_stackCurrent = m_simAmpere==0?m_stackCurrent:m_simAmpere;
+        m_stackVoltage = m_simVolt==0?m_stackVoltage:m_simVolt;
         this->validAlarm();
         this->calculateState();
     }
@@ -58,6 +77,8 @@ void BMS_SVIDevice::calculateState()
     if(soc_new >100) soc_new = 100;
     if(soc_new < 0) soc_new = 0;
     m_soc = soc_new;
+//    m_soc = m_simSOC==0?soc_new:m_simSOC;
+
 
     if(m_sohTrack){
         m_sohAccum += sa/3600.;
@@ -78,7 +99,14 @@ void BMS_SVIDevice::setSOHTracking(bool state)
 
 void BMS_SVIDevice::validAlarm()
 {
-    int sv = m_stackVoltage + m_simVolt;
+    int sv = m_simVolt==0?m_stackVoltage:m_simVolt;
+    m_SVRule.valid(sv);
+
+    int soc = m_simSOC==0?m_soc:m_simSOC;
+
+    m_SOCRule.valid(soc);
+
+    return;
     if(m_ovWarningEn){
         if(sv > m_ovWarningSet){
             m_ovWarningSetCntr++;
@@ -137,18 +165,23 @@ void BMS_SVIDevice::validAlarm()
         }
     }
 
+    // soc
+
+
 }
 
 int BMS_SVIDevice::ovAlarm()
 {
-    if(!m_ovAlarmEn) return 1;
+    return m_SVRule.ovAlarm();
+
+    if(!m_ovAlarmEn) return 0;
     bool set =false;
     bool reset = false;
     int ret = 0;
-    if(m_ovAlarmSetCntr > m_holdSec){
+    if(m_ovAlarmSetCntr > m_holdSecAlarm){
         set = true;
     }
-    else if(m_ovAlarmClrCntr > m_holdSec){
+    else if(m_ovAlarmClrCntr > m_holdSecAlarm){
         reset = true;
     }
     if(m_ovAlarmIsSet){
@@ -158,6 +191,7 @@ int BMS_SVIDevice::ovAlarm()
         else if(reset){
             ret = 2;
             m_ovAlarmIsSet = false;
+            //m_ovAlarmSetCntr = 0;
         }
         else{
             ret = 0;
@@ -167,6 +201,7 @@ int BMS_SVIDevice::ovAlarm()
         if(set){
             ret = 1;
             m_ovAlarmIsSet = true;
+            //m_ovAlarmClrCntr = 0;
         }
         else if(reset){
             ret = 0;
@@ -185,6 +220,7 @@ int BMS_SVIDevice::ovAlarm()
 
 int BMS_SVIDevice::ovWarning()
 {
+    return m_SVRule.ovWarning();
     if(!m_ovWarningEn) return 0;
     bool set =false;
     bool reset = false;
@@ -223,23 +259,24 @@ int BMS_SVIDevice::ovWarning()
 }
 
 int BMS_SVIDevice::uvAlarm(){
+    return m_SVRule.uvAlarm();
     if(!m_uvAlarmEn) return 0;
     bool set =false;
     bool reset = false;
     int ret = 0;
-    if(m_uvAlarmSetCntr > m_holdSec){
+    if(m_uvAlarmSetCntr > m_holdSecAlarm){
         set = true;
     }
-    else if(m_uvAlarmClrCntr > m_holdSec){
+    else if(m_uvAlarmClrCntr > m_holdSecAlarm){
         reset = true;
     }
-    if(m_ovAlarmIsSet){
+    if(m_uvAlarmIsSet){
         if(set){
             ret = 0;
         }
         else if(reset){
             ret = 2;
-            m_ovAlarmIsSet = false;
+            m_uvAlarmIsSet = false;
         }
         else{
             ret = 0;
@@ -248,7 +285,7 @@ int BMS_SVIDevice::uvAlarm(){
     else{
         if(set){
             ret = 1;
-            m_ovAlarmIsSet = true;
+            m_uvAlarmIsSet = true;
         }
         else if(reset){
             ret = 0;
@@ -262,6 +299,7 @@ int BMS_SVIDevice::uvAlarm(){
 
 int BMS_SVIDevice::uvWarning()
 {
+    return m_SVRule.uvWarning();
     if(!m_uvWarningEn) return 0;
     bool set =false;
     bool reset = false;
@@ -300,6 +338,15 @@ int BMS_SVIDevice::uvWarning()
     return ret;
 }
 
+int BMS_SVIDevice::socWarning()
+{
+    return m_SOCRule.uvWarning();
+}
+
+int BMS_SVIDevice::socAlarm()
+{
+    return m_SOCRule.uvAlarm();
+}
 
 
 void BMS_SVIDevice::clearAlarm()
@@ -328,9 +375,12 @@ void BMS_SVIDevice::simData()
 
 QDataStream& operator << (QDataStream &out, const BMS_SVIDevice *svi)
 {
-    int sv = svi->m_stackVoltage + svi->m_simVolt;
-    int sa = svi->m_stackCurrent + svi->m_simAmpere;
-    float soc = svi->m_soc + svi->m_simSOC;
+//    int sv = svi->m_stackVoltage + svi->m_simVolt;
+//    int sa = svi->m_stackCurrent + svi->m_simAmpere;
+//    float soc = svi->m_soc + svi->m_simSOC;
+    int sv = svi->m_simVolt==0? svi->m_stackVoltage:svi->m_simVolt;
+    int sa = svi->m_simAmpere==0?svi->m_stackCurrent:svi->m_simAmpere;
+    float soc = svi->m_soc;
     //qDebug()<<"Feed out :"<<svi->m_lastSeen;
     out << svi->m_lastSeen;
     out << sv;
@@ -338,10 +388,10 @@ QDataStream& operator << (QDataStream &out, const BMS_SVIDevice *svi)
     out << (svi->m_soh);
     out << soc;
     out << svi->m_sohTrack;
-    out << svi->m_ovAlarmIsSet;
-    out << svi->m_ovWarningIsSet;
-    out << svi->m_uvAlarmIsSet;
-    out << svi->m_uvWarningIsSet;
+    out << svi->m_SVRule.alarm_high.Enabled;
+    out << svi->m_SVRule.warning_high.Enabled;
+    out << svi->m_SVRule.alarm_low.Enabled;
+    out << svi->m_SVRule.warning_low.Enabled;
 //    out << svi->m_ovAlarmEn;
 //    out << svi->m_ovWarningEn;
 //    out << svi->m_uvAlarmEn;
@@ -365,10 +415,14 @@ QDataStream& operator >> (QDataStream &in, BMS_SVIDevice *svi)
     in >> svi->m_soh;
     in >> svi->m_soc;
     in >> svi->m_sohTrack;
-    in >> svi->m_ovAlarmIsSet;
-    in >> svi->m_ovWarningIsSet;
-    in >> svi->m_uvAlarmIsSet;
-    in >> svi->m_uvWarningIsSet;
+    in >> svi->m_SVRule.alarm_high.Enabled;
+    in >> svi->m_SVRule.warning_high.Enabled;
+    in >> svi->m_SVRule.alarm_low.Enabled;
+    in >> svi->m_SVRule.warning_low.Enabled;
+//    in >> svi->m_ovAlarmIsSet;
+//    in >> svi->m_ovWarningIsSet;
+//    in >> svi->m_uvAlarmIsSet;
+//    in >> svi->m_uvWarningIsSet;
 
     //qDebug()<<"Feed in:"<<svi->m_lastSeen;
     return in;

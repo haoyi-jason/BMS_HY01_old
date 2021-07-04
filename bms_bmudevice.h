@@ -10,22 +10,6 @@ public:
     quint8 volt_diff[9];
 };
 
-class BMS_Criteria_Pair{
-public:
-    explicit BMS_Criteria_Pair(){
-        setMask.clear();
-        clrMask.clear();
-    }
-    int set=0,clr=0;
-    QList<quint16> setMask, clrMask;
-    bool enable = false;
-};
-
-class BMS_Criteria_Rule{
-public:
-    BMS_Criteria_Pair alarm_high, alarm_low;
-    BMS_Criteria_Pair warning_high,warning_low;
-};
 
 
 class BMS_BMUDevice : public QObject
@@ -60,12 +44,16 @@ public:
     void deviceID(quint8 value);
     quint8 cellCount();
     quint8 ntcCount();
-    ushort minCellVoltage();
-    ushort maxCellVoltage();
+    short minCellVoltage();
+    short maxCellVoltage();
     qint32 totalVoltage();
-    ushort minPackTemp();
-    ushort maxPackTemp();
-    ushort cellVoltageDiff();
+    short minPackTemp();
+    short maxPackTemp();
+    ushort maxCID();
+    ushort minCID();
+    ushort maxTID();
+    ushort minTID();
+    short cellVoltageDiff();
     int lastSeen();
     void feedData(uint8_t id, uint16_t msg, QByteArray data);
     void simData(ushort vbase=3400, ushort vgap=100, ushort tbase = 250, ushort tgap = 50);
@@ -91,6 +79,11 @@ public:
     bool isOT();
     bool isUT();
 
+    bool isOVA();
+    bool isUVA();
+    bool isOTA();
+    bool isUTA();
+
     void setSimVolt(quint8 id, quint8 cell, ushort shift);
     void setSimTemp(quint8 id, quint8 tid, ushort shift);
     void ov_set(ushort v){m_ov_set_ths = v;}
@@ -114,33 +107,96 @@ public:
     void utSetMask(quint16 v){m_utSetMask = v;}
     quint16 utSetMask(){return m_utSetMask;}
     bool deviceLost(){
-        //qDebug()<<"Last Seen:"<<QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
-        return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
+        //qDebug()<<"BMU:NOW:"<<QDateTime::currentDateTime().toString("hhMMss") << " Last:"<< QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
+        if((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000){
+            m_devLost = true;
+        }
+        else{
+            m_devLost = false;
+        }
+        return m_devLost;
         //return m_devLost;
     }
+    bool isLost(){return m_devLost;}
     void resetValues();
 
-    void setAlarmHighPair(int set, int clr,bool enable = true){
-        m_rules.alarm_high.set = set;
-        m_rules.alarm_high.clr = clr;
-        m_rules.alarm_high.enable = enable;
+    void setCVAlarmHighPair(int set, int clr, int HoldCount = 5,bool enable = true){
+        m_CVrules.alarm_high.set = set;
+        m_CVrules.alarm_high.clr = clr;
+        m_CVrules.alarm_high.enable = enable;
+        m_CVrules.alarm_high.Size = HoldCount;
     }
-    void setAlarmLowPair(int set, int clr,bool enable = true){
-        m_rules.alarm_low.set = set;
-        m_rules.alarm_low.clr = clr;
-        m_rules.alarm_low.enable = enable;
+    void setCVAlarmLowPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CVrules.alarm_low.set = set;
+        m_CVrules.alarm_low.clr = clr;
+        m_CVrules.alarm_low.enable = enable;
+        m_CVrules.alarm_low.Size = HoldCount;
     }
-    void setWarningHighPair(int set, int clr,bool enable = true){
-        m_rules.warning_high.set = set;
-        m_rules.warning_high.clr = clr;
-        m_rules.warning_high.enable = enable;
+    void setCVWarningHighPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CVrules.warning_high.set = set;
+        m_CVrules.warning_high.clr = clr;
+        m_CVrules.warning_high.enable = enable;
+        m_CVrules.warning_high.Size = HoldCount;
     }
-    void setWarningLowPair(int set, int clr,bool enable = true){
-        m_rules.warning_low.set = set;
-        m_rules.warning_low.clr = clr;
-        m_rules.warning_low.enable = enable;
+    void setCVWarningLowPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CVrules.warning_low.set = set;
+        m_CVrules.warning_low.clr = clr;
+        m_CVrules.warning_low.enable = enable;
+        m_CVrules.warning_low.Size = HoldCount;
     }
 
+    void setCTAlarmHighPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CTrules.alarm_high.set = set;
+        m_CTrules.alarm_high.clr = clr;
+        m_CTrules.alarm_high.enable = enable;
+        m_CTrules.alarm_high.Size = HoldCount;
+    }
+    void setCTAlarmLowPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CTrules.alarm_low.set = set;
+        m_CTrules.alarm_low.clr = clr;
+        m_CTrules.alarm_low.enable = enable;
+        m_CTrules.alarm_low.Size = HoldCount;
+    }
+    void setCTWarningHighPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CTrules.warning_high.set = set;
+        m_CTrules.warning_high.clr = clr;
+        m_CTrules.warning_high.enable = enable;
+        m_CTrules.warning_high.Size = HoldCount;
+    }
+    void setCTWarningLowPair(int set, int clr,int HoldCount = 5,bool enable = true){
+        m_CTrules.warning_low.set = set;
+        m_CTrules.warning_low.clr = clr;
+        m_CTrules.warning_low.enable = enable;
+        m_CTrules.warning_low.Size = HoldCount;
+    }
+
+    quint16 cvWarningOVState(quint16 *set, quint16 *clr);
+    quint16 cvWarningUVState(quint16 *set, quint16 *clr);
+    quint16 cvAlarmOVState(quint16 *set, quint16 *clr);
+    quint16 cvAlarmUVState(quint16 *set, quint16 *clr);
+    quint16 ctWarningOVState(quint16 *set, quint16 *clr);
+    quint16 ctWarningUVState(quint16 *set, quint16 *clr);
+    quint16 ctAlarmOVState(quint16 *set, quint16 *clr);
+    quint16 ctAlarmUVState(quint16 *set, quint16 *clr);
+
+    void cvWarningOVHandled(quint16 mask){m_CVrules.warning_high.Handled(mask);}
+    void ctWarningOVHandled(quint16 mask){m_CTrules.warning_high.Handled(mask);}
+    void cvWarningUVHandled(quint16 mask){m_CVrules.warning_low.Handled(mask);}
+    void ctWarningUVHandled(quint16 mask){m_CTrules.warning_low.Handled(mask);}
+    void cvAlarmOVHandled(quint16 mask){m_CVrules.alarm_high.Handled(mask);}
+    void ctAlarmOVHandled(quint16 mask){m_CTrules.alarm_high.Handled(mask);}
+    void cvAlarmUVHandled(quint16 mask){m_CVrules.alarm_low.Handled(mask);}
+    void ctAlarmUVHandled(quint16 mask){m_CTrules.alarm_low.Handled(mask);}
+
+    quint16 cvWarningOVMask(){return m_CVrules.warning_high.enabledMask;}
+    quint16 cvWarningUVMask(){return m_CVrules.warning_low.enabledMask;}
+    quint16 cvAlarmOVMask(){return m_CVrules.alarm_high.enabledMask;}
+    quint16 cvAlarmUVMask(){return m_CVrules.alarm_low.enabledMask;}
+
+    quint16 ctWarningOVMask(){return m_CTrules.warning_high.enabledMask;}
+    quint16 ctWarningUVMask(){return m_CTrules.warning_low.enabledMask;}
+    quint16 ctAlarmOVMask(){return m_CTrules.alarm_high.enabledMask;}
+    quint16 ctAlarmUVMask(){return m_CTrules.alarm_low.enabledMask;}
 signals:
     void set_ov(quint16);
     void set_uv(quint16);
@@ -215,7 +271,7 @@ private:
     quint16 m_balancingBit = 0x0;
     quint16 m_openWireBit = 0x0;
     bool m_devLost = false;
-    BMS_Criteria_Rule m_rules;
+    BMS_Criteria_Rule m_CVrules,m_CTrules;
 };
 
 #endif // BMS_BMUDEVICE_H

@@ -51,6 +51,8 @@ private slots:
 
     void on_lineedit_focused(bool state);
 
+    void on_lineedit_focused_ip(bool state);
+
     void on_lineedit_edited(QString text);
 
     void on_pushButton_9_clicked(bool checked);
@@ -97,9 +99,23 @@ private slots:
 
     void on_pbSOCAlarm_clicked();
 
+    void on_pbSimSV_clicked();
+
+    void on_pbSimSA_clicked();
+
+    void on_pbSimCV_clicked();
+
+    void on_pbSimPT_clicked();
+
+    void on_pbSimReset_clicked();
+
+signals:
+    void restart_controller();
+
 private:
     void updateLocalSetting();
     void set_backlight(int brightness, bool off = false);
+    void load_settings();
 
 
 private:

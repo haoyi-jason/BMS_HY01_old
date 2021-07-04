@@ -23,7 +23,7 @@ namespace bms {
     const int MAX_CELLS = 12;
     const int MAX_NTC = 5;
 
-    enum AlarmID{
+    enum AlarmID{ // low 16-bit for warning, high for alarm
         STACK_OV,
         STACK_UV,
         CELL_OV,
@@ -35,6 +35,18 @@ namespace bms {
         STACK_OT,
         STACK_UT,
         BCU_LOST,
+        SOC_LOW_W,
+        REV2,
+        REV3,
+        REV4,
+        REV5,
+        STACK_OVA,
+        STACK_UVA,
+        CELL_OVA,
+        CELL_UVA,
+        CELL_OTA,
+        CELL_UTA,
+        SOC_LOW_A
     };
 }
 
@@ -167,33 +179,28 @@ public:
  *  3. address 0x0 (group 0/ id 0) is for broadcasting.
  */
 
-
-
-
-
-
 class BMS_Event:public QObject{
     Q_OBJECT
 public:
     explicit BMS_Event(QObject *parent = nullptr){}
     friend QTextStream &operator << (QTextStream &out,const BMS_Event *event){
-        out << QString("%1;").arg(event->m_evtID);
-        out << QString("%1;").arg(event->m_evtLevel);
-        out << QString("%1;").arg(event->m_isAlarm?"TRUE":"FALSE");
-        out << QString("%1;").arg(event->m_isWarning?"TRUE":"FALSE");
-        out << event->m_timeStamp+";";
-        out << event->m_description<<"\n";
+        out << QString("%1;").arg(event->DateString);
+        out << QString("%1;").arg(event->TimeString);
+        out << QString("%1;").arg(event->EventName);
+        out << QString("%1;").arg(event->Level);
+        out << QString("%1;").arg(event->State);
+        out << QString("%1\n").arg(event->Information);
     }
 
     bool parse(QString msg){
         QStringList sl = msg.split(";");
         if(sl.size() == 6){
-            m_evtID = sl[0].toInt();
-            m_evtLevel = sl[1].toInt();
-            m_isAlarm = sl[2].contains("TRUE");
-            m_isWarning = sl[3].contains("TRUE");
-            m_timeStamp = (sl[4]);
-            m_description = sl[5];
+            DateString = sl[0];
+            TimeString = sl[1];
+            EventName = sl[2];
+            Level = sl[3];
+            State = (sl[4]);
+            Information = sl[5];
         }
         else{
             return false;
@@ -203,13 +210,11 @@ public:
 
 
 public:
-    int m_evtID = 0;
-    int m_evtLevel= 0;
-    bool m_isAlarm = false;
-    bool m_isWarning = false;
-    QString m_timeStamp;
-    QString m_description;
-
+    QString DateString, TimeString;
+    QString EventName;
+    QString Level;
+    QString State;
+    QString Information;
 };
 
 
@@ -227,6 +232,7 @@ public:
     bool enableLog=false;
     int logDays = -1;
     int logRecords = 1000;
+    QDateTime lastSeen;
     void setDigitalOut(int id, int value);
 
     void setVoltageSource(int id, int value);
@@ -239,6 +245,232 @@ public:
     void writeCommand(QString command);
 
     void logData(QByteArray b);
+};
+
+
+class BMS_Criteria_Pair{
+public:
+    explicit BMS_Criteria_Pair(){
+        setMask.clear();
+        clrMask.clear();
+    }
+    void mask_reset(){
+        setMask.clear();
+        clrMask.clear();
+    }
+    void mask_feed(){
+        setMask.append(mask_set);
+        clrMask.append(mask_clr);
+        mask_set = mask_clr = 0;
+        if(setMask.size() > Size)
+            setMask.removeFirst();
+        if(clrMask.size() > Size)
+            clrMask.removeFirst();
+    }
+    void setMaskBit(int b){
+        mask_set |= (1 << b);
+    }
+    void clrMaskBit(int b){
+        mask_clr |= (1 << b);
+    }
+
+    quint16 State(quint16 *set, quint16 *clr){
+        if(setMask.size() < Size) return 0x0;
+        if(clrMask.size() < Size) return 0x0;
+        ushort sm = 0xffff; //set mask
+        ushort cm = 0xffff; // clr mask
+        foreach(quint16 v, setMask){
+            sm &= v;
+        }
+        foreach(quint16 v, clrMask){
+            cm &= v;
+        }
+        *set = sm;
+        *clr = cm;
+        enabledMaskNew = sm ^ enabledMask;
+        return enabledMaskNew;
+    }
+    void Handled(quint16 mask){
+        enabledMask = mask;
+    }
+
+    QList<quint16> setMask, clrMask;
+    quint16 mask_set = 0, mask_clr=0;
+    int set=0,clr=0;
+    bool enable = false;
+    quint8 Size = 5;
+    quint16 enabledMask = 0x0;
+    quint16 enabledMaskNew = 0x0;
+};
+
+class BMS_Criteria_Rule{
+public:
+    void valid(QList<short> v){
+        qint32 max = INT_MIN, min=INT_MAX;
+        int total = 0;
+        int maxid = -1, minid = -1;
+        for(int i=0;i<v.size();i++){
+            if(v[i] > max){
+                max = v[i];
+                maxid = i;
+            }
+            if(v[i] < min){
+                min = v[i];
+                minid = i;
+            }
+            total += v[i];
+            if(v[i] > alarm_high.set){
+                alarm_high.setMaskBit(i);
+            }
+            if( v[i] < alarm_high.clr){
+                alarm_high.clrMaskBit(i);
+            }
+            if(v[i] > warning_high.set){
+                warning_high.setMaskBit(i);
+            }
+            if(v[i] < warning_high.clr){
+                warning_high.clrMaskBit(i);
+            }
+
+            if(v[i] < alarm_low.set){
+                alarm_low.setMaskBit(i);
+            }
+            if(v[i] > alarm_low.clr){
+                alarm_low.clrMaskBit(i);
+            }
+            if(v[i] < warning_low.set){
+                warning_low.setMaskBit(i);
+            }
+            if( v[i] > warning_low.clr){
+                warning_low.clrMaskBit(i);
+            }
+        }
+        Max = max; Min = min,Total=total;
+        ID_Max = maxid;ID_Min = minid;
+        alarm_high.mask_feed();
+        alarm_low.mask_feed();;
+        warning_high.mask_feed();
+        warning_low.mask_feed();
+    }
+    void reset(){
+        alarm_high.mask_reset();
+        alarm_low.mask_reset();
+        warning_high.mask_reset();
+        warning_low.mask_reset();
+    }
+
+    quint16 ovStateWarning(quint16 *set, quint16 *clr){
+        return warning_high.State(set,clr);
+    }
+    quint16 ovStateAlarm(quint16 *set, quint16 *clr){
+        return alarm_high.State(set,clr);
+    }
+    quint16 udStateWarning(quint16 *set, quint16 *clr){
+        return warning_low.State(set,clr);
+    }
+    quint16 udStateAlarm(quint16 *set, quint16 *clr){
+        return alarm_low.State(set,clr);
+    }
+    BMS_Criteria_Pair alarm_high, alarm_low;
+    BMS_Criteria_Pair warning_high,warning_low;
+    qint32 Max,Min,Total;
+    qint32 ID_Max,ID_Min;
+};
+
+class BMS_Criteria_Single{
+public:
+    void reset(){
+        setCount = clrCount = 0;
+    }
+    void Set()
+    {
+        setCount++;
+        clrCount = 0;
+    }
+    void Clr(){
+        clrCount++;
+        setCount = 0;
+    }
+
+    quint8 State(){
+        quint8 ret = 0;
+        if(setCount > Size){
+            ret = Enabled?0:1;
+            Enabled = true;
+        }
+        else if(clrCount > Size){
+            ret = Enabled?2:0;
+            Enabled = false;
+        }
+        return ret;
+    }
+
+    void Handled(quint8 v){
+
+    }
+
+    quint8 setCount=0, clrCount=0;
+    quint8 Size = 5;
+    bool Enable = false;
+    bool Enabled = false;
+    int set = 0, clr = 0;
+};
+
+class BMS_CriteriaRule_Single{
+public:
+    void valid(int v){
+        if(v > alarm_high.set){
+            alarm_high.Set();
+        }
+        else if(v < alarm_high.clr){
+            alarm_high.Clr();
+        }
+        else {
+            alarm_high.reset();
+        }
+
+        if(v > warning_high.set)
+            warning_high.Set();
+        else  if(v < warning_high.clr)
+            warning_high.Clr();
+        else
+            warning_high.reset();
+
+        if(v < alarm_low.set)
+            alarm_low.Set();
+        else if(v > alarm_low.clr)
+            alarm_low.Clr();
+        else
+            alarm_low.reset();
+
+        if(v < warning_low.set)
+            warning_low.Set();
+        else if(v > warning_low.clr)
+            warning_low.Clr();
+        else
+            warning_low.reset();
+    }
+    void reset(){
+        alarm_high.reset();alarm_low.reset();
+        warning_high.reset();warning_low.reset();
+    }
+
+    quint8 ovWarning(){
+        return warning_high.State();
+    }
+    quint8 ovAlarm(){
+        return alarm_high.State();
+    }
+    quint8 uvWarning(){
+        return warning_low.State();
+    }
+    quint8 uvAlarm(){
+        return alarm_low.State();
+    }
+
+    BMS_Criteria_Single alarm_high,alarm_low;
+    BMS_Criteria_Single warning_high, warning_low;
+
 };
 
 

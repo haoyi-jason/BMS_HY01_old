@@ -20,13 +20,14 @@ class BMS_Stack : public QObject
     Q_OBJECT
 public:
     explicit BMS_Stack(QObject *parent = nullptr);
+    ~BMS_Stack();
     int BatteryCount();
     ushort cellVoltage(int bid, int cid);
     void cellVoltage(int bid, int cid, ushort x);
     ushort packTemp(int bid, int tid);
     void packTemp(int bid, int tid, ushort x);
     int32_t queueData(int bid, int cid);
-    void queueData(int bid, int cid, ushort x);
+    void queueData(int bid, int cid, qint32 x);
     void addBattery(BMS_BMUDevice *battery);
     void setHVC(BMS_SVIDevice *hvc);
     ushort soc();
@@ -48,8 +49,27 @@ public:
 
     ushort maxStackTemperature();
     void maxStackTemperature(ushort x);
+    int maxStackTemperatureIndex();
     ushort minStackTemperature();
     void minStackTemperature(ushort x);
+    int minStackTemperatureIndex();
+    short stackTempDiff();
+
+    int maxCTBID();
+    int minCTBID();
+    int maxCVBID();
+    int minCVBID();
+    int maxCTTID();
+    int minCTTID();
+    int maxCVCID();
+    int minCVCID();
+
+    short maxStackCV();
+    short minStackCV();
+    short maxStackPT();
+    short minStackPT();
+
+
     quint32 stackVoltage();
     void stackVoltage(quint32 x);
     short stackCurrent();
@@ -96,6 +116,9 @@ public:
     BMS_SVIDevice *sviDevice() const;
     quint32 alarmState();
     void clearAlarm();
+    ushort minBatID(){return m_MinVBID;}
+    void valid();
+
 signals:
 
 public slots:
@@ -107,8 +130,8 @@ private:
     int m_MaxCellIndex;
     ushort m_MinCellVoltage;
     int m_MinCellIndex;
-    ushort m_MaxTemperature;
-    ushort m_MinTemperature;
+    short m_MaxTemperature;
+    short m_MinTemperature;
     quint32 m_StackVoltage;
     short m_StackCurrent;
     QString m_State;
@@ -118,6 +141,12 @@ private:
     uint8_t m_groupID;
     ushort m_CellVoltDiff;
     ushort m_simStackVShift=0, m_simStackAShift = 0;
+
+    ushort m_MaxVBID=0,m_MinVBID=0;
+    ushort m_MaxTBID=0,m_MinTBID=0;
+    ushort m_MaxVCID=0,m_MinVCID=0;
+    ushort m_MaxTCID=0,m_MinTCID=0;
+    short m_MaxCV=0, m_MinCV=0, m_MaxPT=0, m_MinPT=0;
 };
 
 

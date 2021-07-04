@@ -4,12 +4,24 @@
 #include "bms_bcudevice.h"
 #include "bms_svidevice.h"
 #include "bms_stack.h"
-
+#include "bms_localconfig.h"
 
 BMS_System::BMS_System(QObject *parent) : QObject(parent)
 {
     m_startTime = QDateTime::currentDateTime();
+    m_localConfig = new BMS_LocalConfig;
 }
+
+BMS_System::~BMS_System(){
+   m_localConfig->deleteLater();
+   foreach (BMS_Stack *s, m_stacks) {
+       s->deleteLater();
+       s = nullptr;
+   }
+   m_bcuDevice->deleteLater();
+   m_bcuDevice = nullptr;
+}
+
 void BMS_System::SetStackInfo(QList<BMS_Stack*> info)
 {
     m_stacks = info;
@@ -41,7 +53,180 @@ void BMS_System::log(QString msg)
     QString logText = QString("BMS:%1").arg(msg);
     emit logMessage(logText);
 }
+bool BMS_System::Configuration2(QByteArray b)
+{
+    m_localConfig->load(b);
+    // test log path
+    QString p;
+    if(QSysInfo::productType().contains("win")){
+        p = "d:/temp/bms/log";
+    }
+    else{
+        m_localConfig->record.LogPath+"/sys";
+    }
+    if(!QDir(p).exists()){
+        QDir().mkdir(p);
+    }
+    m_logPath = p;
+    if(m_localConfig->system.ConfigReady){
+       BalancingVoltage = m_localConfig->balancing.BalancingVolt.toDouble()*1000;
+       BalancingHystersis = m_localConfig->balancing.HystersisMV.toInt();
+       BalancingOnTime = m_localConfig->balancing.On_TimeSec.toInt();
+       BalancingOffTime = m_localConfig->balancing.Off_TimeSec.toInt();
+    }
 
+    //todo: report time
+
+    //todo: event physic output mapping
+
+    // create stacks
+    if(m_localConfig->stack.ConfigReady){
+        int stacks = m_localConfig->stack.StackCount.toInt();
+        float cap = m_localConfig->stack.Capacity.toDouble();
+        int bps = m_localConfig->stack.BatteryPerStack.toInt();
+        int cpb = m_localConfig->stack.CellPerBattery.toInt();
+        int npb = m_localConfig->stack.NTCPerBattery.toInt();
+        BMS_CriteriaConfig *sc = &m_localConfig->criteria.stack;
+        BMS_CriteriaSOC *soc = &m_localConfig->criteria.soc;
+        BMS_CriteriaConfig *cc = &m_localConfig->criteria.cell;
+        for(int i=0;i<stacks;i++){
+            BMS_Stack *s = new BMS_Stack;
+            s->enableHVModule();
+            s->sviDevice()->setSVWarningHighPair(sc->volt_warning.High_Set.toDouble()*10,sc->volt_warning.High_Clr.toDouble()*10,sc->volt_warning.Duration.toInt());
+            s->sviDevice()->setSVWarningLowPair(sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Duration.toInt());
+            s->sviDevice()->setSVAlarmHighPair(sc->volt_alarm.High_Set.toDouble()*10,sc->volt_alarm.High_Clr.toDouble()*10,sc->volt_alarm.Duration.toInt());
+            s->sviDevice()->setSVAlarmLowPair(sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Duration.toInt());
+
+            s->sviDevice()->setSOCWarningLowPair(soc->warning.Low_Set.toDouble(),soc->warning.Low_Clr.toDouble(),soc->warning.Duration.toInt());
+            s->sviDevice()->setSOCAlarmLowPair(soc->alarm.Low_Set.toDouble(),soc->alarm.Low_Clr.toDouble(),soc->alarm.Duration.toInt());
+
+            s->groupID(i+1);
+            s->sviDevice()->capacity(cap);
+            for(int i=0;i<bps;i++){
+                BMS_BMUDevice *bat = new BMS_BMUDevice(cpb,npb);
+                bat->deviceID(i+1);
+                bat->setCVWarningHighPair((short)(cc->volt_warning.High_Set.toDouble()*1000),(short)(cc->volt_warning.High_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
+                bat->setCVWarningLowPair( (short)(cc->volt_warning.Low_Set.toDouble()*1000),(short)(cc->volt_warning.Low_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
+                bat->setCVAlarmHighPair((short)(cc->volt_alarm.High_Set.toDouble()*1000),(short)(cc->volt_alarm.High_Clr.toDouble()*1000),cc->volt_alarm.Duration.toInt());
+                bat->setCVAlarmLowPair( (short)(cc->volt_alarm.Low_Set.toDouble()*1000), (short)(cc->volt_alarm.Low_Clr.toDouble()*1000) ,cc->volt_alarm.Duration.toInt());
+                bat->setCTWarningHighPair((short)(cc->temp_warning.High_Set.toDouble()*10),(short)(cc->temp_warning.High_Clr.toDouble()*10),cc->temp_warning.Duration.toInt());
+                bat->setCTWarningLowPair( (short)(cc->temp_warning.Low_Set.toDouble()*10), (short)(cc->temp_warning.Low_Clr.toDouble()*10) ,cc->temp_warning.Duration.toInt());
+                bat->setCTAlarmHighPair((short)(cc->temp_alarm.High_Set.toDouble()*10),(short)(cc->temp_alarm.High_Clr.toDouble()*10),cc->temp_alarm.Duration.toInt());
+                bat->setCTAlarmLowPair( (short)(cc->temp_alarm.Low_Set.toDouble()*10), (short)(cc->temp_alarm.Low_Clr.toDouble()*10) ,cc->temp_alarm.Duration.toInt());
+                s->addBattery(bat);
+            }
+            this->m_stacks.append(s);
+
+        }
+
+        // add bcu
+        m_bcuDevice = new BMS_BCUDevice();
+        m_bcuDevice->add_digital_input(2);
+        m_bcuDevice->add_digital_output(2);
+        m_bcuDevice->add_analog_input(8);
+        m_bcuDevice->add_voltage_source(2);
+    }
+
+    if(m_localConfig->system.ConfigReady){
+        this->Alias = m_localConfig->system.Alias;
+        this->connectionString = m_localConfig->system.HostIP;
+        this->connectionPort = m_localConfig->system.ListenPort.toInt();
+        this->m_validInterval = m_localConfig->system.ValidInterval.toInt();
+        this->m_enableLog = true;
+    }
+    if(m_localConfig->record.ConfigReady){
+       quint16 n = m_localConfig->record.LogEventCount.toInt()*1.1;
+        this->m_maxEvents = n;
+    }
+    return true;
+}
+
+bool BMS_System::Configuration2(QString path)
+{
+    m_localConfig->load(path);
+
+    // test log path
+    QString p;
+    if(QSysInfo::productType().contains("win")){
+        p = "d:/temp/bms/log";
+    }
+    else{
+        m_localConfig->record.LogPath+"/sys";
+    }
+    m_logPath = p;
+
+    if(!QDir(p).exists()){
+        QDir().mkdir(p);
+    }
+    if(m_localConfig->system.ConfigReady){
+       BalancingVoltage = m_localConfig->balancing.BalancingVolt.toDouble()*1000;
+       BalancingHystersis = m_localConfig->balancing.HystersisMV.toInt();
+       BalancingOnTime = m_localConfig->balancing.On_TimeSec.toInt();
+       BalancingOffTime = m_localConfig->balancing.Off_TimeSec.toInt();
+    }
+
+    //todo: report time
+
+    //todo: event physic output mapping
+
+    // create stacks
+    if(m_localConfig->stack.ConfigReady){
+        int stacks = m_localConfig->stack.StackCount.toInt();
+        float cap = m_localConfig->stack.Capacity.toDouble();
+        int bps = m_localConfig->stack.BatteryPerStack.toInt();
+        int cpb = m_localConfig->stack.CellPerBattery.toInt();
+        int npb = m_localConfig->stack.NTCPerBattery.toInt();
+        BMS_CriteriaConfig *sc = &m_localConfig->criteria.stack;
+        BMS_CriteriaSOC *soc = &m_localConfig->criteria.soc;
+        BMS_CriteriaConfig *cc = &m_localConfig->criteria.cell;
+        for(int i=0;i<stacks;i++){
+            BMS_Stack *s = new BMS_Stack;
+            s->enableHVModule();
+            s->sviDevice()->setSVWarningHighPair(sc->volt_warning.High_Set.toDouble()*10,sc->volt_warning.High_Clr.toDouble()*10,sc->volt_warning.Duration.toInt());
+            s->sviDevice()->setSVWarningLowPair(sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Duration.toInt());
+            s->sviDevice()->setSVAlarmHighPair(sc->volt_alarm.High_Set.toDouble()*10,sc->volt_alarm.High_Clr.toDouble()*10,sc->volt_alarm.Duration.toInt());
+            s->sviDevice()->setSVAlarmLowPair(sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Duration.toInt());
+
+            s->sviDevice()->setSOCWarningLowPair(soc->warning.Low_Set.toDouble(),soc->warning.Low_Clr.toDouble(),soc->warning.Duration.toInt());
+            s->sviDevice()->setSOCAlarmLowPair(soc->alarm.Low_Set.toDouble(),soc->alarm.Low_Clr.toDouble(),soc->alarm.Duration.toInt());
+
+            s->groupID(i+1);
+            s->sviDevice()->capacity(cap);
+            for(int i=0;i<bps;i++){
+                BMS_BMUDevice *bat = new BMS_BMUDevice(cpb,npb);
+                bat->deviceID(i+1);
+                bat->setCVWarningHighPair((short)(cc->volt_warning.High_Set.toDouble()*1000),(short)(cc->volt_warning.High_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
+                bat->setCVWarningLowPair( (short)(cc->volt_warning.Low_Set.toDouble()*1000),(short)(cc->volt_warning.Low_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
+                bat->setCVAlarmHighPair((short)(cc->volt_alarm.High_Set.toDouble()*1000),(short)(cc->volt_alarm.High_Clr.toDouble()*1000),cc->volt_alarm.Duration.toInt());
+                bat->setCVAlarmLowPair( (short)(cc->volt_alarm.Low_Set.toDouble()*1000), (short)(cc->volt_alarm.Low_Clr.toDouble()*1000) ,cc->volt_alarm.Duration.toInt());
+                bat->setCTWarningHighPair((short)(cc->temp_warning.High_Set.toDouble()*10),(short)(cc->temp_warning.High_Clr.toDouble()*10),cc->temp_warning.Duration.toInt());
+                bat->setCTWarningLowPair( (short)(cc->temp_warning.Low_Set.toDouble()*10), (short)(cc->temp_warning.Low_Clr.toDouble()*10) ,cc->temp_warning.Duration.toInt());
+                bat->setCTAlarmHighPair((short)(cc->temp_alarm.High_Set.toDouble()*10),(short)(cc->temp_alarm.High_Clr.toDouble()*10),cc->temp_alarm.Duration.toInt());
+                bat->setCTAlarmLowPair( (short)(cc->temp_alarm.Low_Set.toDouble()*10), (short)(cc->temp_alarm.Low_Clr.toDouble()*10) ,cc->temp_alarm.Duration.toInt());
+                s->addBattery(bat);
+            }
+            this->m_stacks.append(s);
+
+        }
+
+        // add bcu
+        m_bcuDevice = new BMS_BCUDevice();
+        m_bcuDevice->add_digital_input(2);
+        m_bcuDevice->add_digital_output(2);
+        m_bcuDevice->add_analog_input(8);
+        m_bcuDevice->add_voltage_source(2);
+    }
+
+    if(m_localConfig->system.ConfigReady){
+        this->Alias = m_localConfig->system.Alias;
+        this->connectionString = m_localConfig->system.HostIP;
+        this->connectionPort = m_localConfig->system.ListenPort.toInt();
+        this->m_validInterval = m_localConfig->system.ValidInterval.toInt();
+        this->m_enableLog = true;
+    }
+
+    return true;
+}
 bool BMS_System::Configuration(QByteArray data)
 {
     bool ret = false;
@@ -69,7 +254,7 @@ bool BMS_System::Configuration(QByteArray data)
         QFile f(tmpFile);
         if(f.open(QIODevice::WriteOnly)){
             QFileInfo info(f);
-            qDebug()<<"Abs path"<<info.absoluteFilePath();
+            //qDebug()<<"Abs path"<<info.absoluteFilePath();
             this->m_logPath = info.absolutePath();
         }
         f.close();
@@ -102,15 +287,37 @@ bool BMS_System::Configuration(QByteArray data)
         this->errorReportMS = rpt["error"].toInt();
     }
 
+    // for warning values
     quint16 cell_ot_set = 0, cell_ot_clr = 0;
     quint16 cell_ut_set = 0, cell_ut_clr = 0;
+    quint16 cell_warning_dt = 5;
     quint16 cell_ov_set = 0, cell_ov_clr = 0;
     quint16 cell_uv_set = 0, cell_uv_clr = 0;
+    quint16 cell_warning_dv = 5;
     quint16 stack_ov_set = 0, stack_ov_clr = 0;
-    quint16 stack_oc_set = 0, stack_oc_clr = 0;
     quint16 stack_uv_set = 0, stack_uv_clr = 0;
+    quint16 stack_warning_dv = 5;
+    quint16 stack_oc_set = 0, stack_oc_clr = 0;
     quint16 stack_uc_set = 0, stack_uc_clr = 0;
-    quint16 duration = 5;
+    quint16 stack_warning_dc = 5;
+
+    // for alarm values
+    quint16 cell_ota_set = 0, cell_ota_clr = 0;
+    quint16 cell_uta_set = 0, cell_uta_clr = 0;
+    quint16 cell_alarm_dt = 5;
+    quint16 cell_ova_set = 0, cell_ova_clr = 0;
+    quint16 cell_uva_set = 0, cell_uva_clr = 0;
+    quint16 cell_alarm_dv = 5;
+    quint16 stack_ova_set = 0, stack_ova_clr = 0;
+    quint16 stack_uva_set = 0, stack_uva_clr = 0;
+    quint16 stack_alarm_dv = 5;
+    quint16 stack_oca_set = 0, stack_oca_clr = 0;
+    quint16 stack_uca_set = 0, stack_uca_clr = 0;
+    quint16 stack_alarm_dc = 5;
+
+    quint16 soc_uv_waning_set = 0, soc_uv_warning_clr = 0;
+    quint16 soc_uv_alarm_set = 0, soc_uv_alarm_clr = 0;
+    quint16 soc_uv_warning_dt, soc_uv_alarm_dt;
 
     if(obj.contains("criteria")){
         QJsonObject crit = obj["criteria"].toObject();
@@ -118,33 +325,82 @@ bool BMS_System::Configuration(QByteArray data)
             QJsonObject cob = crit["cell"].toObject();
             if(cob.contains("volt-warning")){
                 QJsonObject cw = cob["volt-warning"].toObject();
-                if(cw.contains("high_set")) cell_ov_set = (ushort)cw["high_set"].toInt();
-                if(cw.contains("high_clr")) cell_ov_clr = (ushort)cw["high_clr"].toInt();
-                if(cw.contains("low_set")) cell_uv_set = (ushort)cw["low_set"].toInt();
-                if(cw.contains("low_clr")) cell_uv_clr = (ushort)cw["low_clr"].toInt();
-                if(cw.contains("duration")) duration = (ushort)cw["duration"].toInt();
+                if(cw.contains("high_set")) cell_ov_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("high_clr")) cell_ov_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("low_set")) cell_uv_set = (ushort)(cw["low_set"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("low_clr")) cell_uv_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("duration")) cell_warning_dv = (ushort)cw["duration"].toString().trimmed().toInt();
             }
             if(cob.contains("temp-warning")){
                 QJsonObject cw = cob["temp-warning"].toObject();
-                if(cw.contains("high_set")) cell_ot_set = (ushort)(cw["high_set"].toDouble()*10);
-                if(cw.contains("high_clr")) cell_ot_clr = (ushort)(cw["high_clr"].toDouble()*10);
-                if(cw.contains("low_set")) cell_ut_set = (ushort)(cw["low_set"].toDouble()*10);
-                if(cw.contains("low_clr")) cell_ut_clr = (ushort)(cw["low_clr"].toDouble()*10);
+                if(cw.contains("high_set")) cell_ot_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("high_clr")) cell_ot_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_set")) cell_ut_set = (ushort)(cw["low_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_clr")) cell_ut_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("duration")) cell_warning_dt = (ushort)cw["duration"].toString().trimmed().toInt();
+            }
+            if(cob.contains("volt-alarm")){
+                QJsonObject cw = cob["volt-alarm"].toObject();
+                if(cw.contains("high_set")) cell_ova_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("high_clr")) cell_ova_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("low_set")) cell_uva_set = (ushort)(cw["low_set"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("low_clr")) cell_uva_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble()*1000);
+                if(cw.contains("duration")) cell_alarm_dv = (ushort)cw["duration"].toString().trimmed().toInt();
+            }
+            if(cob.contains("temp-alarm")){
+                QJsonObject cw = cob["temp-alarm"].toObject();
+                if(cw.contains("high_set")) cell_ota_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("high_clr")) cell_ota_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_set")) cell_uta_set = (ushort)(cw["low_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_clr")) cell_uta_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("duration")) cell_alarm_dt = (ushort)cw["duration"].toString().trimmed().toInt();
             }
         }
         if(crit.contains("stack")){
             QJsonObject sob = crit["stack"].toObject();
             if(sob.contains("volt-warning")){
                 QJsonObject cw = sob["volt-warning"].toObject();
-                if(cw.contains("high_set")) stack_ov_set = (ushort)cw["high_set"].toDouble()*10;
-                if(cw.contains("high_clr")) stack_ov_clr = (ushort)cw["high_clr"].toDouble()*10;
-                if(cw.contains("low_set")) stack_uv_set = (ushort)cw["low_set"].toDouble()*10;
-                if(cw.contains("low_clr")) stack_uv_clr = (ushort)cw["low_clr"].toDouble()*10;
+                if(cw.contains("high_set")) stack_ov_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("high_clr")) stack_ov_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_set")) stack_uv_set = (ushort)(cw["low_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_clr")) stack_uv_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("duration")) stack_warning_dv = (ushort)cw["duration"].toString().trimmed().toInt();
             }
-            if(sob.contains("current-warning")){
-                QJsonObject cw = sob["current-warning"].toObject();
-                if(cw.contains("high_set")) stack_oc_set = (ushort)cw["high_set"].toDouble()*10;
-                if(cw.contains("high_clr")) stack_oc_clr = (ushort)cw["high_clr"].toDouble()*10;
+            if(sob.contains("temp-warning")){
+                QJsonObject cw = sob["temp-warning"].toObject();
+                if(cw.contains("high_set")) stack_oca_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("high_clr")) stack_oca_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("duration")) stack_warning_dc = (ushort)cw["duration"].toString().trimmed().toInt();
+            }
+            if(sob.contains("volt-alarm")){
+                QJsonObject cw = sob["volt-alarm"].toObject();
+                if(cw.contains("high_set")) stack_ova_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("high_clr")) stack_ova_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_set")) stack_uva_set = (ushort)(cw["low_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("low_clr")) stack_uva_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("duration")) stack_alarm_dv = (ushort)cw["duration"].toString().trimmed().toInt();
+            }
+            if(sob.contains("temp-alarm")){
+                QJsonObject cw = sob["temp-alarm"].toObject();
+                if(cw.contains("high_set")) stack_oca_set = (ushort)(cw["high_set"].toString().trimmed().toDouble()*10);
+                if(cw.contains("high_clr")) stack_oca_clr = (ushort)(cw["high_clr"].toString().trimmed().toDouble()*10);
+                if(cw.contains("duration")) stack_alarm_dc = (ushort)cw["duration"].toString().trimmed().toInt();
+            }
+        }
+
+        if(crit.contains("soc")){
+            QJsonObject sob = crit["soc"].toObject();
+            if(sob.contains("warning")){
+                QJsonObject cw = sob["warning"].toObject();
+                if(cw.contains("low_set")) soc_uv_alarm_set = (ushort)(cw["low_set"].toString().trimmed().toDouble());
+                if(cw.contains("low_clr")) soc_uv_alarm_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble());
+                if(cw.contains("duration")) soc_uv_warning_dt = (ushort)cw["duration"].toString().trimmed().toInt();
+            }
+            if(sob.contains("alarm")){
+                QJsonObject cw = sob["alarm"].toObject();
+                if(cw.contains("low_set"))  soc_uv_alarm_set = (ushort)(cw["low_set"].toString().trimmed().toDouble());
+                if(cw.contains("low_clr"))  soc_uv_alarm_clr = (ushort)(cw["low_clr"].toString().trimmed().toDouble());
+                if(cw.contains("duration")) soc_uv_alarm_dt = (ushort)cw["duration"].toString().trimmed().toInt();
             }
         }
     }
@@ -192,22 +448,47 @@ bool BMS_System::Configuration(QByteArray data)
             s->sviDevice()->ovWarningEn(true);
             s->sviDevice()->uvWarningSet(stack_uv_set);
             s->sviDevice()->uvWarningClr(stack_uv_clr);
+            s->sviDevice()->vWarningDuration(stack_warning_dv);
             s->sviDevice()->uvWarningEn(true);
+
+            s->sviDevice()->ovAlarmSet(stack_ova_set);
+            s->sviDevice()->ovAlarmClr(stack_ova_clr);
+            s->sviDevice()->ovAlarmEn(true);
+            s->sviDevice()->uvAlarmSet(stack_uva_set);
+            s->sviDevice()->uvAlarmClr(stack_uva_clr);
+            s->sviDevice()->vAlarmDuration(stack_alarm_dv);
+            s->sviDevice()->uvAlarmEn(true);
+
+            s->sviDevice()->setSVWarningHighPair(stack_ov_set,stack_ov_clr,stack_warning_dv);
+            s->sviDevice()->setSVWarningLowPair(stack_uv_set,stack_uv_clr,stack_warning_dv);
+            s->sviDevice()->setSVAlarmHighPair(stack_ova_set,stack_ova_clr,stack_alarm_dv);
+            s->sviDevice()->setSVAlarmLowPair(stack_uva_set,stack_uva_clr,stack_alarm_dv);
+
+            s->sviDevice()->setSOCWarningLowPair(soc_uv_waning_set,soc_uv_warning_clr,soc_uv_warning_dt);
+            s->sviDevice()->setSOCAlarmLowPair(soc_uv_alarm_set,soc_uv_alarm_clr,soc_uv_alarm_dt);
 
             s->groupID(i+1);
             s->sviDevice()->capacity(cap);
             for(int i=0;i<batPerStack;i++){
                 BMS_BMUDevice *bat = new BMS_BMUDevice(cellPerBat,ntcPerBat);
                 bat->deviceID(i+1);
-                bat->ov_set(cell_ov_set);
-                bat->ov_clr(cell_ov_clr);
-                bat->uv_set(cell_uv_set);
-                bat->uv_clr(cell_uv_clr);
-                bat->ot_set(cell_ot_set);
-                bat->ot_clr(cell_ot_clr);
-                bat->ut_set(cell_ut_set);
-                bat->ut_clr(cell_ut_clr);
-                bat->duration(duration);
+//                bat->ov_set(cell_ov_set);
+//                bat->ov_clr(cell_ov_clr);
+//                bat->uv_set(cell_uv_set);
+//                bat->uv_clr(cell_uv_clr);
+//                bat->ot_set(cell_ot_set);
+//                bat->ot_clr(cell_ot_clr);
+//                bat->ut_set(cell_ut_set);
+//                bat->ut_clr(cell_ut_clr);
+                //bat->duration(duration);
+                bat->setCVWarningHighPair(cell_ov_set,cell_ov_clr,cell_warning_dv);
+                bat->setCVWarningLowPair(cell_uv_set,cell_uv_clr,cell_warning_dv);
+                bat->setCVAlarmHighPair(cell_ova_set,cell_ova_clr,cell_warning_dv);
+                bat->setCVAlarmLowPair(cell_uva_set,cell_uva_clr,cell_warning_dv);
+                bat->setCTWarningHighPair(cell_ot_set,cell_ot_clr,cell_warning_dt);
+                bat->setCTWarningLowPair(cell_ut_set,cell_ut_clr,cell_warning_dt);
+                bat->setCTAlarmHighPair(cell_ota_set,cell_ota_clr,cell_warning_dt);
+                bat->setCTAlarmLowPair(cell_uta_set,cell_uta_clr,cell_warning_dt);
                 s->addBattery(bat);
             }
             this->m_stacks.append(s);
@@ -366,31 +647,43 @@ void BMS_System::validState()
     // check each battery in stacks and svi
     ushort minCellVoltage = 0xffff;
     foreach(BMS_Stack *s, m_stacks){
-        // check if svi device lost
-
-//        if(s->sviDevice()->lastSeen() > 5000){
-//            emit deviceLost(GROUP(s->groupID()) | 0x31);
-//        }
+        s->valid();
         switch(s->sviDevice()->ovWarning()){
         case 1:
-            msg = QString("第[%1]簇 過壓[%2]V警報").arg(s->groupID()).arg(s->stackVoltage()/10);
-            evt_log(msg);
+            evt_log("總壓過壓","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         case 2:
-            msg = QString("第[%1]簇 過壓[%2]V警報復歸").arg(s->groupID()).arg(s->stackVoltage()/10);
-            evt_log(msg);
+            evt_log("總壓過壓復歸","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            break;
+        default:break;
+        }
+
+        switch(s->sviDevice()->ovAlarm()){
+        case 1:
+            evt_log("總壓過壓","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            break;
+        case 2:
+            evt_log("總壓過壓復歸","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         default:break;
         }
 
         switch(s->sviDevice()->uvWarning()){
         case 1:
-            msg = QString("第[%1]簇 欠壓[%2]V警報").arg(s->groupID()).arg(s->stackVoltage()/10);
-            evt_log(msg);
+            evt_log("總壓欠壓","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         case 2:
-            msg = QString("第[%1]簇 欠壓[%2]V警報復歸").arg(s->groupID()).arg(s->stackVoltage()/10);
-            evt_log(msg);
+            evt_log("總壓欠壓復歸","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            break;
+        default:break;
+        }
+
+        switch(s->sviDevice()->uvAlarm()){
+        case 1:
+            evt_log("總壓欠壓","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            break;
+        case 2:
+            evt_log("總壓欠壓復歸","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         default:break;
         }
@@ -402,77 +695,151 @@ void BMS_System::validState()
                 b->resetValues();
             }
             minCellVoltage = minCellVoltage > b->minCellVoltage()?b->minCellVoltage():minCellVoltage;
-            if((res = b->ovState(&set,&clr)) != 0x00){
-                quint16 mask = b->ovSetMask();
+            //if((res = b->ovState(&set,&clr)) != 0x00){
+            if((res = b->cvWarningOVState(&set,&clr)) != 0x00){ // over voltage warning
+                quint16 mask = b->cvWarningOVMask();
                 for(int i=0;i<b->cellCount();i++){
                     cmp = (1 << i);
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池 電芯[%2]過壓[%3]mV警報").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+//                            msg = QString("第[%1]號電池 電芯[%2]過壓[%3]mV警告").arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000);
+                            evt_log("電芯過壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池 電芯[%2]過壓警報清除[%3]mV").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            evt_log("電芯過壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
-                        evt_log(msg);
                     }
                 }
-                b->ovSetMask(mask);
+                b->cvWarningOVHandled(mask);
             }
-            if((res = b->uvState(&set,&clr)) != 0x00){
-                quint16 mask = b->uvSetMask();
+
+            if((res = b->cvAlarmOVState(&set,&clr)) != 0x00){ // over voltage alarm
+                quint16 mask = b->cvAlarmOVMask();
                 for(int i=0;i<b->cellCount();i++){
                     cmp = (1 << i);
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池,電芯[%2]欠壓[%3]mV警報").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            evt_log("電芯過壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池,電芯[%2]欠壓警報清除[%3]mV").arg(b->deviceID()).arg(i+1).arg(b->cellVoltage(i));
+                            evt_log("電芯過壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
-                        evt_log(msg);
+                        //evt_log(msg);
                     }
                 }
-                b->uvSetMask(mask);
+                b->cvAlarmOVHandled(mask);
             }
-            if((res = b->otState(&set,&clr)) != 0x00){
-                quint16 mask = b->otSetMask();
+
+            if((res = b->cvWarningUVState(&set,&clr)) != 0x00){ // unver voltage warning
+                quint16 mask = b->cvWarningUVMask();
+                for(int i=0;i<b->cellCount();i++){
+                    cmp = (1 << i);
+                    if((res & cmp)){
+                        if((set & cmp)){
+                            mask |= cmp;
+                            evt_log("電芯欠壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                        }
+                        else if(clr & cmp){
+                            mask &= ~cmp;
+                            evt_log("電芯欠壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                        }
+                    }
+                }
+                b->cvWarningUVHandled(mask);
+            }
+
+            if((res = b->cvAlarmUVState(&set,&clr)) != 0x00){ // under voltage alarm
+                quint16 mask = b->cvAlarmUVMask();
+                for(int i=0;i<b->cellCount();i++){
+                    cmp = (1 << i);
+                    if((res & cmp)){
+                        if((set & cmp)){
+                            mask |= cmp;
+                            evt_log("電芯欠壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                        }
+                        else if(clr & cmp){
+                            mask &= ~cmp;
+                            evt_log("電芯欠壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                        }
+                    }
+                }
+                b->cvAlarmUVHandled(mask);
+            }
+
+            if((res = b->ctWarningOVState(&set,&clr)) != 0x00){ // pack ot warning
+                quint16 mask = b->ctWarningOVMask();
                 for(int i=0;i<b->ntcCount();i++){
                     cmp = (1 << i);
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池,度度[%2]過溫[%3]警報").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
+                            evt_log("電池過溫","一級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池,溫度[%2]過溫警報清除[%3]").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
+                            evt_log("電池過溫復歸","一級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
-                        evt_log(msg);
                     }
                 }
-                b->otSetMask(mask);
+                b->ctWarningOVHandled(mask);
             }
-            if((res = b->utState(&set,&clr)) != 0x00){
-                quint16 mask = b->utSetMask();
+
+            if((res = b->ctAlarmOVState(&set,&clr)) != 0x00){ // pack ot alarm
+                quint16 mask = b->ctAlarmOVMask();
                 for(int i=0;i<b->ntcCount();i++){
                     cmp = (1 << i);
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            msg = QString("第[%1]號電池,溫度[%2]低溫[%3]警報").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
+                            evt_log("電池過溫","二級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            msg = QString("第[%1]號電池,溫度[%2]低溫警報清除[%3]").arg(b->deviceID()).arg(i+1).arg(b->packTemperature(i));
+                            evt_log("電池過溫復歸","二級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
-                        evt_log(msg);
                     }
                 }
-                b->utSetMask(mask);
+                b->ctAlarmOVHandled(mask);
+            }
+
+            if((res = b->ctWarningUVState(&set,&clr)) != 0x00){ // pack ut warning
+                quint16 mask = b->ctWarningUVMask();
+                for(int i=0;i<b->ntcCount();i++){
+                    cmp = (1 << i);
+                    if((res & cmp)){
+                        if((set & cmp)){
+                            mask |= cmp;
+                            evt_log("電池低溫","一級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                        }
+                        else if(clr & cmp){
+                            mask &= ~cmp;
+                            evt_log("電池低溫復歸","一級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                        }
+                    }
+                }
+                b->ctWarningUVHandled(mask);
+            }
+
+            if((res = b->ctAlarmUVState(&set,&clr)) != 0x00){ // pack ut alarm
+                quint16 mask = b->ctAlarmUVMask();
+                for(int i=0;i<b->ntcCount();i++){
+                    cmp = (1 << i);
+                    if((res & cmp)){
+                        if((set & cmp)){
+                            mask |= cmp;
+                            evt_log("電池低溫","二級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                        }
+                        else if(clr & cmp){
+                            mask &= ~cmp;
+                            evt_log("電池過溫復歸","二級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                        }
+                    }
+                }
+                b->ctAlarmUVHandled(mask);
             }
         }
     }
@@ -487,6 +854,8 @@ void BMS_System::validState()
     }
 
     m_cellMinVoltage = minCellVoltage;
+
+    rec_log_csv();
 
 }
 
@@ -527,9 +896,18 @@ QDataStream& operator >> (QDataStream &in, BMS_System *sys)
             sys->m_stacks.append(new BMS_Stack());
         }
     }
-    foreach (BMS_Stack *s, sys->m_stacks) {
+    ushort minSID=0,minCV = 0xffff;
+    for(int i=0;i<sys->m_stacks.size();i++){
+        BMS_Stack *s = sys->m_stacks.at(i);
         in >> s;
+        if(s->minCellVoltage() < minCV){
+            minCV = s->minCellVoltage();
+            minSID = i;
+        }
     }
+    sys->m_minVSID = minSID;
+    sys->m_minVBID = sys->m_stacks[sys->m_minVSID]->minBatID();
+    sys->m_minVCID = sys->m_stacks[sys->m_minVSID]->minCellVoltIndex();
     in >> sys->m_currentBalanceVoltage;
     in >> sys->m_logPath;
     return in;
@@ -567,6 +945,57 @@ QByteArray BMS_System::digitalOutput(){
 QList<int> BMS_System::vsource(){
     if(m_bcuDevice != nullptr){
         return m_bcuDevice->getWorkingCurrent();
+    }
+}
+
+void BMS_System::rec_log_csv()
+{
+    if(!m_enableLog) return;
+
+    QString dt = QDateTime::currentDateTime().toString("yyyy/MM/dd,hh:mm:ss");
+    for(int i=0;i<m_stacks.size();i++){
+        BMS_Stack *s = m_stacks.at(i);
+        int nofBat = s->BatteryCount();
+        int g1 = s->batteries().at(0)->cellCount();
+        int g2 = s->batteries().at(0)->ntcCount();
+
+        QString path = QString("%1/S_0%2_%3.csv").arg(this->m_logPath).arg(i+1).arg(QDateTime::currentDateTime().toString("yyyyMMdd_hh"));
+        QFile f(path);
+        if(f.open(QIODevice::ReadWrite | QIODevice::Append)){
+            QTextStream ds(&f);
+            ds.setCodec(QTextCodec::codecForName("Big5"));
+            if(f.size() == 0){ // put header first
+                ds <<"Date,Time";
+                for(int j=0;j<nofBat;j++){
+                    for(int k=0;k<g1;k++){
+                        ds << QString(",BMU%1V%2(V)").arg(j+1,2,10,QLatin1Char('0')).arg(k+1,2,10,QLatin1Char('0'));
+                    }
+                    for(int k=0;k<g2;k++){
+                        ds << QString(",BMU%1T%2(%3C)").arg(j+1,2,10,QLatin1Char('0')).arg(k+1,2,10,QLatin1Char('0')).arg(QChar(0xb0));
+                    }
+                }
+                ds << ",SVI-V(V),SVI-C(A),SOC,MODE ";
+                ds << ",C_MAX(V),C_MAX_ID,C_MIN,C_MIN_ID,DIFFV";
+                ds << ",T_MAX("<<QChar(0xb0)<<"C),T_MAX_ID,T_MIN("<<QChar(0xb0)<<"C),T_MIN_ID,DIFFT";
+                ds <<"\n";
+            }
+            {
+                ds << dt;
+                for(int j=0;j<nofBat;j++){
+                    for(int k=0;k<g1;k++){
+                        ds << QString(",%1").arg(s->queueData(j,k)/1000.,5,'f',3);
+                    }
+                    for(int k=0;k<g2;k++){
+                        ds << QString(",%1").arg(s->queueData(j,k+g1+1)/10.,5,'f',1);
+                    }
+                }
+                ds << QString(",%1,%2,%3,%4").arg(s->sviDevice()->voltage()/10,5,'f',1).arg(s->sviDevice()->current()/10.,5,'f',1).arg(s->sviDevice()->soc()).arg(s->state());
+                ds << QString(",%1,%2:%3,%4,%7:%5,%6").arg(s->maxStackCV()).arg(s->maxCVBID()+1).arg(s->maxCVCID()+1).arg(s->minStackCV()).arg(s->minCVCID()+1).arg(s->maxStackCV() - s->minStackCV()).arg(s->minCVBID()+1);
+                ds << QString(",%1,%2:%3,%4,%7:%5,%6").arg(s->maxStackPT()/10.).arg(s->maxCTBID()+1).arg(s->maxCTTID()+1).arg(s->minStackPT()/10.).arg(s->minCTTID()+1).arg((s->maxStackPT() - s->minStackPT())/10.).arg(s->minCTBID()+1);
+                ds <<"\n";
+            }
+        }
+        f.close();
     }
 }
 
@@ -609,22 +1038,55 @@ void BMS_System::emg_log(QString msg)
 
 }
 
-void BMS_System::evt_log(QString msg)
+void BMS_System::evt_log(QString evName, QString evLevel, QString State,QString evInfo)
 {
     BMS_Event *evt = new BMS_Event;
-    evt->m_description = msg;
-    evt->m_timeStamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+    evt->DateString = QDateTime::currentDateTime().toString("yyyy/MM/dd");
+    evt->TimeString = QDateTime::currentDateTime().toString("hh:mm:ss");
+    evt->EventName = evName;
+    evt->Level = evLevel;
+    evt->State = State;
+    evt->Information = evInfo;
 
     QString path = this->m_logPath + "/sys";
     if(!QDir(path).exists()){
         QDir().mkpath(path);
     }
-    path += "/events.log";
-    QFile f(path);
+    QString fname = path+ "/events.log";
+    QFile f(fname);
     if(f.open(QIODevice::WriteOnly | QIODevice::Append)){
         QTextStream ds(&f);
+        if(this->m_logRecords == 0xffff){ // first time, count logs
+            quint16 n = 0;
+            while(!ds.atEnd()){
+                ds.readLine();
+                n++;
+            }
+            this->m_logRecords = n;
+        }
         ds << evt;
+
         f.close();
+        this->m_logRecords++;
+        if(this->m_logRecords > this->m_maxEvents){
+            // remove records
+            QString tmpName = path + "/tmp.log";
+            QFile fin(fname);
+            QFile fout(tmpName);
+            if(fin.open(QIODevice::ReadOnly) && fout.open(QIODevice::ReadWrite)){
+                QTextStream ts1(&fin);
+                QTextStream ts2(&fout);
+                for(int i=0;i<50;i++){
+                    ts1.readLine();
+                }
+
+                ts2 << ts1.readAll();
+                fin.close();
+                fout.close();
+                fin.remove();
+                fout.rename(fname);
+            }
+        }
     }
 }
 
@@ -808,3 +1270,7 @@ CAN_Packet *BMS_System::heartBeat()
     ret->remote = true;
 }
 
+BMS_LocalConfig *BMS_System::config()
+{
+    return m_localConfig;
+}

@@ -98,7 +98,9 @@ signals:
 
 public slots:
     void setDisplayContent(QString str);
-    void setLimit(int &value);
+    void setLimit(int max = INT_MAX, int min=INT_MIN);
+    void password(bool enable);
+    void checkInput(bool enable);
 
 private slots:
     void padClicked();
@@ -108,8 +110,8 @@ private:
     bool m_checkInput = false;
     bool m_passChar = false;
     bool m_isNumbering = true;
-    int m_maxInput = 9999;
-    int m_minInput = 0;
+    int m_maxInput = INT_MAX;
+    int m_minInput = INT_MIN;
     QString m_inputString;
     QLineEdit *inBox1;
     QList<Button*> m_buttons;

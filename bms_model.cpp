@@ -8,6 +8,7 @@
 #include "bms_bcudevice.h"
 #include "bms_svidevice.h"
 #include "bms_stack.h"
+#include <QFont>
 
 /***** BMS_BatteryModel ****************/
 
@@ -75,12 +76,20 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     }
         break;
     case Qt::FontRole:
+        if((row == this->m_minBatID) && (col == this->m_minCid)){
+            QFont font;
+            font.setUnderline(true);
+            return QVariant(font);
+        }
+        else{
+            return QVariant();
+        }
         break;
     case Qt::BackgroundRole:
     {
         BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
         if(bmu != nullptr){
-            if(bmu->deviceLost()) return QVariant(QColor(Qt::gray));
+            if(bmu->isLost()) return QVariant(QColor(Qt::gray));
             int g1 = m_activeStack->batteries().at(0)->cellCount();
             int g2 = g1 + m_activeStack->batteries().at(0)->ntcCount();
             if(col < g1){
@@ -112,6 +121,7 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         BMS_BMUDevice *bmu = m_activeStack->batteries().at(row);
         if(bmu != nullptr){
+
             int g1 = bmu->cellCount();
             int g2 = g1 + bmu->ntcCount();
             if(col < g1){
@@ -306,7 +316,7 @@ BMS_Stack *BMS_StackModel::findStack(int id)
 
 BMS_EventModel::BMS_EventModel(QObject *parent):QAbstractTableModel(parent)
 {
-    m_header<<"ID"<<"EVID"<<"EVLEVEL"<<"ALARM?"<<"WARNING?"<<"DATE"<<"Description";
+    m_header<<"項目"<<"日期"<<"時間"<<"警報名稱"<<"等級"<<"狀態"<<"資訊";
 }
 
 BMS_EventModel::~BMS_EventModel()
@@ -316,7 +326,7 @@ BMS_EventModel::~BMS_EventModel()
 
 int BMS_EventModel::rowCount(const QModelIndex &parent) const
 {
-    return m_events.size();
+    return m_pageSize;
 }
 
 int BMS_EventModel::columnCount(const QModelIndex &parent) const
@@ -327,8 +337,11 @@ int BMS_EventModel::columnCount(const QModelIndex &parent) const
 QVariant BMS_EventModel::data(const QModelIndex &index, int role) const
 {
     if(m_events.size() == 0) return QVariant();
+    if(m_currentPage<0) return QVariant();
     int row = index.row();
     int col = index.column();
+
+    if(row >= m_events.size()) return QVariant();
 
     BMS_Event *evt = m_events.at(row);
 
@@ -336,13 +349,13 @@ QVariant BMS_EventModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
     case Qt::EditRole:
         switch(col){
-        case 0: return QVariant(row);break;
-        case 1: return QVariant(evt->m_evtID);break;
-        case 2: return QVariant(evt->m_evtLevel);break;
-        case 3: return QVariant(evt->m_isAlarm?"TRUE":"FALSE");
-        case 4: return QVariant(evt->m_isWarning?"TRUE":"FALSE");
-        case 5: return QVariant(evt->m_timeStamp);
-        case 6: return QVariant(tr(evt->m_description.toLatin1()));
+        case 0: return QVariant(row+1);break;
+        case 1: return QVariant(evt->DateString);break;
+        case 2: return QVariant(evt->TimeString);break;
+        case 3: return QVariant(evt->EventName);
+        case 4: return QVariant(evt->Level);
+        case 5: return QVariant(evt->State);
+        case 6: return QVariant(evt->Information);
         default: return QVariant();
         }
     case Qt::FontRole:
@@ -381,7 +394,8 @@ QVariant BMS_EventModel::headerData(int section, Qt::Orientation orientation, in
         return QString(m_header.at(section));
     }
     else if(role == Qt::DisplayRole && orientation == Qt::Vertical){
-        return QString("ID= %1").arg(section+1);
+        //return QString("ID= %1").arg(section+1);
+        return QVariant();
     }
     else if(role == Qt::SizeHintRole && orientation == Qt::Horizontal){
         return QSize(60 ,25);
@@ -421,4 +435,18 @@ void BMS_EventModel::clearEvents()
     m_events.clear();
 }
 
+void BMS_EventModel::setPage(int page)
+{
+    m_currentPage = page;
+}
+
+void BMS_EventModel::setPageSize(int sz)
+{
+    m_pageSize = sz;
+}
+
+void BMS_EventModel::reload()
+{
+
+}
 

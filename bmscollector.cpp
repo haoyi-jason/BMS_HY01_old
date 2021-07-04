@@ -39,7 +39,6 @@ bool BMSCollector::loadConfig(QString path)
             sys->alias = o["alias"].toString();
             sys->port = o["port"].toInt();
 
-            sys->system = new BMS_System();
             sys->autoConnect = o["autoconnect"].toBool();
             m_servers.append(sys);
 
@@ -49,7 +48,7 @@ bool BMSCollector::loadConfig(QString path)
             else{
                 sys->logPath = QCoreApplication::applicationDirPath()+ o["log_path"].toString()+"/"+sys->connection;
             }
-            sys->system->logPath(sys->logPath);
+            //sys->system->logPath(sys->logPath);
 
             // create log path
             if(!QDir(sys->logPath).exists()){
@@ -105,6 +104,8 @@ bool BMSCollector::connectServer(int id)
                     connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                     if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                     s->socket = socket;
+                    s->data.clear();
+                    s->configReady = false;
                     //s->configReady  =true;
                     readAllConfig();
                 }
@@ -124,6 +125,10 @@ bool BMSCollector::connectServer(int id)
                 connect(socket,&QTcpSocket::readyRead,this,&BMSCollector::handleServerData);
                 if(m_currentSystemIndex<0) m_currentSystemIndex = 0;
                 s->socket = socket;
+                connect(socket,&QTcpSocket::disconnected,this,&BMSCollector::handleSocketDisconnect);
+                s->configReady = false;
+                s->data.clear();
+                s->system = new BMS_System();
                 //s->configReady = true;
                 readAllConfig();
             }
@@ -144,6 +149,9 @@ bool BMSCollector::disconnectServer(int id)
             m_servers[id]->socket->deleteLater();
             m_servers[id]->socket = nullptr;
             m_servers[id]->configReady = false;
+            //m_servers[id]->system->deleteLater();
+            //delete m_servers[id]->socket;
+            //delete m_servers[id]->system;
             return true;
         }
     }
@@ -195,7 +203,7 @@ void BMSCollector::readAllConfig()
     QByteArray b = "SYS:CFGFR";
     //b.insert(0,hsmsParser::genHeader(hsmsParser::BMS_CONFIG,b.size()));
     foreach(RemoteSystem *s, m_servers) {
-        qDebug()<<"Write Command"<<b;
+        //qDebug()<<"Write Command"<<b;
         s->socket->write(b);
     }
 }
@@ -205,6 +213,23 @@ void BMSCollector::readInitTime()
     QByteArray b = "SYS:INIT_TIME";
     foreach (RemoteSystem *s, m_servers) {
         s->socket->write(b);
+    }
+}
+
+void BMSCollector::handleSocketDisconnect()
+{
+    QTcpSocket *sock = (QTcpSocket*)sender();
+    foreach (RemoteSystem *sys , m_servers) {
+        if(sys->socket == sock){
+            sys->socket->deleteLater();
+            sys->socket = nullptr;
+            sys->configReady = false;
+
+            delete sys->system;
+            delete sys->socket;
+
+            emit controllerOffline();
+        }
     }
 }
 
@@ -218,13 +243,13 @@ void BMSCollector::handleServerData()
         if(sys->socket == socket){
             //QByteArray data = sys->socket->readAll();
             sys->data.append(sys->socket->readAll());
-
+            sys->lastSeen = QDateTime::currentDateTime();
             int len;
             quint8 hlen;
             if(sys->configReady){
                 //qDebug()<<"Config ready";
                 quint8 ret = hsmsParser::getHeader(sys->data,&len,&hlen);
-                if(ret == hsmsParser::BMS_STACK){
+                if(ret == hsmsParser::BMS_STACK && sys->data.size() >= (len+hlen)){
                     //if(sys->data.size() >= len){
                         //qDebug()<<"Receive stack packet";
                         sys->data.remove(0,hlen);
@@ -235,6 +260,7 @@ void BMSCollector::handleServerData()
                         //qDebug()<<"Feed 1";
                         emit dataReceived();
                         sys->data.remove(0,len);
+
                         //qDebug()<<"Feed 2";
 //                        if(sys->system->enableLog()){
 //                            QByteArray b;
@@ -243,7 +269,7 @@ void BMSCollector::handleServerData()
 //                            sys->system->log(b);
 //                        }
                         // show alarm information
-                        bool set = false;
+                        //bool set = false;
 
                         //qDebug()<<"Feed end";
                     //}
@@ -266,9 +292,9 @@ void BMSCollector::handleServerData()
 
                     qDebug()<<"Receive config packet";
                     sys->data.remove(0,hlen);
-                    sys->system->Configuration(sys->data);
+                    sys->system->Configuration2(sys->data);
                     sys->configReady = true;
-                    //emit configReady();
+                    emit configReady();
                     sys->data.remove(0,len);
                 }
                 else if(ret == hsmsParser::BMS_WRONG_HEADER){

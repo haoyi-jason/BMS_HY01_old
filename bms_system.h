@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "bms_def.h"
+#include "bms_localconfig.h"
 
 class BMS_BMUDevice;
 class BMS_BCUDevice;
@@ -11,17 +12,21 @@ class BMS_Stack;
 class BMS_StackConfig;
 class QTimer;
 
+
 class BMS_System : public QObject
 {
     Q_OBJECT
 public:
 
     explicit BMS_System(QObject *parent = nullptr);
+    ~BMS_System();
     void SetStackInfo(QList<BMS_Stack*> info);
     void AddStack(BMS_Stack *stack);
     void ClearStack();
     BMS_Stack* findStack(QString stackName);
     bool Configuration(QByteArray data);
+    bool Configuration2(QString path);
+    bool Configuration2(QByteArray b);
     QByteArray Configuration();
     QString alias(){return m_alias;}
     void alias(QString value){m_alias = value;}
@@ -54,6 +59,7 @@ public:
     QByteArray digitalOutput();
     QList<int> vsource();
     void rec_log(QByteArray data);
+    void rec_log_csv();
     void emg_log(QByteArray data);
     void emg_log(QString msg);
     void logPath(QString path);
@@ -71,6 +77,8 @@ public:
     int logRecords();
     void logRecords(int recs);
 
+    BMS_LocalConfig *config();
+
     void enableAlarmSystem(bool en);
     quint32 alarmState();
     void clearAlarm();
@@ -81,6 +89,9 @@ public:
     QDateTime startTime(){return m_startTime;}
     void startTime(qint64 epoch){m_startTime = QDateTime::fromSecsSinceEpoch(epoch);}
     //ushort miniCellVoltage(){return m_cellMinVoltage;}
+    ushort minSID(){return m_minVSID;}
+    ushort minBID(){return m_minVBID;}
+    ushort minCID(){return m_minVCID;}
 
 signals:
     void sendPacket(QByteArray data);
@@ -100,7 +111,7 @@ public slots:
     void On_SVI_oc();
     void log(QString msg);
     void sys_log(QString msg);
-    void evt_log(QString msg);
+    void evt_log(QString evName, QString evLevel, QString State, QString evInfo);
 
 private:
     QList<BMS_Stack*> m_stacks;
@@ -126,7 +137,10 @@ private:
     ushort m_cellMinVoltage;
     ushort m_cellMaxVoltage;
     QDateTime m_startTime;
-
+    ushort m_minVSID, m_minVBID, m_minVCID;
+    BMS_LocalConfig *m_localConfig;
+    quint16 m_eventLogSize = 0xffff;
+    quint16 m_maxEvents = 550;
 };
 
 #endif // BMS_SYSTEM_H

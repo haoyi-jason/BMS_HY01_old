@@ -32,14 +32,14 @@ CollectorView::CollectorView(QWidget *parent) :
     ui->setupUi(this);
     hide();
 
-    qDebug()<<"System Type:"<<QSysInfo::productType();
-    qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
+    //qDebug()<<"System Type:"<<QSysInfo::productType();
+    //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     m_StackWin = new frmStackView(this);
-    m_HardwareWin = new frmHardwareConfig();
+    m_HardwareWin = new frmHardwareConfig(this);
     m_HardwareWin->hide();
-    m_HistWin = new frmHistoryView();
+    m_HistWin = new frmHistoryView(this);
     m_HistWin->hide();
-    m_evtView = new frmEventView();
+    m_evtView = new frmEventView(this);
     m_evtView->hide();
 
 //    ui->mainLayout->addWidget(m_StackWin);
@@ -49,7 +49,8 @@ CollectorView::CollectorView(QWidget *parent) :
     ui->mainLayout->addWidget(m_HardwareWin);
     mainWidget = m_HardwareWin;
 
-    qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
+    connect(m_HardwareWin,&frmHardwareConfig::restart_controller,this,&CollectorView::on_Issue_Restart_Controller);
+    //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     QString path;
     if(QSysInfo::productType().contains("win")){
         path = "./config/system.json";
@@ -64,11 +65,12 @@ CollectorView::CollectorView(QWidget *parent) :
         //m_collector->readAllConfig();
         m_StackWin->setCollector(m_collector);
         m_HardwareWin->setCollector(m_collector);
+        connect(m_collector,&BMSCollector::controllerOffline,this,&CollectorView::on_Controller_Offline);
     }
 
     if(m_collector->loginPromote()){
         LoginValid *v = new LoginValid;
-        v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
+        v->move(320,240);
         if(v->setFileName(path)){
             if(v->exec() == QDialog::Rejected){
                 QMessageBox::warning(this,"錯誤!","密碼驗證失敗!");
@@ -87,9 +89,10 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 0;
+        m_userID = 1;
     }
 
+    ui->pbBatHistory->setVisible(false);
 
     if(m_userID == 0){
         ui->pbHardwareView->setVisible(false);
@@ -97,13 +100,24 @@ CollectorView::CollectorView(QWidget *parent) :
         ui->pbHardwareView->setVisible(true);
     }
 
-    qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
+ //   qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
 }
 
 CollectorView::~CollectorView()
 {
     delete ui;
 }
+
+void CollectorView::on_Controller_Offline()
+{
+    // current only handle single controller connection
+    if(ui->pbSystemNavi->isChecked()){ // shuld be
+        ui->pbSystemNavi->setChecked(false);
+        ui->pbSystemNavi->setText("連線");
+        QMessageBox::information(this,"資訊","控制系統斷線, 請重新開機");
+    }
+}
+
 
 void CollectorView::hideWindows()
 {
@@ -146,7 +160,9 @@ void CollectorView::on_pbBatHistory_clicked()
     mainWidget = m_HistWin;
     ui->mainLayout->addWidget(mainWidget);
     mainWidget->show();
-    m_HistWin->rootPath(m_collector->currentSystem()->system->logPath());
+    if(m_collector->currentSystem() != nullptr && m_collector->currentSystem()->system != nullptr){
+        m_HistWin->rootPath(m_collector->currentSystem()->system->logPath());
+    }
 }
 void CollectorView::on_pbEventView_clicked()
 {
@@ -159,8 +175,17 @@ void CollectorView::on_pbEventView_clicked()
     ui->mainLayout->addWidget(mainWidget);
     mainWidget->show();
 
-    QString path = m_collector->currentSystem()->system->logPath()+"/sys/events.log";
-    m_evtView->setLogFile(path);
+    if(m_collector->currentSystem() != nullptr && m_collector->currentSystem()->system != nullptr){
+        //QString path = m_collector->currentSystem()->system->logPath()+"/sys/events.log";
+        QString path;
+        if(QSysInfo::productType().contains("win")){
+            path = "d:/temp/bms/log/sys/events.log";
+        }
+        else{
+            path = "/opt/bms/log/sys/events.log";
+        }
+        m_evtView->setLogFile(path);
+    }
 }
 
 void CollectorView::on_pbSystemNavi_clicked()
@@ -172,6 +197,7 @@ void CollectorView::on_pbSystemNavi_clicked()
     if(btn->isChecked()){
         QString cmd;
         if(QSysInfo::productType().contains("win")){
+
         }
         else{
             // check if program is running
@@ -180,10 +206,11 @@ void CollectorView::on_pbSystemNavi_clicked()
             QStringList sl = QString(proc->readAll()).split("\n");
             if(sl.size() < 3){ // 1st : header, 2nd: pidxxx, 3rd blank
                 //log("BMC_Controller not launched, try to launch");
-                cmd = "/opt/BMS_Controller/bin/BMS_Controller";
-                proc->start(cmd);
-                qDebug()<<"Proc Result 3:"<<QString(proc->readAll());
-                QThread::sleep(1);
+                //cmd = "/opt/BMS_Controller/bin/BMS_Controller";
+                //proc->start(cmd);
+                //qDebug()<<"Proc Result 3:"<<QString(proc->readAll());
+                //QThread::sleep(1);
+                QMessageBox::information(this,"Info","控制系統未啟動, 請重新開機");
             }
         }
         if(m_collector->connectServer(0)){
@@ -237,3 +264,27 @@ void CollectorView::on_pbAuth_clicked()
     delete v;
 }
 
+bool CollectorView::event(QEvent *event)
+{
+    if(event->type() == QEvent::MouseButtonRelease){
+        qDebug()<<Q_FUNC_INFO;
+    }
+    QMainWindow::event(event);
+
+}
+
+void CollectorView::on_Issue_Restart_Controller()
+{
+    if(QSysInfo::productType().contains("win"))
+        return;
+
+    if(ui->pbSystemNavi->isChecked()){
+        m_collector->disconnectServer(0);
+        QThread::sleep(100);
+        QProcess *proc = new QProcess;
+        proc->start("systemctl restart bms_controller");
+        proc->waitForFinished();
+        QThread::sleep(100);
+        m_collector->connectServer(0);
+    }
+}

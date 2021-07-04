@@ -25,6 +25,10 @@ public:
     void feedData(); // feed data for battery info
 
     void setStack(BMS_Stack *stack);
+    void setMinInfo(int bid, int cid){
+        m_minBatID = bid;
+        m_minCid = cid;
+    }
 public slots:
 
 
@@ -35,6 +39,7 @@ private:
     //QList<BMS_Stack*> m_stacks;
     BMS_Stack *m_activeStack;
     QStringList m_header;
+    int m_minBatID=-1,m_minCid = -1;
 };
 
 
@@ -93,6 +98,9 @@ public:
 
     void appendEvent(BMS_Event *e);
     void clearEvents();
+    void setPage(int page);
+    void setPageSize(int sz);
+    void reload();
 
 public slots:
 
@@ -102,6 +110,8 @@ signals:
 private:
     QList<BMS_Event*> m_events;
     QStringList m_header;
+    int m_currentPage = -1;
+    int m_pageSize = 10;
 };
 
 

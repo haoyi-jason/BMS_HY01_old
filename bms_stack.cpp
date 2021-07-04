@@ -6,11 +6,20 @@
 
 
 BMS_Stack::BMS_Stack(QObject *parent) : QObject(parent),
-    m_soc(0),m_soh(0),m_groupID(0),m_State("Idle"),m_StackVoltage(0),
+    m_soc(0),m_soh(0),m_groupID(0),m_State("待機"),m_StackVoltage(0),
     m_StackCurrent(0),m_MaxCellIndex(-1),m_MinCellIndex(-1),
     m_MaxTemperature(0),m_MinTemperature(0)
 {
 
+}
+
+BMS_Stack::~BMS_Stack(){
+    foreach (BMS_BMUDevice *b, m_batteries) {
+        b->deleteLater();
+        b = nullptr;
+    }
+    m_svi->deleteLater();
+    m_svi = nullptr;
 }
 
 int BMS_Stack::BatteryCount(){return m_batteries.size();}
@@ -52,7 +61,7 @@ int32_t BMS_Stack::queueData(int bid, int cid){
     }
     return 0;
 }
-void BMS_Stack::queueData(int bid, int cid, ushort x){
+void BMS_Stack::queueData(int bid, int cid, qint32 x){
     if(bid < m_batteries.size()){
         BMS_BMUDevice *info = m_batteries.at(bid);
         if(cid < 12){
@@ -95,6 +104,7 @@ ushort BMS_Stack::maxStackTemperature(){return m_MaxTemperature;}
 void BMS_Stack::maxStackTemperature(ushort x){m_MaxTemperature = x;}
 ushort BMS_Stack::minStackTemperature(){return m_MinTemperature;}
 void BMS_Stack::minStackTemperature(ushort x){m_MinTemperature = x;}
+
 quint32 BMS_Stack::stackVoltage()
 {
     if(m_svi == nullptr)
@@ -118,6 +128,8 @@ void BMS_Stack::alias(QString x){m_alias = x;}
 int BMS_Stack::groupID(){return m_groupID;}
 void BMS_Stack::groupID(int value){m_groupID = value;}
 void BMS_Stack::enableHVModule(){m_svi = new BMS_SVIDevice();}
+
+
 void BMS_Stack::feedData(quint32 identifier, QByteArray data){
     uint8_t id = (identifier >> 12) & 0xff;
     uint16_t cmd = (identifier & 0xFFF);
@@ -143,7 +155,7 @@ void BMS_Stack::simData(){
     if(this->sviDevice() == nullptr){
         this->m_StackVoltage = stack_v/100;
         this->m_StackCurrent = 4000;
-        this->m_State = "IDLE";
+        this->m_State = "待機";
         this->m_soc = 100;
         this->m_soh = 100;
     }
@@ -153,13 +165,13 @@ void BMS_Stack::simData(){
         this->m_StackVoltage = this->sviDevice()->voltage();
         this->m_StackCurrent = this->sviDevice()->current();
         if(this->sviDevice()->current() > 5){
-            this->m_State = "CHARGE";
+            this->m_State = "充電";
         }
         else if(this->sviDevice()->current() <-5){
-            this->m_State = "DISCHARGE";
+            this->m_State = "放電";
         }
         else{
-            this->m_State = "IDLE";
+            this->m_State = "待機";
         }
         this->m_soc = this->sviDevice()->soc();
         this->m_soh = this->sviDevice()->soh();
@@ -213,6 +225,78 @@ QByteArray BMS_Stack::data()
     return d;
 }
 
+void BMS_Stack::valid()
+{
+    short max_v = 0, max_t = 0;
+    short min_v = 0x7fff, min_t = 0x7fff;
+    int max_v_index=0, max_t_index = 0;
+    int min_v_index=0, min_t_index=0;
+    ushort min_cid = 0xff, max_cid = 0xff;
+    short min_tid = 0xff, max_tid = 0xff;
+    quint32 totalVoltage = 0;
+    for(int i=0;i<m_batteries.size();i++){
+        BMS_BMUDevice *b = m_batteries[i];
+        if(b->maxCellVoltage()>max_v){
+            max_v = b->maxCellVoltage();
+            max_v_index = i;
+            max_cid = b->maxCID();
+        }
+        if(b->minCellVoltage()<min_v){
+            min_v = b->minCellVoltage();
+            min_v_index = i;
+            min_cid =  b->minCID();
+        }
+        if(b->maxPackTemp() > max_t){
+            max_t = b->maxPackTemp();
+            max_t_index = i;
+            max_tid = b->maxTID();
+        }
+        if(b->minPackTemp() < min_t){
+            min_t = b->minPackTemp();
+            min_t_index = i;
+            min_tid = b->minTID();
+        }
+        totalVoltage += b->totalVoltage();
+    }
+    m_MaxCellVoltage = max_v;
+    m_MinCellVoltage = min_v;
+    m_MaxCellIndex = max_cid;
+    m_MinCellIndex = min_cid;
+    m_MaxTemperature = max_t;
+    m_MinTemperature = min_t;
+    m_CellVoltDiff = max_v - min_v;
+
+
+
+    m_MaxVBID = max_v_index;
+    m_MinVBID = min_v_index;
+    m_MaxTBID = max_t_index;
+    m_MinTBID = min_t_index;
+
+    m_MaxVCID = max_cid;
+    m_MinVCID = min_cid;
+    m_MaxTCID = max_tid;
+    m_MinTCID = min_tid;
+
+    m_MaxCV = max_v;
+    m_MinCV = min_v;
+    m_MaxPT = max_t;
+    m_MinPT = min_t;
+}
+
+int BMS_Stack::maxCTBID(){return m_MaxTBID;}
+int BMS_Stack::minCTBID(){return m_MinTBID;}
+int BMS_Stack::maxCVBID(){return m_MaxVBID;}
+int BMS_Stack::minCVBID(){return m_MinVBID;}
+int BMS_Stack::maxCTTID(){return m_MaxTCID;}
+int BMS_Stack::minCTTID(){return m_MinTCID;}
+int BMS_Stack::maxCVCID(){return m_MaxVCID;}
+int BMS_Stack::minCVCID(){return m_MinVCID;}
+
+short BMS_Stack::maxStackCV(){return m_MaxCV;}
+short BMS_Stack::minStackCV(){return m_MinCV;}
+short BMS_Stack::maxStackPT(){return m_MaxPT;}
+short BMS_Stack::minStackPT(){return m_MinPT;}
 
 QDataStream &operator<<(QDataStream &out, const BMS_Stack *stack)
 {
@@ -251,34 +335,9 @@ QDataStream &operator >> (QDataStream &in, BMS_Stack *stack)
             stack->m_batteries.append(new BMS_BMUDevice());
         }
     }
-
-
-
-    ushort max_v = 0, max_t = 0;
-    ushort min_v = 0xffff, min_t = 0xffff;
-    int max_v_index=0, max_t_index = 0;
-    int min_v_index=0, min_t_index=0;
-    quint32 totalVoltage = 0;
     for(int i=0;i<stack->m_batteries.size();i++){
         BMS_BMUDevice *b = stack->m_batteries[i];
         in >> b;
-        if(b->maxCellVoltage()>max_v){
-            max_v = b->maxCellVoltage();
-            max_v_index = i;
-        }
-        if(b->minCellVoltage()<min_v){
-            min_v = b->minCellVoltage();
-            min_v_index = i;
-        }
-        if(b->maxPackTemp() > max_t){
-            max_t = b->maxPackTemp();
-            max_t_index = i;
-        }
-        if(b->minPackTemp() < min_t){
-            min_t = b->minPackTemp();
-            min_t_index = i;
-        }
-        totalVoltage += b->totalVoltage();
     }
     in >> stack->m_StackVoltage;
     in >> stack->m_StackCurrent;
@@ -291,13 +350,7 @@ QDataStream &operator >> (QDataStream &in, BMS_Stack *stack)
 
     //qDebug()<<"Feed into Stack struct:"<<min_t;
 
-    stack->m_MaxCellVoltage = max_v;
-    stack->m_MinCellVoltage = min_v;
-    stack->m_MaxCellIndex = max_v_index;
-    stack->m_MinCellIndex = min_v_index;
-    stack->m_MaxTemperature = max_t;
-    stack->m_MinTemperature = min_t;
-    stack->m_CellVoltDiff = max_v - min_v;
+
     //stack->m_soc = 100;
 }
 
@@ -336,9 +389,13 @@ quint32 BMS_Stack::alarmState()
         if(b->isUT()) alarm |= (1 << bms::CELL_UT);
         if(b->isOV()) alarm |= (1 << bms::CELL_OV);
         if(b->isUV()) alarm |= (1 << bms::CELL_UV);
-        if(b->deviceLost()){
+        if(b->isOTA()) alarm |= (1 << bms::CELL_OTA);
+        if(b->isUTA()) alarm |= (1 << bms::CELL_UTA);
+        if(b->isOVA()) alarm |= (1 << bms::CELL_OVA);
+        if(b->isUVA()) alarm |= (1 << bms::CELL_UVA);
+        if(b->isLost()){
             alarm |= (1 <<bms::BMU_LOST);
-            qDebug()<< QString("BMU %1 Lost").arg(id);
+            //qDebug()<< QString("BMU %1 Lost").arg(id);
         }
         if(b->maxCellVoltage()>max_v){
             max_v = b->maxCellVoltage();
@@ -372,6 +429,16 @@ quint32 BMS_Stack::alarmState()
         alarm |= (1 << bms::STACK_UV);
     if(m_svi->deviceLost())
         alarm |= (1 << bms::SVI_LOST);
+
+    if(m_svi->isOvAlarm())
+        alarm |= (1 << bms::STACK_OVA);
+    if(m_svi->isUvAlarm())
+        alarm |= (1 << bms::STACK_UVA);
+
+    if(m_svi->isSOCWarning())
+        alarm |= (1 << bms::SOC_LOW_W);
+    if(m_svi->isSOCAlarm())
+        alarm |= (1 << bms::SOC_LOW_A);
 
     return alarm;
 }

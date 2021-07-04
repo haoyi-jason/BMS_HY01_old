@@ -103,7 +103,15 @@ void frmStackView::on_system_data_ready()
         }
     }
     if(activeSystem != nullptr){
-        //ui->tableView->resizeColumnsToContents();
+        if(m_currentStackIndex == collector->currentSystem()->system->minSID()){
+            ushort bid = collector->currentSystem()->system->minBID();
+            ushort cid = collector->currentSystem()->system->minCID();
+            batteryModel->setMinInfo(bid,cid);
+        }
+        else{
+            batteryModel->setMinInfo(-1,-1);
+        }
+
         ui->tableView->viewport()->update();
         updateStackInfo();
     }
@@ -135,7 +143,7 @@ void frmStackView::on_pbPreviousStack_clicked()
 void frmStackView::on_pbNextStack_clicked()
 {
     m_currentStackIndex++;
-    if(m_currentStackIndex==collector->currentSystem()->system->Stacks){
+    if(m_currentStackIndex >= collector->currentSystem()->system->stacks().size()){
         m_currentStackIndex = 0;
     }
     batteryModel->setStack(stackModel->findStack(m_currentStackIndex));
@@ -158,6 +166,12 @@ void frmStackView::updateStackInfo()
         current += s->stackCurrent();
     }
     message += QString("總電流:%1 安培\n").arg(current/10,5,'f',1,'0');
+
+    ushort sid = collector->currentSystem()->system->minSID();
+    ushort bid = collector->currentSystem()->system->minBID();
+    ushort cid = collector->currentSystem()->system->minCID();
+
+    message += QString("最低電壓:\n第%1簇 %2-%3 電芯\n").arg(sid+1).arg(bid+1).arg(cid+1);
 
     BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString("%1").arg(stack->maxCellVoltage()/1000.,5,'f',3,'0'));
@@ -195,17 +209,27 @@ void frmStackView::updateStackInfo()
     ui->lbl_do0->setText((dig_out[0] & 0x01)==0x01?"輸出[1]開啟":"輸出[1]關閉");
     ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
 
-    quint32 alarm = collector->currentSystem()->system->alarmState();
+    quint32 state = collector->currentSystem()->system->alarmState();
     //qDebug()<<QString("Alarm Code:0x%1").arg(alarm,16);
 
     // feed alarm to ui
+    quint32 warning = state & 0xffff;
     for(int i=0;i<8;i++){
         QPalette p = m_alarmLabels[i]->palette();
-        if(alarm & 0x01){
-            p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::red);
+        if(warning & 0x01){
+            p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::yellow); // warning
         }
         else{
             p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::white);
+        }
+        m_alarmLabels[i]->setPalette(p);
+        warning >>= 1;
+    }
+    quint32 alarm = (state >> 16);
+    for(int i=0;i<6;i++){
+        QPalette p = m_alarmLabels[i]->palette();
+        if(alarm & 0x01){
+            p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::red);
         }
         m_alarmLabels[i]->setPalette(p);
         alarm >>= 1;
