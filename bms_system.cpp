@@ -5,6 +5,7 @@
 #include "bms_svidevice.h"
 #include "bms_stack.h"
 #include "bms_localconfig.h"
+#include <QStorageInfo>
 
 BMS_System::BMS_System(QObject *parent) : QObject(parent)
 {
@@ -53,9 +54,9 @@ void BMS_System::log(QString msg)
     QString logText = QString("BMS:%1").arg(msg);
     emit logMessage(logText);
 }
-bool BMS_System::Configuration2(QByteArray b)
+
+void BMS_System::generateSystemStructure()
 {
-    m_localConfig->load(b);
     // test log path
     QString p;
     if(QSysInfo::productType().contains("win")){
@@ -140,93 +141,138 @@ bool BMS_System::Configuration2(QByteArray b)
        quint16 n = m_localConfig->record.LogEventCount.toInt()*1.1;
         this->m_maxEvents = n;
     }
+
+    if(m_localConfig->event_output.ConfigReady){
+        m_warning_out_id = m_localConfig->event_output.warning_out.toInt();
+        m_warning_latch = m_localConfig->event_output.warning_latch;
+        m_alarm_out_id = m_localConfig->event_output.alarm_out.toInt();
+        m_alarm_latch = m_localConfig->event_output.alarm_latch;
+    }
+
+    // load soc if exist
+    QString socPath;
+    if(QSysInfo::productType().contains("win")){
+        socPath = "d:/temp/bms/soc";
+    }
+    else{
+        socPath = "/opt/bms/soc";
+    }
+
+    QFile f(socPath);
+    if(f.exists()){
+        f.open(QIODevice::ReadOnly);
+        QTextStream ts(&f);
+        int r = 0;
+        while(!ts.atEnd()){
+            double soc = ts.readLine().trimmed().toDouble();
+            if(r < m_stacks.size()){
+                m_stacks[r]->sviDevice()->soc(soc);
+            }
+        }
+    }
+}
+
+bool BMS_System::Configuration2(QByteArray b)
+{
+    m_localConfig->load(b);
+    generateSystemStructure();
+
     return true;
 }
 
 bool BMS_System::Configuration2(QString path)
 {
     m_localConfig->load(path);
+    generateSystemStructure();
 
-    // test log path
-    QString p;
-    if(QSysInfo::productType().contains("win")){
-        p = "d:/temp/bms/log";
-    }
-    else{
-        p = m_localConfig->record.LogPath;
-    }
-    m_logPath = p;
+//    // test log path
+//    QString p;
+//    if(QSysInfo::productType().contains("win")){
+//        p = "d:/temp/bms/log";
+//    }
+//    else{
+//        p = m_localConfig->record.LogPath;
+//    }
+//    m_logPath = p;
 
-    if(!QDir(p).exists()){
-        QDir().mkdir(p);
-    }
-    if(m_localConfig->system.ConfigReady){
-       BalancingVoltage = m_localConfig->balancing.BalancingVolt.toDouble()*1000;
-       BalancingHystersis = m_localConfig->balancing.HystersisMV.toInt();
-       BalancingOnTime = m_localConfig->balancing.On_TimeSec.toInt();
-       BalancingOffTime = m_localConfig->balancing.Off_TimeSec.toInt();
-    }
+//    if(!QDir(p).exists()){
+//        QDir().mkdir(p);
+//    }
+//    if(m_localConfig->system.ConfigReady){
+//       BalancingVoltage = m_localConfig->balancing.BalancingVolt.toDouble()*1000;
+//       BalancingHystersis = m_localConfig->balancing.HystersisMV.toInt();
+//       BalancingOnTime = m_localConfig->balancing.On_TimeSec.toInt();
+//       BalancingOffTime = m_localConfig->balancing.Off_TimeSec.toInt();
+//    }
 
-    //todo: report time
+//    //todo: report time
 
-    //todo: event physic output mapping
+//    //todo: event physic output mapping
 
-    // create stacks
-    if(m_localConfig->stack.ConfigReady){
-        int stacks = m_localConfig->stack.StackCount.toInt();
-        float cap = m_localConfig->stack.Capacity.toDouble();
-        int bps = m_localConfig->stack.BatteryPerStack.toInt();
-        int cpb = m_localConfig->stack.CellPerBattery.toInt();
-        int npb = m_localConfig->stack.NTCPerBattery.toInt();
-        BMS_CriteriaConfig *sc = &m_localConfig->criteria.stack;
-        BMS_CriteriaSOC *soc = &m_localConfig->criteria.soc;
-        BMS_CriteriaConfig *cc = &m_localConfig->criteria.cell;
-        for(int i=0;i<stacks;i++){
-            BMS_Stack *s = new BMS_Stack;
-            s->enableHVModule();
-            s->sviDevice()->setSVWarningHighPair(sc->volt_warning.High_Set.toDouble()*10,sc->volt_warning.High_Clr.toDouble()*10,sc->volt_warning.Duration.toInt());
-            s->sviDevice()->setSVWarningLowPair(sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Duration.toInt());
-            s->sviDevice()->setSVAlarmHighPair(sc->volt_alarm.High_Set.toDouble()*10,sc->volt_alarm.High_Clr.toDouble()*10,sc->volt_alarm.Duration.toInt());
-            s->sviDevice()->setSVAlarmLowPair(sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Duration.toInt());
+//    // create stacks
+//    if(m_localConfig->stack.ConfigReady){
+//        int stacks = m_localConfig->stack.StackCount.toInt();
+//        float cap = m_localConfig->stack.Capacity.toDouble();
+//        int bps = m_localConfig->stack.BatteryPerStack.toInt();
+//        int cpb = m_localConfig->stack.CellPerBattery.toInt();
+//        int npb = m_localConfig->stack.NTCPerBattery.toInt();
+//        BMS_CriteriaConfig *sc = &m_localConfig->criteria.stack;
+//        BMS_CriteriaSOC *soc = &m_localConfig->criteria.soc;
+//        BMS_CriteriaConfig *cc = &m_localConfig->criteria.cell;
+//        for(int i=0;i<stacks;i++){
+//            BMS_Stack *s = new BMS_Stack;
+//            s->enableHVModule();
+//            s->sviDevice()->setSVWarningHighPair(sc->volt_warning.High_Set.toDouble()*10,sc->volt_warning.High_Clr.toDouble()*10,sc->volt_warning.Duration.toInt());
+//            s->sviDevice()->setSVWarningLowPair(sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Duration.toInt());
+//            s->sviDevice()->setSVAlarmHighPair(sc->volt_alarm.High_Set.toDouble()*10,sc->volt_alarm.High_Clr.toDouble()*10,sc->volt_alarm.Duration.toInt());
+//            s->sviDevice()->setSVAlarmLowPair(sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Duration.toInt());
 
-            s->sviDevice()->setSOCWarningLowPair(soc->warning.Low_Set.toDouble(),soc->warning.Low_Clr.toDouble(),soc->warning.Duration.toInt());
-            s->sviDevice()->setSOCAlarmLowPair(soc->alarm.Low_Set.toDouble(),soc->alarm.Low_Clr.toDouble(),soc->alarm.Duration.toInt());
+//            s->sviDevice()->setSOCWarningLowPair(soc->warning.Low_Set.toDouble(),soc->warning.Low_Clr.toDouble(),soc->warning.Duration.toInt());
+//            s->sviDevice()->setSOCAlarmLowPair(soc->alarm.Low_Set.toDouble(),soc->alarm.Low_Clr.toDouble(),soc->alarm.Duration.toInt());
 
-            s->groupID(i+1);
-            s->sviDevice()->capacity(cap);
-            for(int i=0;i<bps;i++){
-                BMS_BMUDevice *bat = new BMS_BMUDevice(cpb,npb);
-                bat->deviceID(i+1);
-                bat->setCVWarningHighPair((short)(cc->volt_warning.High_Set.toDouble()*1000),(short)(cc->volt_warning.High_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
-                bat->setCVWarningLowPair( (short)(cc->volt_warning.Low_Set.toDouble()*1000),(short)(cc->volt_warning.Low_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
-                bat->setCVAlarmHighPair((short)(cc->volt_alarm.High_Set.toDouble()*1000),(short)(cc->volt_alarm.High_Clr.toDouble()*1000),cc->volt_alarm.Duration.toInt());
-                bat->setCVAlarmLowPair( (short)(cc->volt_alarm.Low_Set.toDouble()*1000), (short)(cc->volt_alarm.Low_Clr.toDouble()*1000) ,cc->volt_alarm.Duration.toInt());
-                bat->setCTWarningHighPair((short)(cc->temp_warning.High_Set.toDouble()*10),(short)(cc->temp_warning.High_Clr.toDouble()*10),cc->temp_warning.Duration.toInt());
-                bat->setCTWarningLowPair( (short)(cc->temp_warning.Low_Set.toDouble()*10), (short)(cc->temp_warning.Low_Clr.toDouble()*10) ,cc->temp_warning.Duration.toInt());
-                bat->setCTAlarmHighPair((short)(cc->temp_alarm.High_Set.toDouble()*10),(short)(cc->temp_alarm.High_Clr.toDouble()*10),cc->temp_alarm.Duration.toInt());
-                bat->setCTAlarmLowPair( (short)(cc->temp_alarm.Low_Set.toDouble()*10), (short)(cc->temp_alarm.Low_Clr.toDouble()*10) ,cc->temp_alarm.Duration.toInt());
-                s->addBattery(bat);
-            }
-            this->m_stacks.append(s);
+//            s->groupID(i+1);
+//            s->sviDevice()->capacity(cap);
+//            for(int i=0;i<bps;i++){
+//                BMS_BMUDevice *bat = new BMS_BMUDevice(cpb,npb);
+//                bat->deviceID(i+1);
+//                bat->setCVWarningHighPair((short)(cc->volt_warning.High_Set.toDouble()*1000),(short)(cc->volt_warning.High_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
+//                bat->setCVWarningLowPair( (short)(cc->volt_warning.Low_Set.toDouble()*1000),(short)(cc->volt_warning.Low_Clr.toDouble()*1000),cc->volt_warning.Duration.toInt());
+//                bat->setCVAlarmHighPair((short)(cc->volt_alarm.High_Set.toDouble()*1000),(short)(cc->volt_alarm.High_Clr.toDouble()*1000),cc->volt_alarm.Duration.toInt());
+//                bat->setCVAlarmLowPair( (short)(cc->volt_alarm.Low_Set.toDouble()*1000), (short)(cc->volt_alarm.Low_Clr.toDouble()*1000) ,cc->volt_alarm.Duration.toInt());
+//                bat->setCTWarningHighPair((short)(cc->temp_warning.High_Set.toDouble()*10),(short)(cc->temp_warning.High_Clr.toDouble()*10),cc->temp_warning.Duration.toInt());
+//                bat->setCTWarningLowPair( (short)(cc->temp_warning.Low_Set.toDouble()*10), (short)(cc->temp_warning.Low_Clr.toDouble()*10) ,cc->temp_warning.Duration.toInt());
+//                bat->setCTAlarmHighPair((short)(cc->temp_alarm.High_Set.toDouble()*10),(short)(cc->temp_alarm.High_Clr.toDouble()*10),cc->temp_alarm.Duration.toInt());
+//                bat->setCTAlarmLowPair( (short)(cc->temp_alarm.Low_Set.toDouble()*10), (short)(cc->temp_alarm.Low_Clr.toDouble()*10) ,cc->temp_alarm.Duration.toInt());
+//                s->addBattery(bat);
+//            }
+//            this->m_stacks.append(s);
 
-        }
+//        }
 
-        // add bcu
-        m_bcuDevice = new BMS_BCUDevice();
-        m_bcuDevice->add_digital_input(2);
-        m_bcuDevice->add_digital_output(2);
-        m_bcuDevice->add_analog_input(8);
-        m_bcuDevice->add_voltage_source(2);
-        m_bcuDevice->add_pwm_in(2);
-    }
+//        // add bcu
+//        m_bcuDevice = new BMS_BCUDevice();
+//        m_bcuDevice->add_digital_input(2);
+//        m_bcuDevice->add_digital_output(2);
+//        m_bcuDevice->add_analog_input(8);
+//        m_bcuDevice->add_voltage_source(2);
+//        m_bcuDevice->add_pwm_in(2);
+//    }
 
-    if(m_localConfig->system.ConfigReady){
-        this->Alias = m_localConfig->system.Alias;
-        this->connectionString = m_localConfig->system.HostIP;
-        this->connectionPort = m_localConfig->system.ListenPort.toInt();
-        this->m_validInterval = m_localConfig->system.ValidInterval.toInt();
-        this->m_enableLog = true;
-    }
+//    if(m_localConfig->system.ConfigReady){
+//        this->Alias = m_localConfig->system.Alias;
+//        this->connectionString = m_localConfig->system.HostIP;
+//        this->connectionPort = m_localConfig->system.ListenPort.toInt();
+//        this->m_validInterval = m_localConfig->system.ValidInterval.toInt();
+//        this->m_enableLog = true;
+//        this->m_useSimulator = m_localConfig->system.Simulate;
+//    }
+
+//    if(m_localConfig->event_output.ConfigReady){
+//        m_warning_out_id = m_localConfig->event_output.warning_out.toInt();
+//        m_warning_latch = m_localConfig->event_output.warning_latch;
+//        m_alarm_out_id = m_localConfig->event_output.alarm_out.toInt();
+//        m_alarm_latch = m_localConfig->event_output.alarm_latch;
+//    }
 
     return true;
 }
@@ -552,27 +598,6 @@ QByteArray BMS_System::Configuration()
 }
 
 
-void BMS_System::generateSystemStructure()
-{
-//    m_stacks.clear();
-//    foreach(BMS_StackConfig *c, m_stackConfig)
-//    {
-//        BMS_Stack *info = new BMS_Stack();
-//        quint8 id = 1; // bmu id start from 1
-//        for(int i=0;i<c->m_nofBatteries;i++){
-//            BMS_BMUDevice *bat = new BMS_BMUDevice(c->m_nofCellPerBattery,c->m_nofNTCPerBattery);
-//            bat->deviceID(id++);
-//            // signal connection
-
-//            info->addBattery(bat);
-//        }
-//        info->enableHVModule();
-//        info->groupID(c->m_groupID);
-
-//        m_stacks.append(info);
-//    }
-
-}
 
 void BMS_System::feedData(quint32 identifier, QByteArray data)
 {
@@ -864,8 +889,53 @@ void BMS_System::validState()
 
     rec_log_csv();
 
+    m_socSaveDelay--;
+    if(m_socSaveDelay == 0){
+        m_socSaveDelay = 300;
+        saveCurrentSOC();
+        checkDiskSpace();
+    }
+
 }
 
+void BMS_System::saveCurrentSOC()
+{
+    // load soc if exist
+    QString socPath;
+    if(QSysInfo::productType().contains("win")){
+        socPath = "d:/temp/bms/soc";
+    }
+    else{
+        socPath = "/opt/bms/soc";
+    }
+
+    QFile f(socPath);
+    if(f.open(QIODevice::WriteOnly)){
+        QTextStream ts(&f);
+        foreach(BMS_Stack *s, m_stacks){
+            ts << QString("%1\n").arg(s->sviDevice()->soc());
+        }
+        f.close();
+    }
+}
+
+void BMS_System::checkDiskSpace()
+{
+    QStorageInfo info=QStorageInfo::root();
+    int mb = info.bytesAvailable()/1024/1024;
+    if(mb < 100){
+        QDir dir(this->m_logPath);
+        uint nofFiles = dir.count();
+        if(nofFiles > 24){ // kill 24 files (per day)
+            QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+            for(int i=0;i<24;i++){
+                const QFileInfo& info = files.at(i);
+                QFile::remove(info.absoluteFilePath());
+            }
+
+        }
+    }
+}
 QByteArray BMS_System::data()
 {
     // loop through each stack to gather data

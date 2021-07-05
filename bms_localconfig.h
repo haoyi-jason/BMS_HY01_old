@@ -341,22 +341,22 @@ class BMS_EventConfig{
 public:
     QString warning_out;
     QString alarm_out;
-    bool warning_latch = true;
-    bool alarm_latch = true;
+    bool warning_latch = false;
+    bool alarm_latch = false;
     bool ConfigReady = false;
     bool parseJson(QJsonObject o)
     {
         if(o.contains("warning_out")){
-            warning_out = o["warning_out"].toString();
+            warning_out = o["warning_out"].toString().trimmed();
         }
         if(o.contains("alarm_out")){
-            warning_out = o["alarm_out"].toString();
+            alarm_out = o["alarm_out"].toString().trimmed();
         }
         if(o.contains("warning_latch")){
-            warning_out = o["warning_latch"].toBool();
+            warning_latch = o["warning_latch"].toBool();
         }
         if(o.contains("alarm_latch")){
-            warning_out = o["alarm_latch"].toBool();
+            alarm_latch = o["alarm_latch"].toBool();
         }
         ConfigReady = true;
         return true;
@@ -484,6 +484,7 @@ public:
     BMS_RecordConfig record;
     BMS_MODBUSConfig modbus;
     BMS_NetworkConfig network;
+    BMS_EventConfig event_output;
 
     explicit BMS_LocalConfig(QObject *parent = nullptr);
     void load(QString fileName);

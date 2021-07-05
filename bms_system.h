@@ -25,9 +25,9 @@ public:
     void ClearStack();
     BMS_Stack* findStack(QString stackName);
     bool Configuration(QByteArray data);
+    QByteArray Configuration();
     bool Configuration2(QString path);
     bool Configuration2(QByteArray b);
-    QByteArray Configuration();
     QString alias(){return m_alias;}
     void alias(QString value){m_alias = value;}
     QList<BMS_Stack*> stacks(){return m_stacks;}
@@ -103,6 +103,8 @@ signals:
 private slots:
     void simulate();
     void validState();
+    void saveCurrentSOC();
+    void checkDiskSpace();
 
 public slots:
     void On_BMU_ov(quint16 mask);
@@ -144,6 +146,7 @@ private:
     quint16 m_eventLogSize = 0xffff;
     quint16 m_maxEvents = 550;
     bool m_useSimulator = false;
+    quint32 m_socSaveDelay = 300;
 };
 
 #endif // BMS_SYSTEM_H

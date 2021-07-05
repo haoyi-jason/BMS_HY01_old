@@ -46,6 +46,10 @@ void BMS_LocalConfig::load(QByteArray b)
         QJsonObject ob = obj["network"].toObject();
         network.parseJson(ob);
     }
+    if(obj.contains("event_output")){
+        QJsonObject ob = obj["event_output"].toObject();
+        event_output.parseJson(ob);
+    }
 }
 
 void BMS_LocalConfig::load(QString fileName)
@@ -95,6 +99,10 @@ void BMS_LocalConfig::save(QString fileName)
         ob = new QJsonObject;
         network.feedJson(ob);
         obj["network"] = *ob;
+
+        ob = new QJsonObject;
+        event_output.feedJson(ob);
+        obj["event_output"] = *ob;
 
         d.setObject(obj);
         f.open(QIODevice::WriteOnly);
