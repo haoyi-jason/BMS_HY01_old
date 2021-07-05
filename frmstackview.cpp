@@ -208,6 +208,7 @@ void frmStackView::updateStackInfo()
 
     ui->lbl_do0->setText((dig_out[0] & 0x01)==0x01?"輸出[1]開啟":"輸出[1]關閉");
     ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
+    //qDebug()<<"Digital Out:"<< QString::number(dig_out[0],16);
 
     quint32 state = collector->currentSystem()->system->alarmState();
     //qDebug()<<QString("Alarm Code:0x%1").arg(alarm,16);

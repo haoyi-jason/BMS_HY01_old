@@ -13,6 +13,7 @@ public:
     bool Enable;
     bool EnableTCP;
     QString TCPPort;
+    bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("port")){
             Port = o["port"].toString();
@@ -35,6 +36,7 @@ public:
         if(o.contains("tcp_port")){
             TCPPort = o["tcp_port"].toString();
         }
+        ConfigReady = true;
         return true;
     }
     void feedJson(QJsonObject *o){

@@ -374,11 +374,9 @@ void frmHardwareConfig::load_settings()
     QString path;
 
     if(QSysInfo::productType().contains("win")){
-        //path = "./config/local2.json";
         path="d:/temp/bms/config/controller.json";
     }
     else{
-       //path = QCoreApplication::applicationDirPath()+"/config/local.json";
        path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
     }
     localConfig.load(path);
@@ -670,10 +668,10 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     QString path;
 
     if(QSysInfo::productType().contains("win")){
-        path = "./config/local2.json";
+        path="d:/temp/bms/config/controller.json";
     }
     else{
-       path = QCoreApplication::applicationDirPath()+"/config/local.json";
+       path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
     }
 
     localConfig.record.EnableLog = ui->cbEnableLog->isChecked();
@@ -718,7 +716,11 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     localConfig.save(path);
 
     if(QMessageBox::information(this,"訊息","設定已修改, 是否重新啟動BMS主程式?",QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes){
-        emit restart_controller();
+        //emit restart_controller();
+        QProcess *proc = new QProcess;
+
+        proc->start("systemctl restart bms_controller");
+        proc->waitForFinished();
     }
 
 }
@@ -754,6 +756,7 @@ void frmHardwareConfig::updateLocalSetting()
     ui->leBalancingTimeSec->setText((localConfig.balancing.On_TimeSec));
 
     ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
+    qDebug()<<"Baud:"<<localConfig.modbus.Bitrate;
     if(localConfig.modbus.Bitrate == "9600"){
         ui->cbBaudrate->setCurrentIndex(0);
     }
@@ -764,6 +767,7 @@ void frmHardwareConfig::updateLocalSetting()
         ui->cbBaudrate->setCurrentIndex(2);
     }
     else if(localConfig.modbus.Bitrate == "57600"){
+        qDebug()<<"Set index tp 3";
         ui->cbBaudrate->setCurrentIndex(3);
     }
     else if(localConfig.modbus.Bitrate == "115200"){
@@ -820,12 +824,14 @@ void frmHardwareConfig::set_backlight(int brightness, bool off)
         proc->waitForFinished();
     }
     else{
-        cmd = QString("echo 1 > /sys/class/backlight/backlight-lvds/bl_power");
-        proc->start("sh", QStringList()<<" -c" << cmd);
+        cmd = QString("/bin/sh \"echo 1 > /sys/class/backlight/backlight-lvds/bl_power\"");
+        proc->start(cmd);
+//        proc->start("/bin/sh", QStringList()<<" -c" << cmd);
         proc->waitForFinished();
-        cmd = QString("echo %1 > /sys/class/backlight/backlight-lvds/brightness").arg(brightness);
+        cmd = QString("/bin/sh -c \"echo %1 > /sys/class/backlight/backlight-lvds/brightness\"").arg(brightness);
         qDebug()<<"Set bL:"<<cmd;
-        proc->start("sh", QStringList()<<" -c" << cmd);
+//        proc->start("/bin/sh", QStringList()<<" -c" << cmd);
+        proc->execute(cmd);
         proc->waitForFinished();
     }
     delete proc;
@@ -878,5 +884,5 @@ void frmHardwareConfig::on_pbSimReset_clicked()
 void frmHardwareConfig::on_comboBox_currentIndexChanged(int index)
 {
     qDebug()<<Q_FUNC_INFO;
-    set_backlight(index);
+    set_backlight(index+1);
 }

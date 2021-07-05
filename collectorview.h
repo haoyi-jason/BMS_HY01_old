@@ -12,6 +12,7 @@ class frmHardwareConfig;
 class BMSCollector;
 class frmHistoryView;
 class frmEventView;
+class QTimer;
 
 class CollectorView : public QMainWindow
 {
@@ -38,6 +39,8 @@ private slots:
 
     void on_Controller_Offline();
 
+    void on_Idle();
+
 private:
     void hideWindows();
 
@@ -54,6 +57,7 @@ private:
     BMSCollector *m_collector = nullptr;
     int m_userID = 1;
     frmEventView *m_evtView = nullptr;
+    QTimer *m_idleTimer;
 };
 
 #endif // COLLECTORVIEW_H

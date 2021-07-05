@@ -11,6 +11,7 @@ BMS_System::BMS_System(QObject *parent) : QObject(parent)
 {
     m_startTime = QDateTime::currentDateTime();
     m_localConfig = new BMS_LocalConfig;
+
 }
 
 BMS_System::~BMS_System(){
@@ -127,6 +128,8 @@ void BMS_System::generateSystemStructure()
         m_bcuDevice->add_analog_input(8);
         m_bcuDevice->add_voltage_source(2);
         m_bcuDevice->add_pwm_in(2);
+        m_bcuDevice->vsource_limit(0,3000);
+        m_bcuDevice->vsource_limit(1,3000);
     }
 
     if(m_localConfig->system.ConfigReady){
@@ -170,6 +173,7 @@ void BMS_System::generateSystemStructure()
             }
         }
     }
+    checkDiskSpace();
 }
 
 bool BMS_System::Configuration2(QByteArray b)
@@ -733,12 +737,12 @@ void BMS_System::validState()
                             mask |= cmp;
 //                            msg = QString("第[%1]號電池 電芯[%2]過壓[%3]mV警告").arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000);
                             qDebug()<<"1";
-                            evt_log("電芯過壓","一級",s->state(),QString("S%1-B%2-C%3 %4V1").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯過壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
                             qDebug()<<"2";
-                            evt_log("電芯過壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V2").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯過壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
                 }
@@ -753,12 +757,12 @@ void BMS_System::validState()
                         if((set & cmp)){
                             mask |= cmp;
                             qDebug()<<"2";
-                            evt_log("電芯過壓","二級",s->state(),QString("S%1-B%2-C%3 %4V3").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯過壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
                             qDebug()<<"4";
-                            evt_log("電芯過壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V4").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯過壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         //evt_log(msg);
                     }
@@ -773,11 +777,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電芯欠壓","一級",s->state(),QString("S%1-B%2-C%3 %4V5").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電芯欠壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V6").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
                 }
@@ -791,11 +795,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電芯欠壓","二級",s->state(),QString("S%1-B%2-C%3 %4V7").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電芯欠壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V8").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
+                            evt_log("電芯欠壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
                 }
@@ -921,20 +925,49 @@ void BMS_System::saveCurrentSOC()
 
 void BMS_System::checkDiskSpace()
 {
-    QStorageInfo info=QStorageInfo::root();
-    int mb = info.bytesAvailable()/1024/1024;
-    if(mb < 100){
-        QDir dir(this->m_logPath);
-        uint nofFiles = dir.count();
-        if(nofFiles > 24){ // kill 24 files (per day)
-            QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
-            for(int i=0;i<24;i++){
-                const QFileInfo& info = files.at(i);
-                QFile::remove(info.absoluteFilePath());
-            }
+    // try to move data to sd card if mounted
+    QStorageInfo sd_info = QStorageInfo("/mnt/t");
 
+    int sd_size = sd_info.bytesTotal()/1024/1024;
+    if(sd_size > 100){
+        int sd_size_free =  sd_info.bytesAvailable()/1024/1024;
+        QDir src(this->m_logPath);
+        QProcess proc;
+//        QDir dest("/mnt/t");
+        uint nofFiles = src.count();
+        if(nofFiles > 0){
+            QString cmd;
+            QFileInfoList files = src.entryInfoList(QStringList()<<"*.csv",QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+
+            for(int i=0;i<files.size()-1;i++){
+                const QFileInfo& fi = files[i];
+                //if(fi.completeSuffix() == "csv")
+                cmd = QString("mv %1 /mnt/t/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
+                proc.execute(cmd);
+                proc.waitForFinished();
+//                QString nName = QString("/mnt/t/%1").arg(fi.fileName());
+//                QFile::rename(nName);
+            }
         }
     }
+    else{
+        QStorageInfo info=QStorageInfo::root();
+        int mb = info.bytesAvailable()/1024/1024;
+        if(mb < 100){
+            QDir dir(this->m_logPath);
+            uint nofFiles = dir.count();
+            if(nofFiles > 24){ // kill 24 files (per day)
+                QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+                for(int i=0;i<24;i++){
+                    const QFileInfo& info = files.at(i);
+                    QFile::remove(info.absoluteFilePath());
+                }
+
+            }
+        }
+    }
+
+
 }
 QByteArray BMS_System::data()
 {
@@ -1131,22 +1164,40 @@ void BMS_System::evt_log(QString evName, QString evLevel, QString State,QString 
     }
     QString fname = path+ "/events.log";
     QFile f(fname);
-    if(f.open(QIODevice::WriteOnly | QIODevice::Append)){
+
+    if(this->m_eventLogSize == 0xffff){ // first time, count logs
+        if(f.open(QIODevice::ReadOnly)){
+            QTextStream ts(&f);
+            ts.setCodec(QTextCodec::codecForName("Big5"));
+            quint16 n = 0;
+            //ds.reset();
+            while(!ts.atEnd()){
+                ts.readLine();
+                n++;
+            }
+            this->m_eventLogSize = n;
+        }
+        f.close();
+    }
+
+
+    if(f.open(QIODevice::ReadWrite | QIODevice::Append)){
         QTextStream ds(&f);
         ds.setCodec(QTextCodec::codecForName("Big5"));
-        if(this->m_logRecords == 0xffff){ // first time, count logs
+        if(this->m_eventLogSize == 0xffff){ // first time, count logs
             quint16 n = 0;
+            //ds.reset();
             while(!ds.atEnd()){
                 ds.readLine();
                 n++;
             }
-            this->m_logRecords = n;
+            this->m_eventLogSize = n;
         }
         ds << evt;
 
         f.close();
-        this->m_logRecords++;
-        if(this->m_logRecords > this->m_maxEvents){
+        this->m_eventLogSize++;
+        if(this->m_eventLogSize > this->m_maxEvents){
             // remove records
             QString tmpName = path + "/tmp.log";
             QFile fin(fname);
@@ -1164,6 +1215,7 @@ void BMS_System::evt_log(QString evName, QString evLevel, QString State,QString 
                 fin.remove();
                 fout.rename(fname);
             }
+            this->m_eventLogSize -= 50;
         }
     }
 }
