@@ -111,6 +111,8 @@ private slots:
 
     void on_comboBox_currentIndexChanged(int index);
 
+    void on_pbSetSOC_clicked();
+
 signals:
     void restart_controller();
 

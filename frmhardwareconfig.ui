@@ -23,7 +23,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -327,6 +327,12 @@
           </item>
           <item row="1" column="3">
            <widget class="QPushButton" name="pbADCConfig">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Set</string>
             </property>
@@ -334,6 +340,12 @@
           </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="cbADCOption">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <item>
              <property name="text">
               <string>Raw Low</string>
@@ -358,6 +370,12 @@
           </item>
           <item row="1" column="0">
            <widget class="QComboBox" name="cbADCChannel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <item>
              <property name="text">
               <string>Channel 0</string>
@@ -402,6 +420,12 @@
           </item>
           <item row="1" column="4">
            <widget class="QPushButton" name="pbSaveParam">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Save Param</string>
             </property>
@@ -415,22 +439,122 @@
          <property name="maximumSize">
           <size>
            <width>640</width>
-           <height>80</height>
+           <height>100</height>
           </size>
          </property>
          <property name="title">
           <string>SVI ADC Scaling</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="0" column="3">
+          <item row="0" column="4">
            <widget class="QPushButton" name="pbSVIConfig">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Set</string>
             </property>
            </widget>
           </item>
+          <item row="0" column="3">
+           <widget class="FocusEditor" name="leSVIValue"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="cbSVIOption">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Raw Low</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Raw High</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Eng Low</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Eng High</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>零點校正</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>幅度校正</string>
+             </property>
+            </item>
+           </widget>
+          </item>
           <item row="0" column="0">
+           <widget class="QComboBox" name="cbSVI">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>SVI-1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SVI-2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SVI-3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SVI-4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SVI-5</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SVI-6</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SVI-7</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="1">
            <widget class="QComboBox" name="cbSVIChannel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <item>
              <property name="text">
               <string>Channel 0</string>
@@ -473,47 +597,32 @@
             </item>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="FocusEditor" name="leSVIValue"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="cbSVIOption">
-            <item>
-             <property name="text">
-              <string>Raw Low</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Raw High</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Eng Low</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Eng High</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>零點校正</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>幅度校正</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="4">
+          <item row="0" column="5">
            <widget class="QPushButton" name="pbSaveSVI">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Save Param</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="FocusEditor" name="leSOC"/>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="pbSetSOC">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Set</string>
             </property>
            </widget>
           </item>

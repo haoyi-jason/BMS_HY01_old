@@ -106,9 +106,13 @@ void frmHardwareConfig::on_system_config_ready()
         int nof_bat = system->stacks().at(0)->BatteryCount();
         int nof_cell = system->stacks().at(0)->batteries().at(0)->cellCount();
         int nof_ntc = system->stacks().at(0)->batteries().at(0)->ntcCount();
-
+        ui->cbSimGroup->clear();
+        ui->cbSVI->clear();
+        ui->cbSimCID->clear();
+        ui->cbSimNID->clear();
         for(int i=0;i<nof_stack;i++){
             ui->cbSimGroup->addItem(QString("第%1簇").arg(i+1));
+            ui->cbSVI->addItem(QString("SVI:%1").arg(i+1));
         }
         for(int i=0;i<nof_bat;i++){
             ui->cbSimBat->addItem(QString("%1號電池").arg(i+1));
@@ -879,4 +883,11 @@ void frmHardwareConfig::on_comboBox_currentIndexChanged(int index)
 {
     qDebug()<<Q_FUNC_INFO;
     set_backlight(index);
+}
+
+void frmHardwareConfig::on_pbSetSOC_clicked()
+{
+    RemoteSystem *sys = m_collector->currentSystem();
+    QString cmd = QString("SVI:SSOC:%1:%2").arg((ui->cbSVI->currentIndex()+1)).arg(ui->leSOC->text());
+    sys->writeCommand(cmd);
 }

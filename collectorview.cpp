@@ -91,7 +91,7 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 1;
+        m_userID = 0;
     }
 
     ui->pbBatHistory->setVisible(false);
