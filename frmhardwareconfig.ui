@@ -32,6 +32,9 @@
       <layout class="QGridLayout" name="gridLayout_12">
        <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_7">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -981,6 +984,13 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QLabel" name="label_23">
+            <property name="text">
+             <string>Rev 1.0.0</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1056,32 +1066,35 @@
          <property name="title">
           <string>Data Copy</string>
          </property>
-         <widget class="QPushButton" name="pbAlarmToSD">
-          <property name="geometry">
-           <rect>
-            <x>50</x>
-            <y>30</y>
-            <width>75</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Alarm</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pbRecordToSD">
-          <property name="geometry">
-           <rect>
-            <x>190</x>
-            <y>30</y>
-            <width>75</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Record</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QPushButton" name="pbAlarmToSD">
+            <property name="text">
+             <string>Alarm</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbRecordToSD">
+            <property name="text">
+             <string>Record</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -1111,11 +1124,6 @@
               <height>0</height>
              </size>
             </property>
-            <item>
-             <property name="text">
-              <string>0</string>
-             </property>
-            </item>
             <item>
              <property name="text">
               <string>1</string>
@@ -1155,6 +1163,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="cbBackLightAutoClose">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>自動關閉(秒)</string>
             </property>
@@ -1162,6 +1173,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="leBackLightAutoSec">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>30</string>
             </property>
@@ -1708,6 +1722,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="cbMBSTCPEnable">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>TCP</string>
             </property>
@@ -1715,6 +1732,9 @@
           </item>
           <item row="1" column="1">
            <widget class="FocusEditor" name="leTCPPort">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>502</string>
             </property>

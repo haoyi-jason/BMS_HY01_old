@@ -25,6 +25,8 @@
 #include "bms_stack.h"
 #include "bms_system.h"
 
+#include <QTimer>
+
 CollectorView::CollectorView(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CollectorView)
@@ -102,6 +104,11 @@ CollectorView::CollectorView(QWidget *parent) :
         ui->pbHardwareView->setVisible(true);
     }
 
+    //m_idleTimer = new QTimer();
+    //m_idleTimer->setSingleShot(true);
+    //connect(m_idleTimer,&QTimer::timeout,this,&CollectorView::on_Idle);
+    //m_idleTimer->start(10000);
+
  //   qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
 }
 
@@ -114,10 +121,21 @@ void CollectorView::on_Controller_Offline()
 {
     // current only handle single controller connection
     if(ui->pbSystemNavi->isChecked()){ // shuld be
+        m_collector->disconnectServer(0);
         ui->pbSystemNavi->setChecked(false);
         ui->pbSystemNavi->setText("連線");
         QMessageBox::information(this,"資訊","控制系統斷線, 請重新開機");
     }
+}
+
+void CollectorView::on_Idle()
+{
+    qDebug()<<Q_FUNC_INFO;
+//    QProcess *proc = new QProcess;
+//    QString cmd;
+//    cmd = QString("/bin/sh -c \"echo 0 > /sys/class/backlight/backlight-lvds/bl_power\"");
+//    proc->execute(cmd);
+//    proc->waitForFinished();
 }
 
 
@@ -248,7 +266,7 @@ void CollectorView::on_pbAuth_clicked()
     }
 
     LoginValid *v = new LoginValid(this);
-    qDebug()<< "Left Corner"<<this->x()<<" "<<this->y();
+    qDebug()<< "Left Corner"<<v->x()<<" "<<v->y();
     v->move(320,320);
     v->setModal(true);
     //v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
@@ -269,8 +287,23 @@ void CollectorView::on_pbAuth_clicked()
 bool CollectorView::event(QEvent *event)
 {
     if(event->type() == QEvent::MouseButtonRelease){
-        qDebug()<<Q_FUNC_INFO;
+        //qDebug()<<Q_FUNC_INFO;
+//        if(m_idleTimer->isActive()){
+//            m_idleTimer->start(10000);
+//        }
+//        QProcess *proc = new QProcess;
+//        QString cmd;
+//        cmd = QString("/bin/sh -c \"echo 1 > /sys/class/backlight/backlight-lvds/bl_power\"");
+//        proc->execute(cmd);
+//        proc->waitForFinished();
     }
+//    QProcess *proc = new QProcess;
+//    QString cmd;
+//        cmd = QString("/bin/sh -c \"echo %1 > /sys/class/backlight/backlight-lvds/brightness\"").arg(7);
+//        proc->execute(cmd);
+//        proc->waitForFinished();
+
+//    delete proc;
     QMainWindow::event(event);
 
 }

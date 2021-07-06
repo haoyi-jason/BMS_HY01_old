@@ -364,6 +364,9 @@ void BMS_SVIDevice::clearAlarm()
     m_ovWarningIsSet = false;
     m_uvAlarmIsSet = false;
     m_uvWarningIsSet = false;
+
+    m_SVRule.reset();
+    m_SOCRule.reset();
 }
 
 void BMS_SVIDevice::simData()

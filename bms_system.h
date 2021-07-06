@@ -94,6 +94,7 @@ public:
     ushort minCID(){return m_minVCID;}
 
     bool isSimulate(){return m_useSimulator;}
+    BMS_LocalConfig *localConfig(){return m_localConfig;}
 
 signals:
     void sendPacket(QByteArray data);

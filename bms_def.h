@@ -354,9 +354,13 @@ public:
     }
     void reset(){
         alarm_high.mask_reset();
+        alarm_high.enabledMask = 0x0;
         alarm_low.mask_reset();
+        alarm_low.enabledMask = 0x0;
         warning_high.mask_reset();
+        warning_high.enabledMask = 0x0;
         warning_low.mask_reset();
+        warning_low.enabledMask = 0x0;
     }
 
     quint16 ovStateWarning(quint16 *set, quint16 *clr){
@@ -453,6 +457,10 @@ public:
     void reset(){
         alarm_high.reset();alarm_low.reset();
         warning_high.reset();warning_low.reset();
+        alarm_high.Enabled = false;
+        alarm_low.Enabled = false;
+        warning_high.Enabled = false;
+        warning_low.Enabled = false;
     }
 
     quint8 ovWarning(){
