@@ -16,7 +16,7 @@ LoginValid::LoginValid(QWidget *parent) :
     ui->setupUi(this);
     ui->lePasswd_2->setVisible(false);
 
-
+    setModal(true);
 
 
     //

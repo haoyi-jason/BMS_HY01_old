@@ -50,6 +50,7 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leSimSA,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leSimCV,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leSimPT,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leSOC,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
     connect(ui->le_ip0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
     connect(ui->le_ip1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);

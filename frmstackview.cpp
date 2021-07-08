@@ -158,7 +158,7 @@ void frmStackView::updateStackInfo()
 {
     QString message;
     //message += QString("系統名稱：%1\r\n").arg(collector->currentSystem()->system->alias());
-    message += QString("系統總簇數：%1\r\n").arg(collector->currentSystem()->system->Stacks);
+    message += QString("系統總簇數：%1\r\n").arg(collector->currentSystem()->system->stacks().size());
     message += QString("目前在第 [ %1 ] 簇\n").arg(m_currentStackIndex+1);
 
     int current = 0;

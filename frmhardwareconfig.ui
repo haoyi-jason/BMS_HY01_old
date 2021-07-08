@@ -326,7 +326,14 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="1" column="2">
-           <widget class="FocusEditor" name="leADCCfgValue"/>
+           <widget class="FocusEditor" name="leADCCfgValue">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
           <item row="1" column="3">
            <widget class="QPushButton" name="pbADCConfig">
@@ -442,7 +449,7 @@
          <property name="maximumSize">
           <size>
            <width>640</width>
-           <height>100</height>
+           <height>120</height>
           </size>
          </property>
          <property name="title">
@@ -463,7 +470,14 @@
            </widget>
           </item>
           <item row="0" column="3">
-           <widget class="FocusEditor" name="leSVIValue"/>
+           <widget class="FocusEditor" name="leSVIValue">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
           <item row="0" column="2">
            <widget class="QComboBox" name="cbSVIOption">
@@ -614,7 +628,14 @@
            </widget>
           </item>
           <item row="1" column="3">
-           <widget class="FocusEditor" name="leSOC"/>
+           <widget class="FocusEditor" name="leSOC">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
           <item row="1" column="4">
            <widget class="QPushButton" name="pbSetSOC">
@@ -851,12 +872,18 @@
             <property name="text">
              <string>0</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="leVSourceIn_1">
             <property name="text">
              <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
