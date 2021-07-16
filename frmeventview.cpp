@@ -1,6 +1,7 @@
 #include "frmeventview.h"
 #include "ui_frmeventview.h"
 #include "bms_model.h"
+#include <QtCharts>
 
 frmEventView::frmEventView(QWidget *parent) :
     QDialog(parent),
@@ -10,6 +11,8 @@ frmEventView::frmEventView(QWidget *parent) :
     m_evtModel = new BMS_EventModel;
     ui->tvEvents->setModel(m_evtModel);
     ui->tvEvents->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+   // QtCharts *c = new QtCharts(this);
 
 
 //    ui->tvEvents->setColumnWidth(0,80);
@@ -98,13 +101,18 @@ void frmEventView::reload()
     else{
         ui->lbPageInfo->setText("");
     }
+
 }
 
-void frmEventView::setLogFile(QString &path)
+void frmEventView::setLogFile(QString &path, QString recordPath)
 {
     m_path = path;
     m_currentPage = 0;
     m_totalPage = -1;
+
+    m_eventLogPath = recordPath;
+
+    ui->wCharg->loadDataFromFile(m_eventLogPath);
     reload();
 }
 
@@ -147,4 +155,42 @@ void frmEventView::on_pbNextPage_clicked()
 void frmEventView::on_pbDeleteCurrent_clicked()
 {
     reload();
+}
+
+void frmEventView::on_tvEvents_clicked(const QModelIndex &index)
+{
+    // load records
+    int c = index.column();
+    if(c == 6){
+        QString data = m_evtModel->data(index).toString();
+        qDebug()<<"Data:"<<data;
+        // parse data for stack number
+        QRegExp rx("S-(\\d*),(\\d*) V");
+        QStringList sl;
+        int pos = 0;
+        while((pos = rx.indexIn(data,pos))!=-1){
+            sl << rx.cap(1)<<rx.cap(2);
+            pos += rx.matchedLength();
+        }
+        if(sl.size() == 0) return;
+        int stack = sl[0].toInt();
+
+        ui->wCharg->showSeriesByStack(stack);
+    }
+
+}
+
+void frmEventView::on_comboBox_currentIndexChanged(int index)
+{
+    int sec = 100;
+    QComboBox *cbo = static_cast<QComboBox*>(sender());
+    switch(cbo->currentIndex()){
+    case 0: sec = 3600;break;
+    case 1: sec = 28800;break;
+    case 2: sec = 86400;break;
+    default:sec = 3600; break;
+    }
+
+    ui->wCharg->setWindowsWidth(sec);
+
 }

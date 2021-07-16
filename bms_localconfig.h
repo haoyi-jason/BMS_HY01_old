@@ -380,6 +380,9 @@ public:
     QString LogRecords;
     QString LogEventCount;
     QString LogPath;
+    bool EnableEventRecord;
+    QString EventRecordInterval;
+    QString EventRecordCount;
     bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("log_days"))
@@ -394,6 +397,12 @@ public:
             EnableLog = o["enableLog"].toBool();
         if(o.contains("enableEventLog"))
             EnableEventLog = o["enableEventLog"].toBool();
+        if(o.contains("enableEventRecord"))
+            EnableEventRecord = o["enableEventRecord"].toBool();
+        if(o.contains("eventRecordInterval"))
+            EventRecordInterval = o["eventRecordInterval"].toString();
+        if(o.contains("eventRecordCount"))
+            EventRecordCount = o["eventRecordCount"].toString();
         ConfigReady = true;
         return true;
     }
@@ -405,6 +414,9 @@ public:
         (*o)["event_log_count"] = LogEventCount;
         (*o)["enableLog"] = EnableLog;
         (*o)["enableEventLog"] = EnableEventLog;
+        (*o)["enableEventRecord"] = EnableEventRecord;
+        (*o)["eventRecordInterval"]=EventRecordInterval;
+        (*o)["eventRecordCount"]=EventRecordCount;
     }
 
 

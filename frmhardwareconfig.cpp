@@ -52,6 +52,9 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leSimPT,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leSOC,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
+    connect(ui->leEventLogCount,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leEventLogInterval,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
     connect(ui->le_ip0,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
     connect(ui->le_ip1,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
     connect(ui->le_ip2,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
@@ -692,6 +695,9 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     localConfig.record.EnableEventLog = ui->cbEnableEvtLog->isChecked();
     localConfig.record.LogEventCount = ui->leRecordCount->text();
 
+    localConfig.record.EventRecordInterval = ui->leEventLogInterval->text();
+    localConfig.record.EventRecordCount = ui->leEventLogCount->text();
+
     localConfig.balancing.BalancingVolt = ui->leMinBalancingMv->text();
     localConfig.balancing.On_TimeSec = ui->leBalancingTimeSec->text();
     localConfig.balancing.Off_TimeSec = localConfig.balancing.On_TimeSec;
@@ -743,6 +749,8 @@ void frmHardwareConfig::updateLocalSetting()
     }
     ui->leRecordCount->setText(localConfig.record.LogEventCount);
     ui->cbEnableEvtLog->setChecked(localConfig.record.EnableEventLog);
+    ui->leEventLogCount->setText(localConfig.record.EventRecordCount);
+    ui->leEventLogInterval->setText(localConfig.record.EventRecordInterval);
 
     ui->leNofStacks->setText((localConfig.stack.StackCount));
     ui->leNofBatteries->setText((localConfig.stack.BatteryPerStack));

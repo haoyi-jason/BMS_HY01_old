@@ -104,6 +104,11 @@ CollectorView::CollectorView(QWidget *parent) :
         ui->pbHardwareView->setVisible(true);
     }
 
+    if(!QSysInfo().productType().contains("win")){
+        setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
+        showFullScreen();
+    }
+
     //m_idleTimer = new QTimer();
     //m_idleTimer->setSingleShot(true);
     //connect(m_idleTimer,&QTimer::timeout,this,&CollectorView::on_Idle);
@@ -197,14 +202,16 @@ void CollectorView::on_pbEventView_clicked()
 
     if(m_collector->currentSystem() != nullptr && m_collector->currentSystem()->system != nullptr){
         //QString path = m_collector->currentSystem()->system->logPath()+"/sys/events.log";
-        QString path;
+        QString path,recPath;
         if(QSysInfo::productType().contains("win")){
             path = "d:/temp/bms/log/sys/events.log";
+            recPath = "d:/temp/bms/log/record/eventLog.csv";
         }
         else{
             path = "/opt/bms/log/sys/events.log";
+            recPath = "/opt/bms/log/record/eventLog.csv";
         }
-        m_evtView->setLogFile(path);
+        m_evtView->setLogFile(path,recPath);
     }
 }
 

@@ -142,12 +142,13 @@ bool BMSCollector::connectServer(int id)
 
 bool BMSCollector::disconnectServer(int id)
 {
-    qDebug()<<"Disconnect:"<<id;
+    qDebug()<<Q_FUNC_INFO;
     if(id < m_servers.size() && m_servers[id]->socket != nullptr){
         if(m_servers[id]->socket->isValid()){
             m_servers[id]->socket->close();
-            m_servers[id]->socket->deleteLater();
-            m_servers[id]->socket = nullptr;
+            //disconnect(m_servers[id]->socket,&QTcpSocket::readyRead);
+//            m_servers[id]->socket->deleteLater();
+//            m_servers[id]->socket = nullptr;
             m_servers[id]->configReady = false;
             //m_servers[id]->system->deleteLater();
             //delete m_servers[id]->socket;
@@ -218,15 +219,16 @@ void BMSCollector::readInitTime()
 
 void BMSCollector::handleSocketDisconnect()
 {
-    QTcpSocket *sock = (QTcpSocket*)sender();
+    //qDebug()<<Q_FUNC_INFO;
+    QTcpSocket *sock = static_cast<QTcpSocket*>(sender());
     foreach (RemoteSystem *sys , m_servers) {
         if(sys->socket == sock){
             sys->socket->deleteLater();
             sys->socket = nullptr;
             sys->configReady = false;
 
-            delete sys->system;
-            delete sys->socket;
+//            delete sys->system;
+//            delete sys->socket;
 
             emit controllerOffline();
         }
@@ -238,6 +240,7 @@ void BMSCollector::handleSocketDisconnect()
 void BMSCollector::handleServerData()
 {
     QTcpSocket *socket = (QTcpSocket*)sender();
+    //qDebug()<<Q_FUNC_INFO<<socket;
     //RemoteSystem *sys;
     foreach (RemoteSystem *sys, m_servers) {
         if(sys->socket == socket){

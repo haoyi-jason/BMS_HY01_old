@@ -18,7 +18,7 @@ public:
     ~frmEventView();
 
 public slots:
-    void setLogFile(QString &path);
+    void setLogFile(QString &path, QString recordPath = "");
 
 private slots:
     void on_pbClearAll_clicked();
@@ -32,10 +32,15 @@ private slots:
 
     void on_pbDeleteCurrent_clicked();
 
+    void on_tvEvents_clicked(const QModelIndex &index);
+
+    void on_comboBox_currentIndexChanged(int index);
+
 private:
     Ui::frmEventView *ui;
     BMS_EventModel *m_evtModel;
     QString m_path="";
+    QString m_eventLogPath = "";
     int m_currentPage = -1;
     int m_totalPage = -1;
     int m_pageSize = 10;

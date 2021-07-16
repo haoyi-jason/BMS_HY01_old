@@ -549,10 +549,10 @@ QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
     in >> bat->m_CTrules.ID_Min;
     in >> bat->m_CVrules.Total;
 
-    ushort max_v = 0,max_t = 0;
-    ushort min_v = 0xffff,min_t = 100;
+   // ushort max_v = 0,max_t = 0;
+    //ushort min_v = 0xffff,min_t = 100;
     //bat->m_totalVoltage = 0;
-    ushort tmpHighMask=0,tmpLowMask = 0;
+    //ushort tmpHighMask=0,tmpLowMask = 0;
     if(bat->m_cellVoltage.size() == 0){
         bat->m_balancing.clear();
         for(int i=0;i<bat->m_nofCell;i++){
@@ -571,7 +571,7 @@ QDataStream &operator >> (QDataStream &in, BMS_BMUDevice *bat)
         in >> bat->m_cellVoltage[i];
     }
 
-    tmpHighMask = tmpLowMask = 0;
+   // tmpHighMask = tmpLowMask = 0;
     for(int i=0;i<bat->m_packTemperature.size();i++){
         in >> bat->m_packTemperature[i];
     }

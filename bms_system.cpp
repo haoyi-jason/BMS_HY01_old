@@ -69,6 +69,11 @@ void BMS_System::generateSystemStructure()
     if(!QDir(p).exists()){
         QDir().mkdir(p);
     }
+    QString recPath = p + "/record";
+    if(!QDir(recPath).exists()){
+        QDir().mkdir(recPath);
+    }
+
     m_logPath = p;
     if(m_localConfig->system.ConfigReady){
        BalancingVoltage = m_localConfig->balancing.BalancingVolt.toDouble()*1000;
@@ -141,8 +146,10 @@ void BMS_System::generateSystemStructure()
         this->m_useSimulator = m_localConfig->system.Simulate;
     }
     if(m_localConfig->record.ConfigReady){
-       quint16 n = m_localConfig->record.LogEventCount.toInt()*1.1;
-        this->m_maxEvents = n;
+       quint16 n = m_localConfig->record.LogEventCount.toInt()+50;
+       this->m_maxEvents = n;
+       n = m_localConfig->record.EventRecordCount.toInt()+50;
+       this->m_maxEventRecords = n;
     }
 
     if(m_localConfig->event_output.ConfigReady){
@@ -682,30 +689,30 @@ void BMS_System::validState()
         s->valid();
         switch(s->sviDevice()->ovWarning()){
         case 1:
-            evt_log("總壓過壓","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓過壓","一級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         case 2:
-            evt_log("總壓過壓復歸","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓過壓復歸","一級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         default:break;
         }
 
         switch(s->sviDevice()->ovAlarm()){
         case 1:
-            evt_log("總壓過壓","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓過壓","二級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         case 2:
-            evt_log("總壓過壓復歸","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓過壓復歸","二級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         default:break;
         }
 
         switch(s->sviDevice()->uvWarning()){
         case 1:
-            evt_log("總壓欠壓","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓欠壓","一級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         case 2:
-            evt_log("總壓欠壓復歸","一級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓欠壓復歸","一級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         default:break;
         }
@@ -984,7 +991,8 @@ QByteArray BMS_System::data()
 
 QDataStream& operator<<(QDataStream &out, const BMS_System *sys)
 {
-    out << sys->Stacks;
+    int nofStack = sys->m_stacks.size();
+    out << nofStack;
     out << sys->m_bcuDevice;
     foreach (BMS_Stack *s, sys->m_stacks) {
         out << s;
@@ -996,13 +1004,15 @@ QDataStream& operator<<(QDataStream &out, const BMS_System *sys)
 
 QDataStream& operator >> (QDataStream &in, BMS_System *sys)
 {
-    in >> sys->Stacks;
+    int nofStack;
+//    in >> sys->Stacks;
+    in >> nofStack;
     if(sys->m_bcuDevice == nullptr){
         sys->m_bcuDevice = new BMS_BCUDevice();
     }
     in >> sys->m_bcuDevice;
     if(sys->m_stacks.size() == 0){
-        for(quint8 i=0;i<sys->Stacks;i++){
+        for(quint8 i=0;i<nofStack;i++){
             sys->m_stacks.append(new BMS_Stack());
         }
     }
@@ -1010,14 +1020,15 @@ QDataStream& operator >> (QDataStream &in, BMS_System *sys)
     for(int i=0;i<sys->m_stacks.size();i++){
         BMS_Stack *s = sys->m_stacks.at(i);
         in >> s;
-        if(s->minCellVoltage() < minCV){
-            minCV = s->minCellVoltage();
+        if(s->minStackCV() < minCV){
+            minCV = s->minStackCV();
             minSID = i;
         }
     }
     sys->m_minVSID = minSID;
-    sys->m_minVBID = sys->m_stacks[sys->m_minVSID]->minBatID();
-    sys->m_minVCID = sys->m_stacks[sys->m_minVSID]->minCellVoltIndex();
+    sys->m_minVBID = sys->m_stacks[sys->m_minVSID]->minCVBID();
+    sys->m_minVCID = sys->m_stacks[sys->m_minVSID]->minCVCID();
+    sys->m_cellMinVoltage = minCV;
     in >> sys->m_currentBalanceVoltage;
     in >> sys->m_logPath;
     return in;
@@ -1056,6 +1067,95 @@ QList<int> BMS_System::vsource(){
     if(m_bcuDevice != nullptr){
         return m_bcuDevice->getWorkingCurrent();
     }
+}
+
+void BMS_System::ms_poll_100()
+{
+    if(m_eventRecordCounter > 0){
+        m_eventRecordCounter--;
+    }
+    else{
+        m_eventRecordCounter = m_localConfig->record.EventRecordInterval.toInt()*10;
+        if(m_eventRecordCounter < 50){
+            m_eventRecordCounter = 50;
+        }
+        eventRecord();
+    }
+
+}
+
+void BMS_System::eventRecord()
+{
+    QString dt = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
+//    for(int i=0;i<m_stacks.size();i++){
+//        BMS_Stack *s = m_stacks.at(i);
+//        int nofBat = s->BatteryCount();
+
+        QString path = QString("%1/record/eventLog.csv").arg(this->m_logPath);
+        QFile f(path);
+
+        if(this->m_eventRecordSize == 0xffff){
+            if(f.open(QIODevice::ReadOnly)){
+                QTextStream ts(&f);
+                ts.setCodec(QTextCodec::codecForName("Big5"));
+                quint16 n = 0;
+                while(!ts.atEnd()){
+                    ts.readLine();
+                    n++;
+                }
+                this->m_eventRecordSize = n;
+            }
+            f.close();
+        }
+
+        if(f.open(QIODevice::ReadWrite | QIODevice::Append)){
+            QTextStream ds(&f);
+            ds.setCodec(QTextCodec::codecForName("Big5"));
+            if(f.size() == 0){ // put header first
+                ds <<"Date Time";
+                for(int j=0;j<m_stacks.size();j++){
+                    ds << QString(",SV:%1,SA:%1,SOC:%1,MODE:%1").arg(j+1);
+    //                ds << ",T_MAX("<<QChar(0xb0)<<"C),T_MAX_ID,T_MIN("<<QChar(0xb0)<<"C),T_MIN_ID,DIFFT";
+                }
+                ds <<"\n";
+            }
+            else
+            {
+                ds << dt;
+                foreach(BMS_Stack *s, m_stacks){
+                    ds << QString(",%1,%2,%3,%4").arg(s->sviDevice()->voltage()/10,5,'f',1).arg(s->sviDevice()->current()/10.,5,'f',1).arg(s->sviDevice()->soc()).arg(s->state());
+//                    ds << QString(",%1,%2:%3,%4,%7:%5,%6").arg(s->maxStackCV()).arg(s->maxCVBID()+1).arg(s->maxCVCID()+1).arg(s->minStackCV()).arg(s->minCVCID()+1).arg(s->maxStackCV() - s->minStackCV()).arg(s->minCVBID()+1);
+//                    ds << QString(",%1,%2:%3,%4,%7:%5,%6").arg(s->maxStackPT()/10.).arg(s->maxCTBID()+1).arg(s->maxCTTID()+1).arg(s->minStackPT()/10.).arg(s->minCTTID()+1).arg((s->maxStackPT() - s->minStackPT())/10.).arg(s->minCTBID()+1);
+                }
+                ds <<"\n";
+            }
+        }
+        f.close();
+        this->m_eventRecordSize++;
+
+        if(this->m_eventRecordSize > this->m_maxEventRecords){
+            // remove records
+            QString tmpName = QString("%1/record/tmp.csv").arg(this->m_logPath);
+
+            QFile fin(path);
+            QFile fout(tmpName);
+            if(fin.open(QIODevice::ReadOnly) && fout.open(QIODevice::ReadWrite)){
+                QTextStream ts1(&fin);
+                QTextStream ts2(&fout);
+                ts2 << ts1.readLine(); // first header
+                for(int i=0;i<50;i++){
+                    ts1.readLine();
+                }
+
+                ts2 << ts1.readAll();
+                fin.close();
+                fout.close();
+                fin.remove();
+                fout.rename(path);
+            }
+            this->m_eventRecordSize -= 50;
+        }
+//    }
 }
 
 void BMS_System::rec_log_csv()
@@ -1184,15 +1284,15 @@ void BMS_System::evt_log(QString evName, QString evLevel, QString State,QString 
     if(f.open(QIODevice::ReadWrite | QIODevice::Append)){
         QTextStream ds(&f);
         ds.setCodec(QTextCodec::codecForName("Big5"));
-        if(this->m_eventLogSize == 0xffff){ // first time, count logs
-            quint16 n = 0;
-            //ds.reset();
-            while(!ds.atEnd()){
-                ds.readLine();
-                n++;
-            }
-            this->m_eventLogSize = n;
-        }
+//        if(this->m_eventLogSize == 0xffff){ // first time, count logs
+//            quint16 n = 0;
+//            //ds.reset();
+//            while(!ds.atEnd()){
+//                ds.readLine();
+//                n++;
+//            }
+//            this->m_eventLogSize = n;
+//        }
         ds << evt;
 
         f.close();
@@ -1205,6 +1305,7 @@ void BMS_System::evt_log(QString evName, QString evLevel, QString State,QString 
             if(fin.open(QIODevice::ReadOnly) && fout.open(QIODevice::ReadWrite)){
                 QTextStream ts1(&fin);
                 QTextStream ts2(&fout);
+                ts2 << ts1.readLine(); // header
                 for(int i=0;i<50;i++){
                     ts1.readLine();
                 }
@@ -1359,15 +1460,21 @@ void BMS_System::clearAlarm()
 
 CAN_Packet *BMS_System::broadcastBalancing()
 {
-    //if(m_cellMinVoltage == m_currentBalanceVoltage) return nullptr;
     if(m_cellMinVoltage < BalancingVoltage) return nullptr;
+
+    bool canBalance = true;
+    foreach (BMS_Stack *s, m_stacks) {
+        if(s->sviDevice()->current()< 10){ // discharge, no balancing
+            canBalance = false;
+        }
+    }
 
     CAN_Packet *ret = new CAN_Packet;
     ret->Command = 0x080;
     ret->remote = false;
     QDataStream ds(&ret->data,QIODevice::WriteOnly);
     ds.setByteOrder(QDataStream::LittleEndian);
-    quint8 b = 0x01;
+    quint8 b = canBalance?0x01:0x0;
 //    quint8 b = 0x00;
     ds << b; // enable balancing
     b = BalancingHystersis;

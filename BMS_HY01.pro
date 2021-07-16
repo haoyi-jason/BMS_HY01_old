@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui serialport network serialbus
+QT       += core gui serialport network serialbus charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -42,6 +42,7 @@ SOURCES += \
         frmstackconfig.cpp \
         frmstackview.cpp \
         frmtest.cpp \
+        historychart.cpp \
         inputwin.cpp \
         loginvalid.cpp \
         main.cpp \
@@ -68,6 +69,8 @@ HEADERS += \
         frmstackconfig.h \
         frmstackview.h \
         frmtest.h \
+        historycharg.h \
+        historychart.h \
         inputwin.h \
         loginvalid.h \
         maininfo.h \

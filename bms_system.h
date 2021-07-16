@@ -88,7 +88,7 @@ public:
     bool alarm_latch(){return m_alarm_latch;}
     QDateTime startTime(){return m_startTime;}
     void startTime(qint64 epoch){m_startTime = QDateTime::fromSecsSinceEpoch(epoch);}
-    //ushort miniCellVoltage(){return m_cellMinVoltage;}
+    ushort miniCellVoltage(){return m_cellMinVoltage;}
     ushort minSID(){return m_minVSID;}
     ushort minBID(){return m_minVBID;}
     ushort minCID(){return m_minVCID;}
@@ -96,6 +96,7 @@ public:
     bool isSimulate(){return m_useSimulator;}
     BMS_LocalConfig *localConfig(){return m_localConfig;}
 
+    void ms_poll_100();
 signals:
     void sendPacket(QByteArray data);
     void setBalancingVoltage(ushort v);
@@ -106,6 +107,7 @@ private slots:
     void validState();
     void saveCurrentSOC();
     void checkDiskSpace();
+    void eventRecord();
 
 public slots:
     void On_BMU_ov(quint16 mask);
@@ -148,6 +150,10 @@ private:
     quint16 m_maxEvents = 550;
     bool m_useSimulator = false;
     quint32 m_socSaveDelay = 300;
+    QTimer *m_eventRecordTimer;
+    quint32 m_eventRecordCounter=0;
+    quint16 m_eventRecordSize = 0xffff;
+    quint16 m_maxEventRecords;
 };
 
 #endif // BMS_SYSTEM_H

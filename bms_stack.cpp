@@ -316,6 +316,20 @@ QDataStream &operator<<(QDataStream &out, const BMS_Stack *stack)
     out << sa;
     out << stack->m_soc;
     out << stack->m_soh;
+
+    out << stack->m_MaxTBID;
+    out << stack->m_MinTBID;
+    out << stack->m_MaxVBID;
+    out << stack->m_MinVBID;
+    out << stack->m_MaxTCID;
+    out << stack->m_MinTCID;
+    out << stack->m_MaxVCID;
+    out << stack->m_MinVCID;
+    out << stack->m_MaxCV;
+    out << stack->m_MinCV;
+    out << stack->m_MaxPT;
+    out << stack->m_MinPT;
+
     return out;
 }
 
@@ -348,6 +362,18 @@ QDataStream &operator >> (QDataStream &in, BMS_Stack *stack)
         stack->m_StackCurrent = stack->m_svi->current();
     }
 
+    in >> stack->m_MaxTBID;
+    in >> stack->m_MinTBID;
+    in >> stack->m_MaxVBID;
+    in >> stack->m_MinVBID;
+    in >> stack->m_MaxTCID;
+    in >> stack->m_MinTCID;
+    in >> stack->m_MaxVCID;
+    in >> stack->m_MinVCID;
+    in >> stack->m_MaxCV;
+    in >> stack->m_MinCV;
+    in >> stack->m_MaxPT;
+    in >> stack->m_MinPT;
     //qDebug()<<"Feed into Stack struct:"<<min_t;
 
 

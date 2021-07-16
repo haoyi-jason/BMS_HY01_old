@@ -175,7 +175,9 @@ void frmStackView::updateStackInfo()
 
     BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString("%1").arg(stack->maxCellVoltage()/1000.,5,'f',3,'0'));
-    ui->le_minVoltage->setText(QString("%1").arg(stack->minCellVoltage()/1000.,5,'f',3,'0'));
+//    ui->leMaxCellVoltage->setText(QString("%1").arg(collector->currentSystem()->system->->maxCellVoltage()/1000.,5,'f',3,'0'));
+//    ui->le_minVoltage->setText(QString("%1").arg(stack->minCellVoltage()/1000.,5,'f',3,'0'));
+    ui->le_minVoltage->setText(QString("%1").arg(collector->currentSystem()->system->miniCellVoltage()/1000.,5,'f',3,'0'));
     ui->le_maxTemp->setText(QString("%1").arg(stack->maxStackTemperature()/10.,4,'f',1,'0'));
     ui->le_minTemp->setText(QString("%1").arg(stack->minStackTemperature()/10.,4,'f',1,'0'));
     ui->leTotalVoltage->setText(QString("%1").arg(stack->stackVoltage()/10.,5,'f',1));
@@ -206,8 +208,31 @@ void frmStackView::updateStackInfo()
 //    ui->leVSourceIn_0->setText(QString::number(vs[0]));
 //    ui->leVSourceIn_1->setText(QString::number(vs[1]));
 
-    ui->lbl_do0->setText((dig_out[0] & 0x01)==0x01?"輸出[1]開啟":"輸出[1]關閉");
-    ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
+    if((dig_out[0] & 0x01) == 0x00){
+        ui->lbl_do0->setText("輸出[1]關閉");
+        QPalette p = ui->lbl_do0->palette();
+        p.setColor(ui->lbl_do0->backgroundRole(),Qt::white);
+        ui->lbl_do0->setPalette(p);
+    }
+    else{
+        ui->lbl_do0->setText("輸出[1]開啟");
+        QPalette p = ui->lbl_do0->palette();
+        p.setColor(ui->lbl_do0->backgroundRole(),Qt::green);
+        ui->lbl_do0->setPalette(p);
+    }
+    if((dig_out[0] & 0x02) == 0x00){
+        ui->lbl_do1->setText("輸出[2]關閉");
+        QPalette p = ui->lbl_do1->palette();
+        p.setColor(ui->lbl_do1->backgroundRole(),Qt::white);
+        ui->lbl_do1->setPalette(p);
+    }
+    else{
+        ui->lbl_do1->setText("輸出[2]開啟");
+        QPalette p = ui->lbl_do1->palette();
+        p.setColor(ui->lbl_do1->backgroundRole(),Qt::green);
+        ui->lbl_do1->setPalette(p);
+    }
+//    ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
     //qDebug()<<"Digital Out:"<< QString::number(dig_out[0],16);
 
     quint32 state = collector->currentSystem()->system->alarmState();
