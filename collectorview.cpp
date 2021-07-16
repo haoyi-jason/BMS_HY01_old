@@ -47,8 +47,8 @@ CollectorView::CollectorView(QWidget *parent) :
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
 //    m_StackWin->hide();;
-//    m_HardwareWin->show();
 //    ui->mainLayout->addWidget(m_HardwareWin);
+//    m_HardwareWin->show();
 //    mainWidget = m_HardwareWin;
 
     connect(m_HardwareWin,&frmHardwareConfig::restart_controller,this,&CollectorView::on_Issue_Restart_Controller);
@@ -78,7 +78,7 @@ CollectorView::CollectorView(QWidget *parent) :
         if(v->setFileName(path)){
             if(v->exec() == QDialog::Rejected){
                 QMessageBox::warning(this,"錯誤!","密碼驗證失敗!");
-                exit(-1);
+                //exit(-1);
             }
             else{
                 m_userID = v->userID();
@@ -87,13 +87,13 @@ CollectorView::CollectorView(QWidget *parent) :
         }
         else{
             QMessageBox::warning(this,"錯誤!","設定檔載入失敗!");
-            exit(-1);
+            //exit(-1);
         }
 
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 0;
+        m_userID = 1;
     }
 
     ui->pbBatHistory->setVisible(false);
@@ -108,6 +108,10 @@ CollectorView::CollectorView(QWidget *parent) :
         setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
         showFullScreen();
     }
+
+    m_logValid = new LoginValid(this);
+    connect(m_logValid,&LoginValid::accepted,this,&CollectorView::auth_accept);
+    connect(m_logValid,&LoginValid::rejected,this,&CollectorView::auth_reject);
 
     //m_idleTimer = new QTimer();
     //m_idleTimer->setSingleShot(true);
@@ -269,26 +273,46 @@ void CollectorView::on_pbAuth_clicked()
         path = "./config/system.json";
     }
     else{
-       path = QCoreApplication::applicationDirPath()+"/config/system.json";
+       //path = QCoreApplication::applicationDirPath()+"/config/system.json";
+        path = "/opt/bms/config/system.json";
     }
 
-    LoginValid *v = new LoginValid(this);
-    qDebug()<< "Left Corner"<<v->x()<<" "<<v->y();
-    v->move(320,320);
-    v->setModal(true);
+//    LoginValid *v = new LoginValid();
+//    qDebug()<< "Left Corner"<<v->x()<<" "<<v->y();
+//    v->move(320,320);
+//    v->setModal(true);
+//    v->setWindowModality(Qt::WindowModal);
     //v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
-    if(v->setFileName(path)){
-        if(v->exec() == QDialog::Accepted){
-            if(v->userID() == 1){
-                ui->pbHardwareView->setVisible(true);
-            }
-            else{
-                ui->pbHardwareView->setVisible(false);
-            }
-        }
+    if(m_logValid->setFileName(path)){
+        m_logValid->hide();
+        m_logValid->show();
+//        if(v->exec() == QDialog::Accepted){
+//            if(v->userID() == 1){
+//                ui->pbHardwareView->setVisible(true);
+//            }
+//            else{
+//                ui->pbHardwareView->setVisible(false);
+//            }
+//        }
     }
+   // this->setEnabled(true);
 
-    delete v;
+   // delete v;
+}
+
+void CollectorView::auth_accept()
+{
+    if(m_logValid->userID() == 1){
+        ui->pbHardwareView->setVisible(true);
+    }
+    else{
+        ui->pbHardwareView->setVisible(false);
+    }
+}
+
+void CollectorView::auth_reject()
+{
+    m_logValid->hide();
 }
 
 bool CollectorView::event(QEvent *event)

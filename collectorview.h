@@ -2,6 +2,7 @@
 #define COLLECTORVIEW_H
 
 #include <QMainWindow>
+#include "loginvalid.h"
 
 namespace Ui {
 class CollectorView;
@@ -41,6 +42,9 @@ private slots:
 
     void on_Idle();
 
+    void auth_accept();
+    void auth_reject();
+
 private:
     void hideWindows();
 
@@ -58,6 +62,7 @@ private:
     int m_userID = 1;
     frmEventView *m_evtView = nullptr;
     QTimer *m_idleTimer;
+    LoginValid *m_logValid = nullptr;
 };
 
 #endif // COLLECTORVIEW_H

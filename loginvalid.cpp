@@ -16,7 +16,13 @@ LoginValid::LoginValid(QWidget *parent) :
     ui->setupUi(this);
     ui->lePasswd_2->setVisible(false);
 
-    setModal(true);
+   // setModal(true);
+    if(!QSysInfo().productType().contains("win")){
+
+        //setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        //setWindowFlags();
+        //showFullScreen();
+    }
 
 
     //
@@ -138,4 +144,10 @@ void LoginValid::on_pbOk_clicked()
 int LoginValid::userID()
 {
     return ui->comboBox->currentIndex();
+}
+
+void LoginValid::reset()
+{
+    ui->lePasswd->setText("");
+    ui->lePasswd_2->setText("");
 }

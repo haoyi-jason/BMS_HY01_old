@@ -80,16 +80,18 @@ frmHardwareConfig::~frmHardwareConfig()
 
 void frmHardwareConfig::setCollector(BMSCollector *c)
 {
-    qDebug()<<Q_FUNC_INFO;
+    if(c == nullptr) return;
+    qDebug()<<Q_FUNC_INFO<< "IN";
     m_collector = c;
     connect(m_collector,&BMSCollector::configReady,this,&frmHardwareConfig::on_system_config_ready);
     connect(m_collector,&BMSCollector::dataReceived,this,&frmHardwareConfig::on_system_data_ready);
-
-
+    qDebug()<<Q_FUNC_INFO<< "OUT";
 }
 
 void frmHardwareConfig::update_collector()
 {
+
+    qDebug()<<Q_FUNC_INFO<< "IN";
     QByteArray dig_in = m_collector->currentSystem()->system->digitalInput();
     QByteArray dig_out = m_collector->currentSystem()->system->digitalOutput();
     QList<int> vs = m_collector->currentSystem()->system->vsource();
@@ -104,6 +106,7 @@ void frmHardwareConfig::update_collector()
 
 void frmHardwareConfig::on_system_config_ready()
 {
+    qDebug()<<Q_FUNC_INFO<< "IN";
     BMS_System *system = m_collector->currentSystem()->system;
     if(system != nullptr){
         int nof_stack = system->stacks().size();
@@ -132,6 +135,7 @@ void frmHardwareConfig::on_system_config_ready()
 
 void frmHardwareConfig::on_system_data_ready()
 {
+    qDebug()<<Q_FUNC_INFO<< "IN";
     update_collector();
 }
 
@@ -378,6 +382,7 @@ void frmHardwareConfig::setLocalConfig(QString cfgName)
 
 void frmHardwareConfig::load_settings()
 {
+    qDebug()<<Q_FUNC_INFO<<"IN";
     // load from file
     QString path;
 
@@ -389,6 +394,7 @@ void frmHardwareConfig::load_settings()
     }
     localConfig.load(path);
     updateLocalSetting();
+    qDebug()<<Q_FUNC_INFO<<"OUT";
 }
 
 void frmHardwareConfig::on_pbLoadLocalSetting_clicked()
@@ -738,6 +744,7 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
 
 void frmHardwareConfig::updateLocalSetting()
 {
+    qDebug()<<Q_FUNC_INFO<<"IN";
     ui->cbEnableLog->setChecked(localConfig.record.EnableLog);
     if(localConfig.record.LogDays.toInt() == -1){
         ui->cbRecordType->setCurrentIndex(1);
@@ -769,7 +776,7 @@ void frmHardwareConfig::updateLocalSetting()
     ui->leBalancingTimeSec->setText((localConfig.balancing.On_TimeSec));
 
     ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
-    qDebug()<<"Baud:"<<localConfig.modbus.Bitrate;
+    //qDebug()<<"Baud:"<<localConfig.modbus.Bitrate;
     if(localConfig.modbus.Bitrate == "9600"){
         ui->cbBaudrate->setCurrentIndex(0);
     }
@@ -824,7 +831,7 @@ void frmHardwareConfig::updateLocalSetting()
         ui->le_nm_2->setText(sl[1]);
         ui->le_nm_3->setText(sl[0]);
     }
-
+    qDebug()<<Q_FUNC_INFO<<"OUT";
 }
 
 void frmHardwareConfig::set_backlight(int brightness, bool off)
@@ -917,5 +924,5 @@ void frmHardwareConfig::on_pbEnterLanMode_clicked()
     cmd = QString("/bin/sh -c \"ifconfig eth0 192.168.2.3 up\"");
     proc->execute(cmd);
     proc->waitForFinished();
-    delete proc;
+    proc->deleteLater();
 }

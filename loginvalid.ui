@@ -3,7 +3,7 @@
  <class>LoginValid</class>
  <widget class="QDialog" name="LoginValid">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -23,7 +23,7 @@
    <string>Login</string>
   </property>
   <property name="modal">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
