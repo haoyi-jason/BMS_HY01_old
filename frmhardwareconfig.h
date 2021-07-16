@@ -113,6 +113,8 @@ private slots:
 
     void on_pbSetSOC_clicked();
 
+    void on_pbEnterLanMode_clicked();
+
 signals:
     void restart_controller();
 

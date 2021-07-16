@@ -906,3 +906,16 @@ void frmHardwareConfig::on_pbSetSOC_clicked()
     QString cmd = QString("SVI:SSOC:%1:%2").arg((ui->cbSVI->currentIndex()+1)).arg(ui->leSOC->text());
     sys->writeCommand(cmd);
 }
+
+void frmHardwareConfig::on_pbEnterLanMode_clicked()
+{
+    QProcess *proc = new QProcess;
+    QString cmd;
+    cmd = QString("/bin/sh \"ifconfig eth0 down\"");
+    proc->execute(cmd);
+    proc->waitForFinished();
+    cmd = QString("/bin/sh -c \"ifconfig eth0 192.168.2.3 up\"");
+    proc->execute(cmd);
+    proc->waitForFinished();
+    delete proc;
+}
