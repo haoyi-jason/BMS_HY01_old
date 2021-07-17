@@ -32,7 +32,7 @@ private:
     bool m_isPress = false;
     bool m_ctrlPress;
     QPoint m_lastPoint;
-    QGraphicsSimpleTextItem *m_coordItem;
+    QGraphicsSimpleTextItem *m_coordItem=nullptr;
     bool m_alreadySaveRange = false;
 
     double m_xMin, m_xMax, m_yMin, m_yMax;

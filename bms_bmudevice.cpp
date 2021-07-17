@@ -29,6 +29,7 @@ BMS_BMUDevice::BMS_BMUDevice(int nofCells, int nofTemp,QObject *parent):QObject(
         m_packTemperature.append(0);
         m_simTempBase.append(0);
     }
+    m_lastSeen = QDateTime::currentMSecsSinceEpoch();
 }
 
 short BMS_BMUDevice::getCellVoltage(int index)

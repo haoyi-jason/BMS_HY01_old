@@ -31,9 +31,19 @@
    <string>BMS</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0,0">
-    <item row="1" column="4">
-     <widget class="QPushButton" name="pbEventView">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0,0,0">
+    <item row="2" column="0" colspan="9">
+     <layout class="QVBoxLayout" name="mainLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+     </layout>
+    </item>
+    <item row="1" column="3">
+     <widget class="QPushButton" name="pbStackView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -53,7 +63,7 @@
        </size>
       </property>
       <property name="text">
-       <string>事件
+       <string>系統
 檢視</string>
       </property>
      </widget>
@@ -127,32 +137,6 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="5">
-     <widget class="QPushButton" name="pbBatHistory">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>100</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>100</width>
-        <height>80</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>歷史
-記錄</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="2">
      <widget class="QPushButton" name="pbAuth">
       <property name="sizePolicy">
@@ -178,8 +162,8 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="3">
-     <widget class="QPushButton" name="pbStackView">
+    <item row="1" column="4">
+     <widget class="QPushButton" name="pbEventView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -199,12 +183,12 @@
        </size>
       </property>
       <property name="text">
-       <string>系統
+       <string>事件
 檢視</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="7">
+    <item row="1" column="8">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -217,15 +201,31 @@
       </property>
      </spacer>
     </item>
-    <item row="2" column="0" colspan="8">
-     <layout class="QVBoxLayout" name="mainLayout">
-      <property name="spacing">
-       <number>3</number>
+    <item row="1" column="7">
+     <widget class="QPushButton" name="pbBatHistory">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>80</height>
+       </size>
       </property>
-     </layout>
+      <property name="maximumSize">
+       <size>
+        <width>100</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>歷史
+記錄</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

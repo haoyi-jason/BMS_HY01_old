@@ -1,30 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>frmHardwareConfig</class>
- <widget class="QWidget" name="frmHardwareConfig">
+ <class>frmHWConfig</class>
+ <widget class="QWidget" name="frmHWConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>644</height>
+    <height>600</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="maximumSize">
       <size>
-       <width>2000</width>
+       <width>1280</width>
        <height>16777215</height>
       </size>
      </property>
@@ -318,25 +312,54 @@
       <attribute name="title">
        <string>Peripheral</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
-           <width>0</width>
-           <height>0</height>
+           <width>600</width>
+           <height>120</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>16777215</height>
+           <width>2000</width>
+           <height>120</height>
           </size>
          </property>
          <property name="title">
           <string>BCU ADC Scaling</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <item row="1" column="2">
+           <widget class="FocusEditor" name="leADCCfgValue">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QPushButton" name="pbADCConfig">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Set</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="cbADCOption">
             <property name="sizePolicy">
@@ -365,42 +388,6 @@
               <string>Eng High</string>
              </property>
             </item>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QPushButton" name="pbSaveParam">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Save Param</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="FocusEditor" name="leADCCfgValue">
-            <property name="text">
-             <string>0</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="pbADCConfig">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Set</string>
-            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -453,40 +440,40 @@
             </item>
            </widget>
           </item>
-          <item row="1" column="5">
-           <spacer name="horizontalSpacer_11">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="pbSaveParam">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
+            <property name="text">
+             <string>Save Param</string>
             </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="0" column="1">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>0</width>
-           <height>0</height>
+           <width>600</width>
+           <height>120</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>16777215</height>
+           <width>2000</width>
+           <height>120</height>
           </size>
          </property>
          <property name="title">
@@ -503,32 +490,6 @@
             </property>
             <property name="text">
              <string>Set</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QPushButton" name="pbSetSOC">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Set</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
-           <widget class="QPushButton" name="pbSaveSVI">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Save Param</string>
             </property>
            </widget>
           </item>
@@ -677,6 +638,19 @@
             </item>
            </widget>
           </item>
+          <item row="0" column="5">
+           <widget class="QPushButton" name="pbSaveSVI">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Save Param</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="3">
            <widget class="FocusEditor" name="leSOC">
             <property name="text">
@@ -687,28 +661,34 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="6">
-           <spacer name="horizontalSpacer_12">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="pbSetSOC">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
+            <property name="text">
+             <string>Set</string>
             </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_11">
+         <property name="minimumSize">
+          <size>
+           <width>600</width>
+           <height>120</height>
+          </size>
+         </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
-           <height>16777215</height>
+           <width>640</width>
+           <height>120</height>
           </size>
          </property>
          <property name="title">
@@ -732,6 +712,38 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="3">
+           <widget class="QLineEdit" name="leBMUHV">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>10</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6">
+           <widget class="QLineEdit" name="leBMUBOFF">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>30</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="6">
            <widget class="QLabel" name="label_5">
             <property name="text">
@@ -742,8 +754,39 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="6">
-           <widget class="QLineEdit" name="leBMUBOFF">
+          <item row="1" column="1" colspan="2">
+           <widget class="QLineEdit" name="leBMUBV">
+            <property name="text">
+             <string>3400</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Band(mV)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="7">
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Config</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QCheckBox" name="cbBalancing">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QLineEdit" name="leBMUBON">
             <property name="maximumSize">
              <size>
               <width>80</width>
@@ -765,95 +808,32 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QLineEdit" name="leBMUBV">
-            <property name="text">
-             <string>3400</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QCheckBox" name="cbBalancing">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Band(mV)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="7">
-           <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>Config</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QLineEdit" name="leBMUHV">
-            <property name="maximumSize">
-             <size>
-              <width>80</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>10</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <widget class="QLineEdit" name="leBMUBON">
-            <property name="maximumSize">
-             <size>
-              <width>80</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>30</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="8">
-           <spacer name="horizontalSpacer_13">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox_10">
+         <property name="minimumSize">
+          <size>
+           <width>600</width>
+           <height>120</height>
+          </size>
+         </property>
          <property name="title">
           <string>Power Source</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="1" column="2">
-           <widget class="FocusEditor" name="leVSourceSet_1">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_15">
             <property name="text">
-             <string>500</string>
+             <string>Ch-1 (Cur/Set) mA</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QPushButton" name="pushButton_10">
+            <property name="text">
+             <string>Set</string>
             </property>
            </widget>
           </item>
@@ -864,13 +844,38 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="leVSourceIn_0">
+          <item row="0" column="3">
+           <widget class="QPushButton" name="pushButton_9">
             <property name="text">
-             <string>0</string>
+             <string>Set</string>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="FocusEditor" name="leVSourceSet_0">
+            <property name="text">
+             <string>500</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="FocusEditor" name="leVSourceSet_1">
+            <property name="text">
+             <string>500</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Ch-2 (Cur/Set) mA</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QPushButton" name="pbEnVS1">
+            <property name="text">
+             <string>Disable</string>
             </property>
            </widget>
           </item>
@@ -884,71 +889,38 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="FocusEditor" name="leVSourceSet_0">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="leVSourceIn_0">
             <property name="text">
-             <string>500</string>
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="pushButton_10">
-            <property name="text">
-             <string>Set</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Ch-1 (Cur/Set) mA</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QPushButton" name="pbEnVS1">
-            <property name="text">
-             <string>Disable</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="pushButton_9">
-            <property name="text">
-             <string>Set</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Ch-2 (Cur/Set) mA</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <spacer name="horizontalSpacer_14">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_9">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>600</width>
+           <height>120</height>
+          </size>
+         </property>
          <property name="title">
           <string>Digital I/O</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
            <widget class="QGroupBox" name="groupBox_2">
             <property name="title">
              <string>Digital Inputs</string>
@@ -983,20 +955,7 @@
             </layout>
            </widget>
           </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer_15">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="1">
+          <item>
            <widget class="QGroupBox" name="groupBox_3">
             <property name="title">
              <string>Digital Outputs</string>
@@ -1025,28 +984,8 @@
             </layout>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QGroupBox" name="groupBox_4">
-            <property name="title">
-             <string>PWM Input</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -1054,7 +993,7 @@
       <attribute name="title">
        <string>系統控制</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QGroupBox" name="groupBox_12">
          <property name="title">
@@ -1199,7 +1138,7 @@
           <item>
            <widget class="QPushButton" name="pbAlarmToSD">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1215,22 +1154,6 @@
           <item>
            <widget class="QPushButton" name="pbRecordToSD">
             <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Record</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbEnterLanMode">
-            <property name="enabled">
              <bool>true</bool>
             </property>
             <property name="sizePolicy">
@@ -1240,7 +1163,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>傳輸模式</string>
+             <string>Record</string>
             </property>
            </widget>
           </item>
@@ -1361,7 +1284,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_2">
+        <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -1379,130 +1302,15 @@
       <attribute name="title">
        <string>設定參數</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_13">
-       <item row="3" column="0" colspan="4">
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
+      <layout class="QGridLayout" name="gridLayout_15">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_15">
          <property name="title">
-          <string>MODBUS</string>
+          <string>System Setting</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="1">
-           <widget class="QComboBox" name="cbRTUPort">
-            <item>
-             <property name="text">
-              <string>/dev/ttymxc3</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>/dev/ttymxc4</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="cbMBSRTUEnable">
-            <property name="text">
-             <string>RTU</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="cbMBSTCPEnable">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>TCP</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="FocusEditor" name="leTCPPort">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>502</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
-           <widget class="FocusEditor" name="leRTUID">
-            <property name="text">
-             <string>1</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="lb_hclr_2">
-            <property name="text">
-             <string>ID=</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QComboBox" name="cbRTUBaudrate">
-            <item>
-             <property name="text">
-              <string>9600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>19200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>38400</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>57600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>115200</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QComboBox" name="cbRTUParity">
-            <item>
-             <property name="text">
-              <string>NONE</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>EVEN</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ODD</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="6">
-           <spacer name="horizontalSpacer_10">
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="1" column="4">
+           <spacer name="horizontalSpacer_7">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -1514,6 +1322,85 @@
             </property>
            </spacer>
           </item>
+          <item row="1" column="2">
+           <widget class="FocusEditor" name="leLogRecordCounts">
+            <property name="text">
+             <string>180</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QComboBox" name="cbRecordType">
+            <item>
+             <property name="text">
+              <string>日</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>筆</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="cbEnableEvtLog">
+            <property name="text">
+             <string>記錄保持筆數</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="cbEnableLog">
+            <property name="text">
+             <string>資料記錄保留</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="FocusEditor" name="leRecordCount">
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="label_24">
+            <property name="text">
+             <string>事件記錄間隔(s)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="FocusEditor" name="leEventLogInterval">
+            <property name="text">
+             <string>300</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLabel" name="label_25">
+            <property name="text">
+             <string>事件記錄筆數</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="FocusEditor" name="leEventLogCount">
+            <property name="text">
+             <string>500</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1523,19 +1410,32 @@
           <string>均衡設定</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>均衡作動(秒)</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
              <string>最低均衡電壓(V)</string>
             </property>
            </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>均衡作動(秒)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item row="1" column="0">
            <widget class="FocusEditor" name="leMinBalancingMv">
@@ -1544,7 +1444,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="1" column="2">
            <widget class="FocusEditor" name="leBalancingTimeSec">
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1554,7 +1454,7 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="3">
+       <item row="0" column="2">
         <widget class="QFrame" name="frame">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -1592,7 +1492,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="4">
+       <item row="1" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_17">
          <property name="title">
           <string>電池組態</string>
@@ -1684,108 +1584,7 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_15">
-         <property name="title">
-          <string>System Setting</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="2" column="2">
-           <widget class="FocusEditor" name="leRecordCount">
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QComboBox" name="cbRecordType">
-            <item>
-             <property name="text">
-              <string>日</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>筆</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_24">
-            <property name="text">
-             <string>事件記錄間隔(s)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="cbEnableLog">
-            <property name="text">
-             <string>資料記錄保留</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="cbEnableEvtLog">
-            <property name="text">
-             <string>記錄保持筆數</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <spacer name="horizontalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="2">
-           <widget class="FocusEditor" name="leLogRecordCounts">
-            <property name="text">
-             <string>180</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_25">
-            <property name="text">
-             <string>事件記錄筆數</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="FocusEditor" name="leEventLogInterval">
-            <property name="text">
-             <string>300</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="FocusEditor" name="leEventLogCount">
-            <property name="text">
-             <string>500</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="4">
+       <item row="2" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_35">
          <property name="title">
           <string>警報設定</string>
@@ -2008,52 +1807,56 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="2">
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="maximumSize">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>640</width>
+           <height>120</height>
           </size>
          </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_5">
-      <attribute name="title">
-       <string>模擬器</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QGroupBox" name="groupBox_19">
          <property name="title">
-          <string>電芯電壓</string>
+          <string>MODBUS</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_11">
-          <item row="2" column="4">
-           <widget class="QPushButton" name="pbSimCV">
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="cbMBSRTUEnable">
             <property name="text">
-             <string>設定</string>
+             <string>RTU</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QComboBox" name="cbSimBat"/>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="cbRTUPort">
+            <item>
+             <property name="text">
+              <string>/dev/ttymxc3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>/dev/ttymxc4</string>
+             </property>
+            </item>
+           </widget>
           </item>
-          <item row="2" column="3">
-           <widget class="FocusEditor" name="leSimCV">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="cbMBSTCPEnable">
+            <property name="enabled">
+             <bool>false</bool>
             </property>
             <property name="text">
-             <string>0</string>
+             <string>TCP</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="FocusEditor" name="leTCPPort">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>502</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2061,16 +1864,93 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLabel" name="label_14">
+           <widget class="QComboBox" name="cbRTUBaudrate">
+            <item>
+             <property name="text">
+              <string>9600</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>19200</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>38400</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>57600</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>115200</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QComboBox" name="cbRTUParity">
+            <item>
+             <property name="text">
+              <string>NONE</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>EVEN</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ODD</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="FocusEditor" name="leRTUID">
             <property name="text">
-             <string>簇電壓</string>
+             <string>1</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="label_19">
+          <item row="0" column="4">
+           <widget class="QLabel" name="lb_hclr_2">
             <property name="text">
-             <string>電池溫度</string>
+             <string>ID=</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>模擬器</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="groupBox_19">
+         <property name="title">
+          <string>電芯電壓</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_11">
+          <item row="2" column="1">
+           <widget class="QComboBox" name="cbSimCID"/>
+          </item>
+          <item row="2" column="4">
+           <widget class="QPushButton" name="pbSimCV">
+            <property name="text">
+             <string>設定</string>
             </property>
            </widget>
           </item>
@@ -2097,17 +1977,29 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="4">
-           <widget class="QPushButton" name="pbSimSV">
+          <item row="2" column="3">
+           <widget class="FocusEditor" name="leSimCV">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>設定</string>
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_17">
+          <item row="3" column="1">
+           <widget class="QComboBox" name="cbSimNID"/>
+          </item>
+          <item row="3" column="4">
+           <widget class="QPushButton" name="pbSimPT">
             <property name="text">
-             <string>簇電流</string>
+             <string>設定</string>
             </property>
            </widget>
           </item>
@@ -2127,22 +2019,12 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="4">
-           <widget class="QPushButton" name="pbSimPT">
+          <item row="0" column="4">
+           <widget class="QPushButton" name="pbSimSV">
             <property name="text">
              <string>設定</string>
             </property>
            </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>電芯電壓</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QComboBox" name="cbSimNID"/>
           </item>
           <item row="3" column="3">
            <widget class="FocusEditor" name="leSimPT">
@@ -2160,7 +2042,35 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="6" rowspan="4">
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>簇電壓</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>簇電流</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>電芯電壓</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>電池溫度</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5" rowspan="4">
            <widget class="QPushButton" name="pbSimReset">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -2173,30 +2083,17 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <widget class="QComboBox" name="cbSimBat"/>
+          </item>
           <item row="0" column="0" colspan="2">
            <widget class="QComboBox" name="cbSimGroup"/>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="cbSimCID"/>
-          </item>
-          <item row="0" column="5">
-           <spacer name="horizontalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_6">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>

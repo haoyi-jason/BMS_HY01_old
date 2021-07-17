@@ -218,6 +218,7 @@ void frmStackView::updateStackInfo()
         ui->lbl_do0->setText("輸出[1]開啟");
         QPalette p = ui->lbl_do0->palette();
         p.setColor(ui->lbl_do0->backgroundRole(),Qt::green);
+        //p.setColor(ui->lbl_do0->foregroundRole(),Qt::green);
         ui->lbl_do0->setPalette(p);
     }
     if((dig_out[0] & 0x02) == 0x00){

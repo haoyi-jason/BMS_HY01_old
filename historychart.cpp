@@ -34,7 +34,7 @@ historyChart::historyChart(QWidget *parent)
     s->attachAxis(m_dateTimeAxis);
     s->attachAxis(m_voltAxis);
     QDateTime min = QDateTime::currentDateTime();
-    QDateTime max = QDateTime::currentDateTime().addSecs(100);
+    QDateTime max = QDateTime::currentDateTime().addSecs(3600);
     m_dateTimeAxis->setRange(min,max);
     //repaint();
 }
@@ -141,6 +141,7 @@ void historyChart::setWindowsWidth(int x)
 
 void historyChart::mousePressEvent(QMouseEvent *event)
 {
+    qDebug()<<Q_FUNC_INFO;
     if(event->button() == Qt::LeftButton){
         m_lastPoint = event->pos();
         m_isPress = true;
@@ -149,6 +150,7 @@ void historyChart::mousePressEvent(QMouseEvent *event)
 
 void historyChart::mouseMoveEvent(QMouseEvent *event)
 {
+    //qDebug()<<Q_FUNC_INFO<< " 1";
     if(!m_coordItem){
         m_coordItem = new QGraphicsSimpleTextItem(this->chart());
         m_coordItem->setZValue(5);
@@ -160,7 +162,9 @@ void historyChart::mouseMoveEvent(QMouseEvent *event)
 
     QString dt = QDateTime::fromMSecsSinceEpoch(curVal.x()).toString("yyyy/MM/dd hh:mm:ss");
     QString coordStr = QString("X = %1, Y = %2").arg(dt).arg(curVal.y());
+    //qDebug()<<Q_FUNC_INFO<< " 2"<<coordStr;
     m_coordItem->setText(coordStr);
+    //qDebug()<<Q_FUNC_INFO<< " 3";
 
     if(m_isPress){
         QPoint offset = curPos - m_lastPoint;
@@ -175,6 +179,7 @@ void historyChart::mouseMoveEvent(QMouseEvent *event)
 
 void historyChart::mouseReleaseEvent(QMouseEvent *event)
 {
+    qDebug()<<Q_FUNC_INFO;
     m_isPress = false;
     if(event->button() == Qt::RightButton){
         if(m_alreadySaveRange){

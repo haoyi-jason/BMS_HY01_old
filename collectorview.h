@@ -14,6 +14,7 @@ class BMSCollector;
 class frmHistoryView;
 class frmEventView;
 class QTimer;
+class QLabel;
 
 class CollectorView : public QMainWindow
 {
@@ -63,6 +64,8 @@ private:
     frmEventView *m_evtView = nullptr;
     QTimer *m_idleTimer;
     LoginValid *m_logValid = nullptr;
+    QLabel *m_rtcLabel;
+
 };
 
 #endif // COLLECTORVIEW_H

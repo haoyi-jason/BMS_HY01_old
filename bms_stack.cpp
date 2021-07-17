@@ -236,6 +236,7 @@ void BMS_Stack::valid()
     quint32 totalVoltage = 0;
     for(int i=0;i<m_batteries.size();i++){
         BMS_BMUDevice *b = m_batteries[i];
+        b->deviceLost(); // update state
         if(b->maxCellVoltage()>max_v){
             max_v = b->maxCellVoltage();
             max_v_index = i;

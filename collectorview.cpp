@@ -96,11 +96,12 @@ CollectorView::CollectorView(QWidget *parent) :
         m_userID = 1;
     }
 
-    ui->pbBatHistory->setVisible(false);
 
     if(m_userID == 0){
+        ui->pbBatHistory->setVisible(false);
         ui->pbHardwareView->setVisible(false);
     }else{
+        ui->pbBatHistory->setVisible(true);
         ui->pbHardwareView->setVisible(true);
     }
 
@@ -113,12 +114,14 @@ CollectorView::CollectorView(QWidget *parent) :
     connect(m_logValid,&LoginValid::accepted,this,&CollectorView::auth_accept);
     connect(m_logValid,&LoginValid::rejected,this,&CollectorView::auth_reject);
 
-    //m_idleTimer = new QTimer();
+    m_idleTimer = new QTimer();
     //m_idleTimer->setSingleShot(true);
-    //connect(m_idleTimer,&QTimer::timeout,this,&CollectorView::on_Idle);
-    //m_idleTimer->start(10000);
+    connect(m_idleTimer,&QTimer::timeout,this,&CollectorView::on_Idle);
+    m_idleTimer->start(1000);
 
  //   qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
+    m_rtcLabel = new QLabel("yyyy/MM/dd hh:mm:ss");
+    ui->statusbar->addPermanentWidget(m_rtcLabel);
 }
 
 CollectorView::~CollectorView()
@@ -139,12 +142,13 @@ void CollectorView::on_Controller_Offline()
 
 void CollectorView::on_Idle()
 {
-    qDebug()<<Q_FUNC_INFO;
+//    qDebug()<<Q_FUNC_INFO;
 //    QProcess *proc = new QProcess;
 //    QString cmd;
 //    cmd = QString("/bin/sh -c \"echo 0 > /sys/class/backlight/backlight-lvds/bl_power\"");
 //    proc->execute(cmd);
 //    proc->waitForFinished();
+    m_rtcLabel->setText(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
 }
 
 
@@ -181,16 +185,19 @@ void CollectorView::on_pbHardwareView_clicked()
 
 void CollectorView::on_pbBatHistory_clicked()
 {
-    hideWindows();
-    if(mainWidget != nullptr){
-        mainWidget->hide();
-        ui->mainLayout->removeWidget(mainWidget);
-    }
-    mainWidget = m_HistWin;
-    ui->mainLayout->addWidget(mainWidget);
-    mainWidget->show();
-    if(m_collector->currentSystem() != nullptr && m_collector->currentSystem()->system != nullptr){
-        m_HistWin->rootPath(m_collector->currentSystem()->system->logPath());
+//    hideWindows();
+//    if(mainWidget != nullptr){
+//        mainWidget->hide();
+//        ui->mainLayout->removeWidget(mainWidget);
+//    }
+//    mainWidget = m_HistWin;
+//    ui->mainLayout->addWidget(mainWidget);
+//    mainWidget->show();
+//    if(m_collector->currentSystem() != nullptr && m_collector->currentSystem()->system != nullptr){
+//        m_HistWin->rootPath(m_collector->currentSystem()->system->logPath());
+//    }
+    if(QMessageBox::question(this,"Confirm","OK to terminate",QMessageBox::Ok,QMessageBox::Cancel) == QMessageBox::Ok){
+        exit(-1);
     }
 }
 void CollectorView::on_pbEventView_clicked()
@@ -304,9 +311,11 @@ void CollectorView::auth_accept()
 {
     if(m_logValid->userID() == 1){
         ui->pbHardwareView->setVisible(true);
+        ui->pbBatHistory->setVisible(true);
     }
     else{
         ui->pbHardwareView->setVisible(false);
+        ui->pbBatHistory->setVisible(false);
     }
 }
 
