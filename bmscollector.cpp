@@ -94,6 +94,7 @@ bool BMSCollector::loginPromote()
 
 bool BMSCollector::connectServer(int id)
 {
+    bool success = false;
     if(id == -1){ // connect each system if autoconnect
         foreach (RemoteSystem *s, m_servers) {
             if(!s->autoConnect) continue;
@@ -108,6 +109,7 @@ bool BMSCollector::connectServer(int id)
                     s->configReady = false;
                     //s->configReady  =true;
                     readAllConfig();
+                    success = true;
                 }
             }
         }
@@ -117,7 +119,7 @@ bool BMSCollector::connectServer(int id)
         RemoteSystem *s = m_servers[id];
         if(s->socket == nullptr){
             QTcpSocket *socket = new QTcpSocket();
-            qDebug()<<"Connect to "<<s->connection <<" Port: " <<s->port;
+            //qDebug()<<"Connect to "<<s->connection <<" Port: " <<s->port;
             socket->connectToHost(s->connection,s->port);
             bool connected = socket->waitForConnected(5000);
             if(connected){
@@ -131,13 +133,14 @@ bool BMSCollector::connectServer(int id)
                 s->system = new BMS_System();
                 //s->configReady = true;
                 readAllConfig();
+                success = true;
             }
             else{
-                qDebug()<<"Connect fail";
+                //qDebug()<<"Connect fail";
             }
         }
     }
-    return true;
+    return success;
 }
 
 bool BMSCollector::disconnectServer(int id)

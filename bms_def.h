@@ -233,6 +233,7 @@ public:
     int logDays = -1;
     int logRecords = 1000;
     QDateTime lastSeen;
+    QString VersionStr;
     void setDigitalOut(int id, int value);
 
     void setVoltageSource(int id, int value);

@@ -55,6 +55,7 @@ void historyChart::loadDataFromFile(QString path)
         QStringList sl = ts.readLine().split(","); // first line, header
         for(int i=1;i<sl.size();i++){
             QLineSeries *s = new QLineSeries;
+            qDebug()<<"Add series:"<<sl[i];
             s->setName(sl[i]);
             s->hide();
             m_chart->addSeries(s);
@@ -99,6 +100,9 @@ void historyChart::loadDataFromFile(QString path)
 
         m_dateTimeAxis->setRange(minDate,minDate.addSecs(3600));
     }
+    else{
+        qDebug()<<"File not exist!";
+    }
 
     f.close();
     repaint();
@@ -111,6 +115,7 @@ void historyChart::showSeries(QStringList names)
 
 void historyChart::showSeriesByStack(int stack)
 {
+    qDebug()<<Q_FUNC_INFO<< stack;
     //m_chart->removeAllSeries();
 
 

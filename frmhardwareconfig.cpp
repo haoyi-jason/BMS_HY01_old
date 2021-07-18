@@ -81,17 +81,17 @@ frmHardwareConfig::~frmHardwareConfig()
 void frmHardwareConfig::setCollector(BMSCollector *c)
 {
     if(c == nullptr) return;
-    qDebug()<<Q_FUNC_INFO<< "IN";
+    //qDebug()<<Q_FUNC_INFO<< "IN";
     m_collector = c;
     connect(m_collector,&BMSCollector::configReady,this,&frmHardwareConfig::on_system_config_ready);
     connect(m_collector,&BMSCollector::dataReceived,this,&frmHardwareConfig::on_system_data_ready);
-    qDebug()<<Q_FUNC_INFO<< "OUT";
+    //qDebug()<<Q_FUNC_INFO<< "OUT";
 }
 
 void frmHardwareConfig::update_collector()
 {
 
-    qDebug()<<Q_FUNC_INFO<< "IN";
+    //qDebug()<<Q_FUNC_INFO<< "IN";
     QByteArray dig_in = m_collector->currentSystem()->system->digitalInput();
     QByteArray dig_out = m_collector->currentSystem()->system->digitalOutput();
     QList<int> vs = m_collector->currentSystem()->system->vsource();
@@ -106,7 +106,7 @@ void frmHardwareConfig::update_collector()
 
 void frmHardwareConfig::on_system_config_ready()
 {
-    qDebug()<<Q_FUNC_INFO<< "IN";
+    //qDebug()<<Q_FUNC_INFO<< "IN";
     BMS_System *system = m_collector->currentSystem()->system;
     if(system != nullptr){
         int nof_stack = system->stacks().size();
@@ -135,7 +135,7 @@ void frmHardwareConfig::on_system_config_ready()
 
 void frmHardwareConfig::on_system_data_ready()
 {
-    qDebug()<<Q_FUNC_INFO<< "IN";
+    //qDebug()<<Q_FUNC_INFO<< "IN";
     update_collector();
 }
 
@@ -321,11 +321,11 @@ void frmHardwareConfig::on_pbDisableController_clicked()
 //    proc->start("sh",QStringList()<<" -c"<< "systemctl stop bms_controller");
     proc->start("systemctl stop bms_controller");
     proc->waitForFinished();
-    qDebug()<<"Stop controller "<<QString(proc->readAll());
+    //qDebug()<<"Stop controller "<<QString(proc->readAll());
 //    proc->start("sh",QStringList()<<" -c"<< "systemctl disable bms_controller");
     proc->start("systemctl disable bms_controller");
     proc->waitForFinished();
-    qDebug()<<"Stop controller "<<QString(proc->readAll());
+    //qDebug()<<"Stop controller "<<QString(proc->readAll());
 
     delete proc;
 }
@@ -352,13 +352,13 @@ void frmHardwareConfig::on_pbSetDateTime_clicked()
     QDate d = ui->dateEdit->date();
 //    dts = dt.toString("timedatectl set-time \'yyyy-MM-dd hh:mm:00\'");
     dts =QString("timedatectl set-time \"%1 %2\"").arg(d.toString("yyyy-MM-dd")).arg(t.toString("hh:mm:00"));
-    qDebug()<<"Set Time "<<dts.toUtf8();
+    //qDebug()<<"Set Time "<<dts.toUtf8();
 
     QProcess *proc = new QProcess();
     //proc->start("sh",QStringList()<<"-c" << dts.toUtf8());
     proc->start(dts);
     proc->waitForFinished();
-    qDebug()<<"Result"<<QString(proc->readAll());
+    //qDebug()<<"Result"<<QString(proc->readAll());
     delete proc;
 }
 
@@ -382,7 +382,7 @@ void frmHardwareConfig::setLocalConfig(QString cfgName)
 
 void frmHardwareConfig::load_settings()
 {
-    qDebug()<<Q_FUNC_INFO<<"IN";
+    //qDebug()<<Q_FUNC_INFO<<"IN";
     // load from file
     QString path;
 
@@ -394,7 +394,7 @@ void frmHardwareConfig::load_settings()
     }
     localConfig.load(path);
     updateLocalSetting();
-    qDebug()<<Q_FUNC_INFO<<"OUT";
+    //qDebug()<<Q_FUNC_INFO<<"OUT";
 }
 
 void frmHardwareConfig::on_pbLoadLocalSetting_clicked()
@@ -744,7 +744,7 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
 
 void frmHardwareConfig::updateLocalSetting()
 {
-    qDebug()<<Q_FUNC_INFO<<"IN";
+    //qDebug()<<Q_FUNC_INFO<<"IN";
     ui->cbEnableLog->setChecked(localConfig.record.EnableLog);
     if(localConfig.record.LogDays.toInt() == -1){
         ui->cbRecordType->setCurrentIndex(1);
@@ -787,7 +787,7 @@ void frmHardwareConfig::updateLocalSetting()
         ui->cbBaudrate->setCurrentIndex(2);
     }
     else if(localConfig.modbus.Bitrate == "57600"){
-        qDebug()<<"Set index tp 3";
+        //qDebug()<<"Set index tp 3";
         ui->cbBaudrate->setCurrentIndex(3);
     }
     else if(localConfig.modbus.Bitrate == "115200"){
@@ -831,7 +831,7 @@ void frmHardwareConfig::updateLocalSetting()
         ui->le_nm_2->setText(sl[1]);
         ui->le_nm_3->setText(sl[0]);
     }
-    qDebug()<<Q_FUNC_INFO<<"OUT";
+    //qDebug()<<Q_FUNC_INFO<<"OUT";
 }
 
 void frmHardwareConfig::set_backlight(int brightness, bool off)
@@ -849,7 +849,7 @@ void frmHardwareConfig::set_backlight(int brightness, bool off)
 //        proc->start("/bin/sh", QStringList()<<" -c" << cmd);
         proc->waitForFinished();
         cmd = QString("/bin/sh -c \"echo %1 > /sys/class/backlight/backlight-lvds/brightness\"").arg(brightness);
-        qDebug()<<"Set bL:"<<cmd;
+        //qDebug()<<"Set bL:"<<cmd;
 //        proc->start("/bin/sh", QStringList()<<" -c" << cmd);
         proc->execute(cmd);
         proc->waitForFinished();
@@ -903,7 +903,7 @@ void frmHardwareConfig::on_pbSimReset_clicked()
 
 void frmHardwareConfig::on_comboBox_currentIndexChanged(int index)
 {
-    qDebug()<<Q_FUNC_INFO;
+    //qDebug()<<Q_FUNC_INFO;
     set_backlight(index+1);
 }
 

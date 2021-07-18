@@ -719,10 +719,10 @@ void BMS_System::validState()
 
         switch(s->sviDevice()->uvAlarm()){
         case 1:
-            evt_log("總壓欠壓","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓欠壓","二級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         case 2:
-            evt_log("總壓欠壓復歸","二級",s->state(),QString("第%1簇,電壓:%2 V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
+            evt_log("總壓欠壓復歸","二級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
             break;
         default:break;
         }
@@ -743,12 +743,12 @@ void BMS_System::validState()
                         if((set & cmp)){
                             mask |= cmp;
 //                            msg = QString("第[%1]號電池 電芯[%2]過壓[%3]mV警告").arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000);
-                            qDebug()<<"1";
+                            //qDebug()<<"1";
                             evt_log("電芯過壓","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            qDebug()<<"2";
+                            //qDebug()<<"2";
                             evt_log("電芯過壓復歸","一級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                     }
@@ -763,12 +763,12 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            qDebug()<<"2";
+                            //qDebug()<<"2";
                             evt_log("電芯過壓","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            qDebug()<<"4";
+                            //qDebug()<<"4";
                             evt_log("電芯過壓復歸","二級",s->state(),QString("S%1-B%2-C%3 %4V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->cellVoltage(i)/1000));
                         }
                         //evt_log(msg);
@@ -1462,10 +1462,10 @@ CAN_Packet *BMS_System::broadcastBalancing()
 {
     if(m_cellMinVoltage < BalancingVoltage) return nullptr;
 
-    bool canBalance = true;
+    bool canBalance = false;
     foreach (BMS_Stack *s, m_stacks) {
-        if(s->sviDevice()->current()< 10){ // discharge, no balancing
-            canBalance = false;
+        if(s->sviDevice()->current()> 1){ // charge > 0.1A enable balancing
+            canBalance = true;
         }
     }
 

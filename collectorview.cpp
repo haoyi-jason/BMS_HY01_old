@@ -93,7 +93,7 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 1;
+        m_userID = 0;
     }
 
 
@@ -249,6 +249,9 @@ void CollectorView::on_pbSystemNavi_clicked()
                 //qDebug()<<"Proc Result 3:"<<QString(proc->readAll());
                 //QThread::sleep(1);
                 QMessageBox::information(this,"Info","控制系統未啟動, 請重新開機");
+                btn->setText("連線");
+                btn->setChecked(false);
+
             }
         }
         if(m_collector->connectServer(0)){
@@ -257,6 +260,7 @@ void CollectorView::on_pbSystemNavi_clicked()
         }
         else{
             //log("Start server failed");
+            btn->setText("連線");
             btn->setChecked(false);
         }
 
@@ -271,6 +275,7 @@ void CollectorView::on_pbSystemNavi_clicked()
 //        proc->waitForFinished();
 //        qDebug()<<"Proc Result:"<<proc->readAll();
     }
+    proc->deleteLater();
 }
 
 void CollectorView::on_pbAuth_clicked()

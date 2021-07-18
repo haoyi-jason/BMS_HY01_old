@@ -165,13 +165,14 @@ void frmEventView::on_tvEvents_clicked(const QModelIndex &index)
         QString data = m_evtModel->data(index).toString();
         qDebug()<<"Data:"<<data;
         // parse data for stack number
-        QRegExp rx("S-(\\d*),(\\d*) V");
+        QRegExp rx("S-(\\d*),(([0-9]*[.])?[0-9]+)V");
         QStringList sl;
         int pos = 0;
         while((pos = rx.indexIn(data,pos))!=-1){
             sl << rx.cap(1)<<rx.cap(2);
             pos += rx.matchedLength();
         }
+        qDebug()<<"REGEXP:"<<sl;
         if(sl.size() == 0) return;
         int stack = sl[0].toInt();
 

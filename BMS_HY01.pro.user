@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.13.1, 2021-07-17T21:07:33. -->
+<!-- Written by QtCreator 4.13.1, 2021-07-18T14:43:40. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -287,10 +287,10 @@
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles">false</value>
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.Incremental">true</value>
       <valuelist type="QVariantList" key="RemoteLinux.LastDeployedLocalTimes">
-       <value type="QDateTime">2021-07-17T21:05:29.719</value>
+       <value type="QDateTime">2021-07-18T12:09:36.992</value>
       </valuelist>
       <valuelist type="QVariantList" key="RemoteLinux.LastDeployedRemoteTimes">
-       <value type="QDateTime">2021-07-17T21:05:32.000</value>
+       <value type="QDateTime">2021-07-18T20:10:32.000</value>
       </valuelist>
      </valuemap>
      <value type="int" key="ProjectExplorer.BuildStepList.StepsCount">3</value>
