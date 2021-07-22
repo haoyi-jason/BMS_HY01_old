@@ -93,7 +93,7 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 0;
+        m_userID = 1;
     }
 
 
@@ -122,6 +122,13 @@ CollectorView::CollectorView(QWidget *parent) :
  //   qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     m_rtcLabel = new QLabel("yyyy/MM/dd hh:mm:ss");
     ui->statusbar->addPermanentWidget(m_rtcLabel);
+
+    QProcess *proc = new QProcess;
+    QString cmd;
+    cmd = QString("/bin/sh -c \"echo 0 > /sys/class/backlight/backlight-lvds/bl_power\"");
+    proc->execute(cmd);
+    proc->waitForFinished();
+    m_TimeToShutdownScreen = 0;
 }
 
 CollectorView::~CollectorView()
@@ -142,12 +149,17 @@ void CollectorView::on_Controller_Offline()
 
 void CollectorView::on_Idle()
 {
-//    qDebug()<<Q_FUNC_INFO;
-//    QProcess *proc = new QProcess;
-//    QString cmd;
-//    cmd = QString("/bin/sh -c \"echo 0 > /sys/class/backlight/backlight-lvds/bl_power\"");
-//    proc->execute(cmd);
-//    proc->waitForFinished();
+    if(m_TimeToShutdownScreen < 60){
+        m_TimeToShutdownScreen++;
+        if(m_TimeToShutdownScreen == 60){
+            qDebug()<<Q_FUNC_INFO << "shutdown backlight";
+            QProcess *proc = new QProcess;
+            QString cmd;
+            cmd = QString("/bin/sh -c \"echo 1 > /sys/class/backlight/backlight-lvds/bl_power\"");
+            proc->execute(cmd);
+            proc->waitForFinished();
+        }
+    }
     m_rtcLabel->setText(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
 }
 
@@ -331,16 +343,19 @@ void CollectorView::auth_reject()
 
 bool CollectorView::event(QEvent *event)
 {
-    if(event->type() == QEvent::MouseButtonRelease){
-        //qDebug()<<Q_FUNC_INFO;
-//        if(m_idleTimer->isActive()){
-//            m_idleTimer->start(10000);
-//        }
-//        QProcess *proc = new QProcess;
-//        QString cmd;
-//        cmd = QString("/bin/sh -c \"echo 1 > /sys/class/backlight/backlight-lvds/bl_power\"");
-//        proc->execute(cmd);
-//        proc->waitForFinished();
+    //qDebug()<<Q_FUNC_INFO<<event->type();
+    bool n = true;
+    if(event->type() == QEvent::HoverMove){
+        if(m_TimeToShutdownScreen == 60){
+            qDebug()<<Q_FUNC_INFO << "Start backlight";
+            QProcess *proc = new QProcess;
+            QString cmd;
+            cmd = QString("/bin/sh -c \"echo 0 > /sys/class/backlight/backlight-lvds/bl_power\"");
+            proc->execute(cmd);
+            proc->waitForFinished();
+            n = false;
+        }
+        m_TimeToShutdownScreen = 0;
     }
 //    QProcess *proc = new QProcess;
 //    QString cmd;
@@ -349,7 +364,9 @@ bool CollectorView::event(QEvent *event)
 //        proc->waitForFinished();
 
 //    delete proc;
-    QMainWindow::event(event);
+    if(n){
+        QMainWindow::event(event);
+    }
 
 }
 

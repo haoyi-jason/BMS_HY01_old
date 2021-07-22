@@ -36,7 +36,7 @@ frmStackView::frmStackView(QWidget *parent) :
     }
 
     m_btnClearAlarm = new QPushButton("清除告警",w);
-    m_btnClearAlarm->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+    m_btnClearAlarm->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
     connect(m_btnClearAlarm,&QPushButton::clicked,this,&frmStackView::on_clearAlarmClicked);
     hl->addWidget(m_btnClearAlarm);
 

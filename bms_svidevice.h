@@ -116,6 +116,9 @@ public:
         m_SOCRule.alarm_low.Size = HoldCount;
     }
 
+    bool isLosted(){return m_isLosted;}
+    void isLosted(bool v){m_isLosted = v;}
+
 signals:
     void set_ov();
     void set_uv();
@@ -197,6 +200,8 @@ private:
 
     BMS_CriteriaRule_Single m_SVRule;
     BMS_CriteriaRule_Single m_SOCRule;
+
+    bool m_isLosted = false;
 
 //    BMS_Criteria_Rule m_STrules;
 };

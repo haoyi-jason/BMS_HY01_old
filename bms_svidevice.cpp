@@ -76,6 +76,10 @@ void BMS_SVIDevice::calculateState()
     soc_new = 100*(sa * dt / 3600./((m_soh/100.)*m_capacity)) + m_soc;
     if(soc_new >100) soc_new = 100;
     if(soc_new < 0) soc_new = 0;
+
+    if((sa < 0.5) || (sa > -0.5)){
+        return;
+    }
     m_soc = soc_new;
 //    m_soc = m_simSOC==0?soc_new:m_simSOC;
 

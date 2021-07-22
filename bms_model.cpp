@@ -126,13 +126,25 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
             int g2 = g1 + bmu->ntcCount();
             if(col < g1){
                 ushort cmp = (1 << col);
-                ushort ov = bmu->ovSetMask();
-                ushort uv = bmu->uvSetMask();
-                if(ov & cmp){
+                ushort ovw = bmu->cvWarningOVMask();
+                ushort ova = bmu->cvAlarmOVMask();
+                ushort uvw = bmu->cvWarningUVMask();
+                ushort uva = bmu->cvAlarmUVMask();
+                if(ova & cmp){
                     return QVariant(QColor(Qt::red));
                 }
-                else if(uv & cmp){
+                else if(ovw & cmp){
+                    return QVariant(QColor(Qt::yellow));
+                }
+                else{
+                    return QVariant();
+                }
+
+                if(uva & cmp){
                     return QVariant(QColor(Qt::blue));
+                }
+                else if(uvw & cmp){
+                    return QVariant(QColor(Qt::cyan));
                 }
                 else{
                     return QVariant();
@@ -140,13 +152,25 @@ QVariant BMS_BatteryModel::data(const QModelIndex &index, int role) const
             }
             else if(col < g2){
                 ushort cmp = (1 << col);
-                ushort ot = bmu->otSetMask();
-                ushort ut = bmu->utSetMask();
-                if(ot & cmp){
+                ushort ota = bmu->ctAlarmOVMask();
+                ushort otw = bmu->ctWarningOVMask();
+                ushort uta = bmu->ctAlarmUVMask();
+                ushort utw = bmu->ctWarningUVMask();
+                if(ota & cmp){
                     return QVariant(QColor(Qt::red));
                 }
-                else if(ut & cmp){
+                else if(otw & cmp){
+                    return QVariant(QColor(Qt::yellow));
+                }
+                else{
+                    return QVariant();
+                }
+
+                if(uta & cmp){
                     return QVariant(QColor(Qt::blue));
+                }
+                else if(utw & cmp){
+                    return QVariant(QColor(Qt::cyan));
                 }
                 else{
                     return QVariant();

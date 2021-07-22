@@ -687,6 +687,21 @@ void BMS_System::validState()
     ushort minCellVoltage = 0xffff;
     foreach(BMS_Stack *s, m_stacks){
         s->valid();
+
+        // add SVI/BMU lost record
+        if(s->sviDevice()->isLosted()){
+            if(!s->sviDevice()->deviceLost()){
+                s->sviDevice()->isLosted(false);
+                evt_log("SVI Recover","NO",s->state(),QString("S-%1").arg(s->groupID()));
+            }
+        }
+        else{
+            if(s->sviDevice()->deviceLost()){
+                s->sviDevice()->isLosted(true);
+                evt_log("SVI Lost","NO",s->state(),QString("S-%1").arg(s->groupID()));
+            }
+        }
+
         switch(s->sviDevice()->ovWarning()){
         case 1:
             evt_log("總壓過壓","一級",s->state(),QString("S-%1,%2V").arg(s->groupID()).arg((double)s->stackVoltage()/10));
@@ -730,8 +745,18 @@ void BMS_System::validState()
         quint16 set,clr,res,cmp;
         foreach(BMS_BMUDevice *b,s->batteries()){
             // check if bmu lost
-            if(b->deviceLost() && !m_simulating){
-                b->resetValues();
+            if(b->isLosted()){
+                if(!b->deviceLost()){
+                    b->isLosted(false);
+                    evt_log("BMU Recover","一級",s->state(),QString("S%1-B%2").arg(s->groupID()).arg(b->deviceID()));
+                }
+            }
+            else{
+                if(b->deviceLost() && !m_simulating){
+                    b->isLosted(true);
+                    b->resetValues();
+                    evt_log("BMU Lost","一級",s->state(),QString("S%1-B%2").arg(s->groupID()).arg(b->deviceID()));
+                }
             }
             minCellVoltage = minCellVoltage > b->minCellVoltage()?b->minCellVoltage():minCellVoltage;
             //if((res = b->ovState(&set,&clr)) != 0x00){
@@ -952,8 +977,10 @@ void BMS_System::checkDiskSpace()
                 cmd = QString("mv %1 /mnt/t/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
                 proc.execute(cmd);
                 proc.waitForFinished();
-//                QString nName = QString("/mnt/t/%1").arg(fi.fileName());
-//                QFile::rename(nName);
+
+                cmd = QString("rm %1").arg(fi.absoluteFilePath());
+                proc.execute(cmd);
+                proc.waitForFinished();
             }
         }
     }
@@ -1464,7 +1491,7 @@ CAN_Packet *BMS_System::broadcastBalancing()
 
     bool canBalance = false;
     foreach (BMS_Stack *s, m_stacks) {
-        if(s->sviDevice()->current()> 1){ // charge > 0.1A enable balancing
+        if(s->sviDevice()->current()> -5){ // discharge < 0.5A enable balancing
             canBalance = true;
         }
     }

@@ -65,6 +65,7 @@ private:
     QTimer *m_idleTimer;
     LoginValid *m_logValid = nullptr;
     QLabel *m_rtcLabel;
+    int m_TimeToShutdownScreen = 0;
 
 };
 

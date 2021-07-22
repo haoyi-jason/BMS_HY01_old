@@ -839,12 +839,12 @@ void frmHardwareConfig::set_backlight(int brightness, bool off)
     QProcess *proc = new QProcess;
     QString cmd;
     if(off){
-        cmd = QString("echo 0 > /sys/class/backlight/backlight-lvds/bl_power");
+        cmd = QString("echo 1 > /sys/class/backlight/backlight-lvds/bl_power");
         proc->start(cmd);
         proc->waitForFinished();
     }
     else{
-        cmd = QString("/bin/sh \"echo 1 > /sys/class/backlight/backlight-lvds/bl_power\"");
+        cmd = QString("/bin/sh \"echo 0 > /sys/class/backlight/backlight-lvds/bl_power\"");
         proc->start(cmd);
 //        proc->start("/bin/sh", QStringList()<<" -c" << cmd);
         proc->waitForFinished();

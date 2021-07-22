@@ -197,6 +197,9 @@ public:
     quint16 ctWarningUVMask(){return m_CTrules.warning_low.enabledMask;}
     quint16 ctAlarmOVMask(){return m_CTrules.alarm_high.enabledMask;}
     quint16 ctAlarmUVMask(){return m_CTrules.alarm_low.enabledMask;}
+
+    bool isLosted(){return m_isLosted;}
+    void isLosted(bool v){m_isLosted = v;}
 signals:
     void set_ov(quint16);
     void set_uv(quint16);
@@ -272,6 +275,7 @@ private:
     quint16 m_openWireBit = 0x0;
     bool m_devLost = false;
     BMS_Criteria_Rule m_CVrules,m_CTrules;
+    bool m_isLosted = false;
 };
 
 #endif // BMS_BMUDEVICE_H
