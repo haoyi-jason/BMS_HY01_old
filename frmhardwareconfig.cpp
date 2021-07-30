@@ -717,10 +717,10 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     localConfig.balancing.BalancingVolt = ui->leMinBalancingMv->text();
     localConfig.balancing.On_TimeSec = ui->leBalancingTimeSec->text();
     localConfig.balancing.Off_TimeSec = localConfig.balancing.On_TimeSec;
-//    localConfig.balancing.HystersisMV = ui->leHystersis->text();
+    localConfig.balancing.HystersisMV = ui->leHystersis->text();
 
-//    localConfig.system.SVA_ValidInterval = ui->leSVAValid->text();
-//    localConfig.system.BMU_ValidInterval = ui->leBMUValid->text();
+    localConfig.system.SVA_ValidInterval = ui->leSVAValid->text();
+    localConfig.system.BMU_ValidInterval = ui->leBMUValid->text();
 
 
     localConfig.stack.StackCount = ui->leNofStacks->text();
@@ -787,7 +787,7 @@ void frmHardwareConfig::updateLocalSetting()
 
     ui->leMinBalancingMv->setText((localConfig.balancing.BalancingVolt));
     ui->leBalancingTimeSec->setText((localConfig.balancing.On_TimeSec));
-//    ui->leHystersis->setText(localConfig.balancing.HystersisMV);
+    ui->leHystersis->setText(localConfig.balancing.HystersisMV);
 
     ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
     //qDebug()<<"Baud:"<<localConfig.modbus.Bitrate;
