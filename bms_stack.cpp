@@ -234,9 +234,11 @@ void BMS_Stack::valid()
     ushort min_cid = 0xff, max_cid = 0xff;
     short min_tid = 0xff, max_tid = 0xff;
     quint32 totalVoltage = 0;
+    // valid svi state
+    m_svi->valid(m_svaValidInterval);
     for(int i=0;i<m_batteries.size();i++){
         BMS_BMUDevice *b = m_batteries[i];
-        b->deviceLost(); // update state
+        b->valid(m_bmuValidInterval); // update state
         if(b->maxCellVoltage()>max_v){
             max_v = b->maxCellVoltage();
             max_v_index = i;

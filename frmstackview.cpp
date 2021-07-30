@@ -62,15 +62,10 @@ void frmStackView::on_lineedit_focused(bool state)
 
 void frmStackView::setCollector(BMSCollector *collector)
 {
-    qDebug()<<Q_FUNC_INFO;
+//    qDebug()<<Q_FUNC_INFO;
     this->collector = collector;
     QObject::connect(this->collector,&BMSCollector::configReady,this,&frmStackView::on_system_config_ready);
     QObject::connect(this->collector,&BMSCollector::dataReceived,this,&frmStackView::on_system_data_ready);
-//    if(this->collector->currentSystem()->system != nullptr){
-//        stackModel->setStack(this->collector->currentSystem()->system->stacks());
-//        batteryModel->setStack(stackModel->findStack(0));
-//        ui->tableView->setModel(batteryModel);
-//    }
 }
 
 void frmStackView::on_system_config_ready()
@@ -286,4 +281,9 @@ void frmStackView::on_clearAlarmClicked()
 
     //collector->currentSystem()->system->clearAlarm();
     collector->currentSystem()->writeCommand("SYS:ALMRST");
+}
+
+void frmStackView::showClearAlarm(bool show)
+{
+    m_btnClearAlarm->setVisible(show);
 }

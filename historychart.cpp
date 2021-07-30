@@ -55,7 +55,7 @@ void historyChart::loadDataFromFile(QString path)
         QStringList sl = ts.readLine().split(","); // first line, header
         for(int i=1;i<sl.size();i++){
             QLineSeries *s = new QLineSeries;
-            qDebug()<<"Add series:"<<sl[i];
+            //qDebug()<<"Add series:"<<sl[i];
             s->setName(sl[i]);
             s->hide();
             m_chart->addSeries(s);

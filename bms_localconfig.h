@@ -428,7 +428,11 @@ public:
     QString ValidInterval;
     QString HostIP;
     QString ListenPort;
+    QString SVA_ValidInterval;
+    QString BMU_ValidInterval;
+    QString BacklightOffDelay;
     bool Simulate;
+    bool AdminLogin;
     bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("simulate"))
@@ -441,6 +445,30 @@ public:
             HostIP = o["host_ip"].toString();
         if(o.contains("port"))
             ListenPort = o["port"].toString();
+        if(o.contains("sva_valid")){
+            SVA_ValidInterval = o["sva_valid"].toString();
+        }
+        else{
+            SVA_ValidInterval = "300"; // seconds
+        }
+        if(o.contains("bmu_valid")){
+            BMU_ValidInterval = o["bmu_valid"].toString();
+        }
+        else{
+            BMU_ValidInterval = "300";
+        }
+        if(o.contains("adm_login")){
+            AdminLogin = o["adm_login"].toBool();
+        }
+        else{
+            AdminLogin = false;
+        }
+        if(o.contains("backlight_off_time")){
+            BacklightOffDelay = o["backlight_off_time"].toString();
+        }
+        else{
+            BacklightOffDelay = "300"; // seconds
+        }
         ConfigReady = true;
         return true;
     }
@@ -451,6 +479,10 @@ public:
         (*o)["alias"] = Alias;
         (*o)["host_ip"] = HostIP;
         (*o)["port"]=ListenPort;
+        (*o)["sva_valid"] = SVA_ValidInterval;
+        (*o)["bmu_valid"] = BMU_ValidInterval;
+        (*o)["adm_login"] = AdminLogin;
+        (*o)["backlight_off_time"] = BacklightOffDelay;
     }
 };
 

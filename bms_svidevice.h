@@ -116,8 +116,13 @@ public:
         m_SOCRule.alarm_low.Size = HoldCount;
     }
 
+    // keep info to prevent double recorred
     bool isLosted(){return m_isLosted;}
     void isLosted(bool v){m_isLosted = v;}
+
+    bool isLost(){return m_devLost;}
+
+    void valid(int interval_seconds = 5);
 
 signals:
     void set_ov();
@@ -202,6 +207,7 @@ private:
     BMS_CriteriaRule_Single m_SOCRule;
 
     bool m_isLosted = false;
+    bool m_devLost = false;
 
 //    BMS_Criteria_Rule m_STrules;
 };

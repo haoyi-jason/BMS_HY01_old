@@ -98,11 +98,19 @@ void BMS_System::generateSystemStructure()
         BMS_CriteriaConfig *cc = &m_localConfig->criteria.cell;
         for(int i=0;i<stacks;i++){
             BMS_Stack *s = new BMS_Stack;
+            int val;
             s->enableHVModule();
+            val = m_localConfig->system.SVA_ValidInterval.toInt();
+            if(val < 5) val = 5;
+            s->svaValidInterval(val);
+            val = m_localConfig->system.BMU_ValidInterval.toInt();
+            if(val < 5) val = 5;
+            s->bmuValidInterval(val);
             s->sviDevice()->setSVWarningHighPair(sc->volt_warning.High_Set.toDouble()*10,sc->volt_warning.High_Clr.toDouble()*10,sc->volt_warning.Duration.toInt());
             s->sviDevice()->setSVWarningLowPair(sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Duration.toInt());
             s->sviDevice()->setSVAlarmHighPair(sc->volt_alarm.High_Set.toDouble()*10,sc->volt_alarm.High_Clr.toDouble()*10,sc->volt_alarm.Duration.toInt());
             s->sviDevice()->setSVAlarmLowPair(sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Low_Set.toDouble()*10 ,sc->volt_alarm.Duration.toInt());
+
 
             s->sviDevice()->setSOCWarningLowPair(soc->warning.Low_Set.toDouble(),soc->warning.Low_Clr.toDouble(),soc->warning.Duration.toInt());
             s->sviDevice()->setSOCAlarmLowPair(soc->alarm.Low_Set.toDouble(),soc->alarm.Low_Clr.toDouble(),soc->alarm.Duration.toInt());
@@ -881,11 +889,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電池低溫","一級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                            evt_log("電池低溫","一級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電池低溫復歸","一級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                            evt_log("電池低溫復歸","一級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
                     }
                 }
@@ -899,11 +907,11 @@ void BMS_System::validState()
                     if((res & cmp)){
                         if((set & cmp)){
                             mask |= cmp;
-                            evt_log("電池低溫","二級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                            evt_log("電池低溫","二級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
                         else if(clr & cmp){
                             mask &= ~cmp;
-                            evt_log("電池過溫復歸","二級",s->state(),QString("S%1-B%2-C%3 %2V").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
+                            evt_log("電池過溫復歸","二級",s->state(),QString("S%1-B%2-C%3 %4\u00b0C").arg(s->groupID()).arg(b->deviceID()).arg(i+1).arg((double)b->packTemperature(i)/10));
                         }
                     }
                 }

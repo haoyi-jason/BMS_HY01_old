@@ -650,3 +650,15 @@ void BMS_BMUDevice::resetValues()
         m_packTemperature[i] = 0;
     }
 }
+/*
+ * valid if board lost communictaion, shall called by controller
+ */
+void BMS_BMUDevice::valid(int interval_seconds)
+{
+    if((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > (interval_seconds*1000)){
+        m_devLost = true;
+    }
+    else{
+        m_devLost = false;
+    }
+}

@@ -66,6 +66,8 @@ private:
     LoginValid *m_logValid = nullptr;
     QLabel *m_rtcLabel;
     int m_TimeToShutdownScreen = 0;
+    int m_BacklightShutdownSec;
+
 
 };
 

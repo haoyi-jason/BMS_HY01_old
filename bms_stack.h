@@ -119,6 +119,9 @@ public:
     ushort minBatID(){return m_MinVBID;}
     void valid();
 
+    void svaValidInterval(int v){m_svaValidInterval = v;}
+    void bmuValidInterval(int v){m_bmuValidInterval = v;}
+
 signals:
 
 public slots:
@@ -147,6 +150,8 @@ private:
     ushort m_MaxVCID=0,m_MinVCID=0;
     ushort m_MaxTCID=0,m_MinTCID=0;
     short m_MaxCV=0, m_MinCV=0, m_MaxPT=0, m_MinPT=0;
+    int m_svaValidInterval = 5;
+    int m_bmuValidInterval = 5;
 };
 
 

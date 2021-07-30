@@ -34,14 +34,28 @@ CollectorView::CollectorView(QWidget *parent) :
     ui->setupUi(this);
     hide();
 
+    // load from file
+    QString path;
+
+    if(QSysInfo::productType().contains("win")){
+        path="d:/temp/bms/config/controller.json";
+    }
+    else{
+        path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
+    }
+
+    BMS_LocalConfig config;
+    config.load(path);
+
+
     //qDebug()<<"System Type:"<<QSysInfo::productType();
     //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
-    m_StackWin = new frmStackView(this);
-    m_HardwareWin = new frmHardwareConfig(this);
+    m_StackWin = new frmStackView();
+    m_HardwareWin = new frmHardwareConfig();
+    m_HistWin = new frmHistoryView();
+    m_evtView = new frmEventView();
     m_HardwareWin->hide();
-    m_HistWin = new frmHistoryView(this);
     m_HistWin->hide();
-    m_evtView = new frmEventView(this);
     m_evtView->hide();
 
     ui->mainLayout->addWidget(m_StackWin);
@@ -53,7 +67,7 @@ CollectorView::CollectorView(QWidget *parent) :
 
     connect(m_HardwareWin,&frmHardwareConfig::restart_controller,this,&CollectorView::on_Issue_Restart_Controller);
     //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
-    QString path;
+    //QString path;
     if(QSysInfo::productType().contains("win")){
         //path = "./config/system.json";
         path = "d:/temp/bms/config/system.json";
@@ -93,16 +107,33 @@ CollectorView::CollectorView(QWidget *parent) :
         delete v;
     }
     else{ // hide hardware config in default
-        m_userID = 1;
+        m_userID = 0;
     }
 
+    if(config.system.ConfigReady){
+        if( config.system.AdminLogin)
+            m_userID = 1;
+        if(config.system.BacklightOffDelay.toInt()> 60){
+            m_BacklightShutdownSec = config.system.BacklightOffDelay.toInt();
+        }
+        else{
+            m_BacklightShutdownSec = 60;
+        }
+    }
+    else{
+        m_BacklightShutdownSec = 600;
+    }
+
+    //m_userID = 1;
 
     if(m_userID == 0){
         ui->pbBatHistory->setVisible(false);
         ui->pbHardwareView->setVisible(false);
+        m_StackWin->showClearAlarm(false);
     }else{
         ui->pbBatHistory->setVisible(true);
         ui->pbHardwareView->setVisible(true);
+        m_StackWin->showClearAlarm(true);
     }
 
     if(!QSysInfo().productType().contains("win")){
@@ -149,9 +180,9 @@ void CollectorView::on_Controller_Offline()
 
 void CollectorView::on_Idle()
 {
-    if(m_TimeToShutdownScreen < 60){
+    if(m_TimeToShutdownScreen < m_BacklightShutdownSec){
         m_TimeToShutdownScreen++;
-        if(m_TimeToShutdownScreen == 60){
+        if(m_TimeToShutdownScreen == m_BacklightShutdownSec){
             qDebug()<<Q_FUNC_INFO << "shutdown backlight";
             QProcess *proc = new QProcess;
             QString cmd;
@@ -329,10 +360,12 @@ void CollectorView::auth_accept()
     if(m_logValid->userID() == 1){
         ui->pbHardwareView->setVisible(true);
         ui->pbBatHistory->setVisible(true);
+        m_StackWin->showClearAlarm(true);
     }
     else{
         ui->pbHardwareView->setVisible(false);
         ui->pbBatHistory->setVisible(false);
+        m_StackWin->showClearAlarm(false);
     }
 }
 
@@ -346,7 +379,7 @@ bool CollectorView::event(QEvent *event)
     //qDebug()<<Q_FUNC_INFO<<event->type();
     bool n = true;
     if(event->type() == QEvent::HoverMove){
-        if(m_TimeToShutdownScreen == 60){
+        if(m_TimeToShutdownScreen == m_BacklightShutdownSec){
             qDebug()<<Q_FUNC_INFO << "Start backlight";
             QProcess *proc = new QProcess;
             QString cmd;

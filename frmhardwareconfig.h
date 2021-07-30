@@ -115,6 +115,8 @@ private slots:
 
     void on_pbEnterLanMode_clicked();
 
+    void on_pbSaveBL_clicked();
+
 signals:
     void restart_controller();
 

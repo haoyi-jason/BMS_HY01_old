@@ -119,6 +119,7 @@ public:
     }
     bool isLost(){return m_devLost;}
     void resetValues();
+    void valid(int interval_seconds = 5);
 
     void setCVAlarmHighPair(int set, int clr, int HoldCount = 5,bool enable = true){
         m_CVrules.alarm_high.set = set;

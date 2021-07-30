@@ -1,5 +1,6 @@
 #include "bms_svidevice.h"
 #include "bms_def.h"
+#include <QDateTime>
 
 BMS_SVIDevice::BMS_SVIDevice(QObject *parent) : QObject(parent)
 {
@@ -36,7 +37,8 @@ int BMS_SVIDevice::current()
 bool BMS_SVIDevice::deviceLost()
 {
     //qDebug()<<"SVI:NOW:"<<QDateTime::currentDateTime().toString("hhMMss") << " Last:"<< QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
-    return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
+    //return ((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000);
+    return m_devLost;
 }
 
 void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
@@ -51,9 +53,14 @@ void BMS_SVIDevice::feedData(quint8 id, quint16 msg, QByteArray data){
         m_aux2 = v;
 
         ds >> v;
+        if((v>-5) && (v < 5)){
+            v = 0;
+        }
         m_stackCurrent = v;
         ds >> v;
         m_stackVoltage = v;
+
+
 
         m_stackCurrent = m_simAmpere==0?m_stackCurrent:m_simAmpere;
         m_stackVoltage = m_simVolt==0?m_stackVoltage:m_simVolt;
@@ -389,7 +396,7 @@ QDataStream& operator << (QDataStream &out, const BMS_SVIDevice *svi)
     int sa = svi->m_simAmpere==0?svi->m_stackCurrent:svi->m_simAmpere;
     float soc = svi->m_soc;
     //qDebug()<<"Feed out :"<<svi->m_lastSeen;
-    out << svi->m_lastSeen;
+    out << svi->m_devLost;
     out << sv;
     out << sa;
     out << (svi->m_soh);
@@ -416,7 +423,7 @@ QDataStream& operator << (QDataStream &out, const BMS_SVIDevice *svi)
 
 QDataStream& operator >> (QDataStream &in, BMS_SVIDevice *svi)
 {
-    in >> svi->m_lastSeen;
+    in >> svi->m_devLost;
     in >> svi->m_stackVoltage;
     in >> svi->m_stackCurrent;
     in >> svi->m_soh;
@@ -433,4 +440,18 @@ QDataStream& operator >> (QDataStream &in, BMS_SVIDevice *svi)
 
     //qDebug()<<"Feed in:"<<svi->m_lastSeen;
     return in;
+}
+
+/*
+ * valid if board lost communictaion, shall called by controller
+ */
+void BMS_SVIDevice::valid(int interval_seconds)
+{
+    long long ct = QDateTime::currentMSecsSinceEpoch();
+    if((ct - m_lastSeen) > (interval_seconds*1000)){
+        m_devLost = true;
+    }
+    else{
+        m_devLost = false;
+    }
 }

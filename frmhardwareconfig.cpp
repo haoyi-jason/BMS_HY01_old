@@ -28,8 +28,18 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
 
     connect(ui->leLogRecordCounts,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leCapacity,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
     connect(ui->leMinBalancingMv,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leBalancingTimeSec,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leHystersis,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
+    connect(ui->leSVAValid,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leBMUValid,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leBackLightAutoSec,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
+
+
+
     connect(ui->leNofStacks,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leNofBatteries,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leNofCells,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
@@ -707,7 +717,10 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     localConfig.balancing.BalancingVolt = ui->leMinBalancingMv->text();
     localConfig.balancing.On_TimeSec = ui->leBalancingTimeSec->text();
     localConfig.balancing.Off_TimeSec = localConfig.balancing.On_TimeSec;
-    localConfig.balancing.HystersisMV = "8";
+//    localConfig.balancing.HystersisMV = ui->leHystersis->text();
+
+//    localConfig.system.SVA_ValidInterval = ui->leSVAValid->text();
+//    localConfig.system.BMU_ValidInterval = ui->leBMUValid->text();
 
 
     localConfig.stack.StackCount = ui->leNofStacks->text();
@@ -774,6 +787,7 @@ void frmHardwareConfig::updateLocalSetting()
 
     ui->leMinBalancingMv->setText((localConfig.balancing.BalancingVolt));
     ui->leBalancingTimeSec->setText((localConfig.balancing.On_TimeSec));
+//    ui->leHystersis->setText(localConfig.balancing.HystersisMV);
 
     ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
     //qDebug()<<"Baud:"<<localConfig.modbus.Bitrate;
@@ -832,6 +846,11 @@ void frmHardwareConfig::updateLocalSetting()
         ui->le_nm_3->setText(sl[0]);
     }
     //qDebug()<<Q_FUNC_INFO<<"OUT";
+
+    // system
+    ui->leSVAValid->setText(localConfig.system.SVA_ValidInterval);
+    ui->leBMUValid->setText(localConfig.system.BMU_ValidInterval);
+    ui->leBackLightAutoSec->setText(localConfig.system.BacklightOffDelay);
 }
 
 void frmHardwareConfig::set_backlight(int brightness, bool off)
@@ -925,4 +944,18 @@ void frmHardwareConfig::on_pbEnterLanMode_clicked()
     proc->execute(cmd);
     proc->waitForFinished();
     proc->deleteLater();
+}
+
+void frmHardwareConfig::on_pbSaveBL_clicked()
+{
+    QString path;
+
+    if(QSysInfo::productType().contains("win")){
+        path="d:/temp/bms/config/controller.json";
+    }
+    else{
+       path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
+    }
+    localConfig.system.BacklightOffDelay = ui->leBackLightAutoSec->text();
+    localConfig.save(path);
 }

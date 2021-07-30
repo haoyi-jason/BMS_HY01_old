@@ -27,6 +27,7 @@ public:
 
     void setCollector(BMSCollector *collector);
     void updateStackInfo();
+    void showClearAlarm(bool show);
 
 public slots:
     void on_system_config_ready();
