@@ -1364,6 +1364,13 @@
          </spacer>
         </item>
         <item>
+         <widget class="QCheckBox" name="cbAutoLaunch">
+          <property name="text">
+           <string>AutoLaunch</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pbSaveBL">
           <property name="text">
            <string>Save</string>

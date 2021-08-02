@@ -46,6 +46,8 @@ private slots:
     void auth_accept();
     void auth_reject();
 
+
+
 private:
     void hideWindows();
 

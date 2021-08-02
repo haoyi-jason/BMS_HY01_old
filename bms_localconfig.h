@@ -433,6 +433,7 @@ public:
     QString BacklightOffDelay;
     bool Simulate;
     bool AdminLogin;
+    bool AutoConnect;
     bool ConfigReady = false;
     bool parseJson(QJsonObject o){
         if(o.contains("simulate"))
@@ -469,6 +470,14 @@ public:
         else{
             BacklightOffDelay = "300"; // seconds
         }
+
+        if(o.contains("auto_connect")){
+            AutoConnect = o["auto_connect"].toBool();
+        }
+        else{
+            AutoConnect = false;
+        }
+
         ConfigReady = true;
         return true;
     }
@@ -483,6 +492,7 @@ public:
         (*o)["bmu_valid"] = BMU_ValidInterval;
         (*o)["adm_login"] = AdminLogin;
         (*o)["backlight_off_time"] = BacklightOffDelay;
+        (*o)["auto_connect"] = AutoConnect;
     }
 };
 

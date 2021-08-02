@@ -160,7 +160,18 @@ CollectorView::CollectorView(QWidget *parent) :
     proc->execute(cmd);
     proc->waitForFinished();
     m_TimeToShutdownScreen = 0;
+
+    if(config.system.ConfigReady){
+        //qDebug()<<"Config ready";
+        if(config.system.AutoConnect){
+            //on_pbSystemNavi_clicked();
+            ui->pbSystemNavi->setChecked(true);
+            QTimer::singleShot(1000,ui->pbSystemNavi,[this]{ui->pbSystemNavi->clicked();});
+            //QTimer::singleShot(5000,ui->pbSystemNavi,[this]{ui->pbSystemNavi->clicked();});
+        }
+    }
 }
+
 
 CollectorView::~CollectorView()
 {
@@ -275,6 +286,7 @@ void CollectorView::on_pbSystemNavi_clicked()
     QProcess *proc = new QProcess();
 
     QPushButton *btn = (QPushButton*)sender();
+    qDebug()<<"Is checked:"<<btn->isChecked();
     if(btn->isChecked()){
         QString cmd;
         if(QSysInfo::productType().contains("win")){

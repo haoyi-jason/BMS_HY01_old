@@ -851,6 +851,8 @@ void frmHardwareConfig::updateLocalSetting()
     ui->leSVAValid->setText(localConfig.system.SVA_ValidInterval);
     ui->leBMUValid->setText(localConfig.system.BMU_ValidInterval);
     ui->leBackLightAutoSec->setText(localConfig.system.BacklightOffDelay);
+
+    ui->cbAutoLaunch->setChecked(localConfig.system.AutoConnect);
 }
 
 void frmHardwareConfig::set_backlight(int brightness, bool off)
@@ -957,5 +959,6 @@ void frmHardwareConfig::on_pbSaveBL_clicked()
        path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
     }
     localConfig.system.BacklightOffDelay = ui->leBackLightAutoSec->text();
+    localConfig.system.AutoConnect = ui->cbAutoLaunch->isChecked();
     localConfig.save(path);
 }
