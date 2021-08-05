@@ -119,6 +119,9 @@ private slots:
 
 signals:
     void restart_controller();
+    void connect_controller(bool,int);
+    void setBacklightDelay(unsigned int);
+    void query_controller_restart();
 
 private:
     void updateLocalSetting();

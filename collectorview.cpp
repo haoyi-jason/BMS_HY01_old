@@ -3,6 +3,7 @@
 #include <QtCore>
 #include <QSysInfo>
 #include <QMessageBox>
+#include <QTcpSocket>
 
 #include "stackinfo.h"
 #include "frmhardwareconfig.h"
@@ -54,9 +55,11 @@ CollectorView::CollectorView(QWidget *parent) :
     m_HardwareWin = new frmHardwareConfig();
     m_HistWin = new frmHistoryView();
     m_evtView = new frmEventView();
+    m_messageBox = new frmMessage();
     m_HardwareWin->hide();
     m_HistWin->hide();
     m_evtView->hide();
+    m_messageBox->hide();
 
     ui->mainLayout->addWidget(m_StackWin);
     mainWidget = m_StackWin;
@@ -113,28 +116,26 @@ CollectorView::CollectorView(QWidget *parent) :
     if(config.system.ConfigReady){
         if( config.system.AdminLogin)
             m_userID = 1;
-        if(config.system.BacklightOffDelay.toInt()> 60){
-            m_BacklightShutdownSec = config.system.BacklightOffDelay.toInt();
-        }
-        else{
-            m_BacklightShutdownSec = 60;
-        }
+        setBacklightDelay(config.system.BacklightOffDelay.toInt());
     }
     else{
         m_BacklightShutdownSec = 600;
+        m_enableBacklightOff = true;
     }
 
     //m_userID = 1;
-
-    if(m_userID == 0){
-        ui->pbBatHistory->setVisible(false);
-        ui->pbHardwareView->setVisible(false);
-        m_StackWin->showClearAlarm(false);
-    }else{
-        ui->pbBatHistory->setVisible(true);
-        ui->pbHardwareView->setVisible(true);
-        m_StackWin->showClearAlarm(true);
-    }
+    switchUser();
+//    if(m_userID == 0){
+//        ui->pbBatHistory->setVisible(false);
+//        ui->pbHardwareView->setVisible(false);
+//        //m_StackWin->showClearAlarm(false);
+//        m_evtView->showClearEvent(false);
+//    }else{
+//        ui->pbBatHistory->setVisible(true);
+//        ui->pbHardwareView->setVisible(true);
+//        //m_StackWin->showClearAlarm(true);
+//        m_evtView->showClearEvent(true);
+//    }
 
     if(!QSysInfo().productType().contains("win")){
         setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
@@ -152,7 +153,9 @@ CollectorView::CollectorView(QWidget *parent) :
 
  //   qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     m_rtcLabel = new QLabel("yyyy/MM/dd hh:mm:ss");
+    m_information = new QLabel;
     ui->statusbar->addPermanentWidget(m_rtcLabel);
+    ui->statusbar->addWidget(m_information);
 
     QProcess *proc = new QProcess;
     QString cmd;
@@ -170,8 +173,31 @@ CollectorView::CollectorView(QWidget *parent) :
             //QTimer::singleShot(5000,ui->pbSystemNavi,[this]{ui->pbSystemNavi->clicked();});
         }
     }
+
+    connect(m_HardwareWin,&frmHardwareConfig::connect_controller,this,&CollectorView::connect_controller);
+    connect(m_HardwareWin,&frmHardwareConfig::query_controller_restart,this,&CollectorView::issue_controller_restart);
+    connect(m_HardwareWin,&frmHardwareConfig::setBacklightDelay,this,&CollectorView::setBacklightDelay);
+
+    connect(m_messageBox,&frmMessage::ok,this,&CollectorView::handleMsgOk);
+    connect(m_messageBox,&frmMessage::cancel,this,&CollectorView::handleMsgCancel);
+
+    m_client = new QTcpSocket();
 }
 
+void CollectorView::connect_controller(bool enable, int timeout_ms )
+{
+    m_information->setText("Try to connect to BMS Controller");
+    //qDebug()<<Q_FUNC_INFO<<ui->pbSystemNavi->isChecked();
+    ui->pbSystemNavi->setChecked(enable);
+    //qDebug()<<Q_FUNC_INFO<<ui->pbSystemNavi->isChecked();
+    QTimer::singleShot(timeout_ms,ui->pbSystemNavi,[this]{ui->pbSystemNavi->clicked();});
+}
+
+void CollectorView::issue_controller_restart()
+{
+    showMessage("訊息","設定已修改, 是否重新啟動BMS主程式?");
+    pendingAction = 1;
+}
 
 CollectorView::~CollectorView()
 {
@@ -180,17 +206,28 @@ CollectorView::~CollectorView()
 
 void CollectorView::on_Controller_Offline()
 {
-    // current only handle single controller connection
-    if(ui->pbSystemNavi->isChecked()){ // shuld be
-        m_collector->disconnectServer(0);
-        ui->pbSystemNavi->setChecked(false);
-        ui->pbSystemNavi->setText("連線");
-        QMessageBox::information(this,"資訊","控制系統斷線, 請重新開機");
+    if(pendingAction != 1){
+        m_information->setText("BMS Controller Disonnected");
+        // current only handle single controller connection
+        if(ui->pbSystemNavi->isChecked()){ // shuld be
+            if(restartController){
+                connect_controller(true,3000);
+            }
+            else{
+                m_collector->disconnectServer(0);
+                ui->pbSystemNavi->setChecked(false);
+                ui->pbSystemNavi->setText("連線");
+            }
+            //QMessageBox::information(this,"資訊","控制系統斷線, 請重新開機");
+        }
     }
 }
 
 void CollectorView::on_Idle()
 {
+    m_rtcLabel->setText(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+    if(!m_enableBacklightOff) return;
+
     if(m_TimeToShutdownScreen < m_BacklightShutdownSec){
         m_TimeToShutdownScreen++;
         if(m_TimeToShutdownScreen == m_BacklightShutdownSec){
@@ -202,7 +239,6 @@ void CollectorView::on_Idle()
             proc->waitForFinished();
         }
     }
-    m_rtcLabel->setText(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
 }
 
 
@@ -212,6 +248,7 @@ void CollectorView::hideWindows()
     m_HardwareWin->hide();
     m_HistWin->hide();
     m_evtView->hide();
+    m_messageBox->hide();
 }
 
 void CollectorView::on_pbStackView_clicked()
@@ -237,6 +274,58 @@ void CollectorView::on_pbHardwareView_clicked()
     mainWidget->show();
 }
 
+void CollectorView::showMessage(QString title, QString content)
+{
+    hideWindows();
+    if(mainWidget != nullptr){
+        mainWidget->hide();
+        lastWidget = mainWidget;
+        ui->mainLayout->removeWidget(mainWidget);
+    }
+    mainWidget = m_messageBox;
+    m_messageBox->setText(title,content);
+    ui->mainLayout->addWidget(mainWidget);
+    mainWidget->show();
+}
+
+void CollectorView::handleMsgCancel()
+{
+    qDebug()<<Q_FUNC_INFO;
+    hideWindows();
+    if(mainWidget != nullptr){
+        mainWidget->hide();
+        ui->mainLayout->removeWidget(mainWidget);
+    }
+    mainWidget = lastWidget;
+    lastWidget = nullptr;
+    ui->mainLayout->addWidget(mainWidget);
+    mainWidget->show();
+
+    pendingAction = -1;
+}
+
+void CollectorView::handleMsgOk()
+{
+    qDebug()<<Q_FUNC_INFO;
+    hideWindows();
+    if(mainWidget != nullptr){
+        mainWidget->hide();
+        ui->mainLayout->removeWidget(mainWidget);
+    }
+    mainWidget = lastWidget;
+    lastWidget = nullptr;
+    ui->mainLayout->addWidget(mainWidget);
+    mainWidget->show();
+
+    if(pendingAction == 1){ // restart controller
+        restartController = true;
+//        qDebug()<<"Restart controller";
+        on_Issue_Restart_Controller();
+//        connect_controller(true,3000);
+        pendingAction = -1;
+    }
+}
+
 void CollectorView::on_pbBatHistory_clicked()
 {
 //    hideWindows();
@@ -250,8 +339,19 @@ void CollectorView::on_pbBatHistory_clicked()
 //    if(m_collector->currentSystem() != nullptr && m_collector->currentSystem()->system != nullptr){
 //        m_HistWin->rootPath(m_collector->currentSystem()->system->logPath());
 //    }
-    if(QMessageBox::question(this,"Confirm","OK to terminate",QMessageBox::Ok,QMessageBox::Cancel) == QMessageBox::Ok){
-        exit(-1);
+//    if(QMessageBox::question(this,"Confirm","OK to terminate",QMessageBox::Ok,QMessageBox::Cancel) == QMessageBox::Ok){
+//        exit(-1);
+//    }
+    if(m_client == nullptr)
+    {
+        m_client = new QTcpSocket;
+    }
+
+    if(m_client->isOpen()){
+        m_client->close();
+    }
+    else{
+        m_client->connectToHost(QHostAddress("127.0.0.1"),5329);
     }
 }
 void CollectorView::on_pbEventView_clicked()
@@ -297,26 +397,31 @@ void CollectorView::on_pbSystemNavi_clicked()
             proc->start("ps -C BMS_Controller");
             proc->waitForFinished();
             QStringList sl = QString(proc->readAll()).split("\n");
+            //qDebug()<<"Try to launch controller:"<<sl;
             if(sl.size() < 3){ // 1st : header, 2nd: pidxxx, 3rd blank
                 //log("BMC_Controller not launched, try to launch");
-                //cmd = "/opt/BMS_Controller/bin/BMS_Controller";
-                //proc->start(cmd);
+                cmd = "systemctl start bms_controller";
+                proc->execute(cmd);
+                proc->waitForFinished();
                 //qDebug()<<"Proc Result 3:"<<QString(proc->readAll());
-                //QThread::sleep(1);
-                QMessageBox::information(this,"Info","控制系統未啟動, 請重新開機");
-                btn->setText("連線");
-                btn->setChecked(false);
+                QThread::sleep(1);
+                //QMessageBox::information(this,"Info","控制系統未啟動, 請重新開機");
+                //m_information->setText("控制系統未啟動, 請重新開機");
+                //btn->setText("連線");
+                //btn->setChecked(false);
 
             }
         }
         if(m_collector->connectServer(0)){
             //log("Start server ok");
             btn->setText("停止");
+            m_information->setText("BMS Controller Connect OK");
         }
         else{
             //log("Start server failed");
             btn->setText("連線");
             btn->setChecked(false);
+            m_information->setText("BMS Controller Connect Failed");
         }
 
     }else{
@@ -344,46 +449,46 @@ void CollectorView::on_pbAuth_clicked()
         path = "/opt/bms/config/system.json";
     }
 
-//    LoginValid *v = new LoginValid();
-//    qDebug()<< "Left Corner"<<v->x()<<" "<<v->y();
-//    v->move(320,320);
-//    v->setModal(true);
-//    v->setWindowModality(Qt::WindowModal);
-    //v->setGeometry(this->x()+320,this->y()+320,v->width(),v->height());
-    if(m_logValid->setFileName(path)){
-        m_logValid->hide();
-        m_logValid->show();
-//        if(v->exec() == QDialog::Accepted){
-//            if(v->userID() == 1){
-//                ui->pbHardwareView->setVisible(true);
-//            }
-//            else{
-//                ui->pbHardwareView->setVisible(false);
-//            }
-//        }
+    if(m_userID == 1){
+        m_userID = 0;
+        switchUser();
     }
-   // this->setEnabled(true);
-
-   // delete v;
+    else{
+        if(m_logValid->setFileName(path)){
+            m_logValid->hide();
+            m_logValid->show();
+        }
+    }
 }
 
-void CollectorView::auth_accept()
+void CollectorView::switchUser()
 {
-    if(m_logValid->userID() == 1){
+    if(m_userID == 1){
         ui->pbHardwareView->setVisible(true);
         ui->pbBatHistory->setVisible(true);
-        m_StackWin->showClearAlarm(true);
+//        m_StackWin->showClearAlarm(true);
+        m_evtView->showClearEvent(true);
     }
     else{
         ui->pbHardwareView->setVisible(false);
         ui->pbBatHistory->setVisible(false);
-        m_StackWin->showClearAlarm(false);
+//        m_StackWin->showClearAlarm(false);
+        m_evtView->showClearEvent(false);
     }
+}
+
+void CollectorView::auth_accept()
+{
+    m_userID = m_logValid->userID();
+    switchUser();
+    m_logValid->reset();
+
 }
 
 void CollectorView::auth_reject()
 {
     m_logValid->hide();
+    m_logValid->reset();
 }
 
 bool CollectorView::event(QEvent *event)
@@ -420,13 +525,30 @@ void CollectorView::on_Issue_Restart_Controller()
     if(QSysInfo::productType().contains("win"))
         return;
 
-    if(ui->pbSystemNavi->isChecked()){
-        m_collector->disconnectServer(0);
-        QThread::sleep(100);
-        QProcess *proc = new QProcess;
-        proc->start("systemctl restart bms_controller");
-        proc->waitForFinished();
-        QThread::sleep(100);
-        m_collector->connectServer(0);
+    m_information->setText("Restarting BMS Controller");
+    QProcess *proc = new QProcess;
+    proc->start("systemctl restart bms_controller");
+    proc->waitForFinished();
+    QThread::msleep(500);
+//    qDebug()<<Q_FUNC_INFO<<ui->pbSystemNavi->isChecked();
+//    if(ui->pbSystemNavi->isChecked()){
+//        m_collector->disconnectServer(0);
+//        QThread::sleep(100);
+//        QProcess *proc = new QProcess;
+//        proc->start("systemctl restart bms_controller");
+//        proc->waitForFinished();
+//        QThread::sleep(100);
+//        m_collector->connectServer(0);
+//    }
+}
+
+void CollectorView::setBacklightDelay(unsigned int delay)
+{
+    if(delay == 0){
+        m_enableBacklightOff = false;
+    }
+    else {
+        m_enableBacklightOff = true;
+        m_BacklightShutdownSec = delay;
     }
 }

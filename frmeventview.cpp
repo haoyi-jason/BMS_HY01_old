@@ -195,3 +195,8 @@ void frmEventView::on_comboBox_currentIndexChanged(int index)
     ui->wCharg->setWindowsWidth(sec);
 
 }
+
+void frmEventView::showClearEvent(bool show)
+{
+    ui->pbClearAll->setVisible(show);
+}

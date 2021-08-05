@@ -108,12 +108,12 @@ public:
     quint16 utSetMask(){return m_utSetMask;}
     bool deviceLost(){
         //qDebug()<<"BMU:NOW:"<<QDateTime::currentDateTime().toString("hhMMss") << " Last:"<< QDateTime::fromMSecsSinceEpoch(m_lastSeen).toString("hhMMss");
-        if((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000){
-            m_devLost = true;
-        }
-        else{
-            m_devLost = false;
-        }
+//        if((QDateTime::currentMSecsSinceEpoch() - m_lastSeen) > 5000){
+//            m_devLost = true;
+//        }
+//        else{
+//            m_devLost = false;
+//        }
         return m_devLost;
         //return m_devLost;
     }

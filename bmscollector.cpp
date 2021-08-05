@@ -131,6 +131,7 @@ bool BMSCollector::connectServer(int id)
                 s->configReady = false;
                 s->data.clear();
                 s->system = new BMS_System();
+                s->system->setController(false);
                 //s->configReady = true;
                 readAllConfig();
                 success = true;

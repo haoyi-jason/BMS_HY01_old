@@ -1122,7 +1122,7 @@
         <item>
          <widget class="QLabel" name="label_23">
           <property name="text">
-           <string>Rev 210801</string>
+           <string>Rev 210806</string>
           </property>
          </widget>
         </item>
@@ -1331,10 +1331,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="cbBackLightAutoClose">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+         <widget class="QLabel" name="label_31">
           <property name="text">
            <string>自動關閉(秒)</string>
           </property>
@@ -1344,6 +1341,12 @@
          <widget class="FocusEditor" name="leBackLightAutoSec">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
            <string>30</string>

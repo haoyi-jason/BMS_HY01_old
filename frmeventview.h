@@ -19,6 +19,7 @@ public:
 
 public slots:
     void setLogFile(QString &path, QString recordPath = "");
+    void showClearEvent(bool show);
 
 private slots:
     void on_pbClearAll_clicked();

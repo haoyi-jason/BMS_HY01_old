@@ -96,6 +96,7 @@ void historyChart::loadDataFromFile(QString path)
             m_series[5]->append(stamp,sl[6].toDouble());
             m_series[6]->append(stamp,sl[7].toDouble());
             m_series[7]->append(stamp,modeMap.value(sl[8]));
+
         }
 
         m_dateTimeAxis->setRange(minDate,minDate.addSecs(3600));

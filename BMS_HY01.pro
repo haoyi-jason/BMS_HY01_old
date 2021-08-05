@@ -40,6 +40,7 @@ SOURCES += \
         frmhardwareconfig.cpp \
         frmhistoryview.cpp \
         frmhwconfig.cpp \
+        frmmessage.cpp \
         frmstackconfig.cpp \
         frmstackview.cpp \
         frmtest.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
         frmhardwareconfig.h \
         frmhistoryview.h \
         frmhwconfig.h \
+        frmmessage.h \
         frmstackconfig.h \
         frmstackview.h \
         frmtest.h \
@@ -86,6 +88,7 @@ FORMS += \
         frmhardwareconfig.ui \
         frmhistoryview.ui \
         frmhwconfig.ui \
+        frmmessage.ui \
         frmstackconfig.ui \
         frmstackview.ui \
         frmtest.ui \

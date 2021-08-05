@@ -36,6 +36,7 @@ private:
     bool m_alreadySaveRange = false;
 
     double m_xMin, m_xMax, m_yMin, m_yMax;
+    int m_linesPerWin = 500;
 
 };
 

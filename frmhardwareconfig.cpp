@@ -745,13 +745,17 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
 
     localConfig.save(path);
 
-    if(QMessageBox::information(this,"訊息","設定已修改, 是否重新啟動BMS主程式?",QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes){
-        //emit restart_controller();
-        QProcess *proc = new QProcess;
+    emit query_controller_restart();
 
-        proc->start("systemctl restart bms_controller");
-        proc->waitForFinished();
-    }
+//    if(QMessageBox::information(this,"訊息","設定已修改, 是否重新啟動BMS主程式?",QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes){
+//        //emit restart_controller();
+//        QProcess *proc = new QProcess;
+
+//        proc->start("systemctl restart bms_controller");
+//        proc->waitForFinished();
+
+//        emit connect_controller(true,3000);
+//    }
 
 }
 
@@ -961,4 +965,7 @@ void frmHardwareConfig::on_pbSaveBL_clicked()
     localConfig.system.BacklightOffDelay = ui->leBackLightAutoSec->text();
     localConfig.system.AutoConnect = ui->cbAutoLaunch->isChecked();
     localConfig.save(path);
+
+    unsigned int bl = ui->leBackLightAutoSec->text().toInt();
+    emit setBacklightDelay(bl);
 }

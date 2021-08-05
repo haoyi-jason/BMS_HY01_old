@@ -103,8 +103,10 @@ void BMS_System::generateSystemStructure()
             val = m_localConfig->system.SVA_ValidInterval.toInt();
             if(val < 5) val = 5;
             s->svaValidInterval(val);
+            //qDebug()<<"Set sva valid interval:"<<val;
             val = m_localConfig->system.BMU_ValidInterval.toInt();
             if(val < 5) val = 5;
+            //qDebug()<<"Set bmu valid interval:"<<val;
             s->bmuValidInterval(val);
             s->sviDevice()->setSVWarningHighPair(sc->volt_warning.High_Set.toDouble()*10,sc->volt_warning.High_Clr.toDouble()*10,sc->volt_warning.Duration.toInt());
             s->sviDevice()->setSVWarningLowPair(sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Low_Set.toDouble()*10,sc->volt_warning.Duration.toInt());
@@ -965,34 +967,40 @@ void BMS_System::saveCurrentSOC()
 
 void BMS_System::checkDiskSpace()
 {
+    if(!m_isController) return;
     // try to move data to sd card if mounted
     QStorageInfo sd_info = QStorageInfo("/mnt/t");
 
     int sd_size = sd_info.bytesTotal()/1024/1024;
+    qDebug()<<"SD Card Installed, Size="<<sd_size;
     if(sd_size > 100){
         int sd_size_free =  sd_info.bytesAvailable()/1024/1024;
         QDir src(this->m_logPath);
         QProcess proc;
-//        QDir dest("/mnt/t");
+        QDir dest("/mnt/t/log");
+        if(!dest.exists()){
+            QDir().mkpath("/mnt/t/log");
+        }
         uint nofFiles = src.count();
         if(nofFiles > 0){
             QString cmd;
             QFileInfoList files = src.entryInfoList(QStringList()<<"*.csv",QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
 
-            for(int i=0;i<files.size()-1;i++){
+            for(int i=0;i<files.size();i++){
                 const QFileInfo& fi = files[i];
                 //if(fi.completeSuffix() == "csv")
-                cmd = QString("mv %1 /mnt/t/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
+                cmd = QString("mv %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
                 proc.execute(cmd);
                 proc.waitForFinished();
 
-                cmd = QString("rm %1").arg(fi.absoluteFilePath());
-                proc.execute(cmd);
-                proc.waitForFinished();
+//                cmd = QString("rm %1").arg(fi.absoluteFilePath());
+//                proc.execute(cmd);
+//                proc.waitForFinished();
             }
         }
     }
     else{
+        qDebug()<<"NO SD card installed";
         QStorageInfo info=QStorageInfo::root();
         int mb = info.bytesAvailable()/1024/1024;
         if(mb < 100){
@@ -1545,4 +1553,9 @@ CAN_Packet *BMS_System::heartBeat()
 BMS_LocalConfig *BMS_System::config()
 {
     return m_localConfig;
+}
+
+void BMS_System::setController(bool value)
+{
+    m_isController = value;
 }

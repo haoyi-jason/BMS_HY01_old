@@ -96,6 +96,8 @@ public:
     bool isSimulate(){return m_useSimulator;}
     BMS_LocalConfig *localConfig(){return m_localConfig;}
 
+    void setController(bool value);
+
     void ms_poll_100();
 signals:
     void sendPacket(QByteArray data);
@@ -154,6 +156,7 @@ private:
     quint32 m_eventRecordCounter=0;
     quint16 m_eventRecordSize = 0xffff;
     quint16 m_maxEventRecords;
+    bool m_isController = true;
 };
 
 #endif // BMS_SYSTEM_H
