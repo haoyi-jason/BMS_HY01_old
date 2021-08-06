@@ -35,7 +35,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -496,7 +496,7 @@
         </size>
        </property>
        <property name="title">
-        <string>SVI ADC Scaling</string>
+        <string>SVA ADC Scaling</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="2">
@@ -541,6 +541,12 @@
         </item>
         <item row="1" column="3">
          <widget class="FocusEditor" name="leSOC">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>0</string>
           </property>
@@ -551,6 +557,12 @@
         </item>
         <item row="0" column="3">
          <widget class="FocusEditor" name="leSVIValue">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>0</string>
           </property>
@@ -562,49 +574,19 @@
         <item row="0" column="1">
          <widget class="QComboBox" name="cbSVIChannel">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <item>
            <property name="text">
-            <string>Channel 0</string>
+            <string>Current Sensor</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Channel 1</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel 2</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel 3</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel 4</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel 5</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel 6</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel 7</string>
+            <string>Stack Voltage</string>
            </property>
           </item>
          </widget>

@@ -973,6 +973,11 @@ void BMS_System::checkDiskSpace()
 
     int sd_size = sd_info.bytesTotal()/1024/1024;
     qDebug()<<"SD Card Installed, Size="<<sd_size;
+    QList<QString> activeFiles;
+    for(int i=0;i<this->stacks().count();i++){
+        QString path = QString("S_0%1_%2.csv").arg(i+1).arg(QDateTime::currentDateTime().toString("yyyyMMdd_hh"));
+        activeFiles.append(path);
+    }
     if(sd_size > 100){
         int sd_size_free =  sd_info.bytesAvailable()/1024/1024;
         QDir src(this->m_logPath);
@@ -989,9 +994,18 @@ void BMS_System::checkDiskSpace()
             for(int i=0;i<files.size();i++){
                 const QFileInfo& fi = files[i];
                 //if(fi.completeSuffix() == "csv")
-                cmd = QString("mv %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
-                proc.execute(cmd);
-                proc.waitForFinished();
+                bool move = true;
+                foreach (QString s, activeFiles) {
+                    if(s == fi.fileName()){
+                        move = false;
+                        break;
+                    }
+                }
+                if(move){
+                    cmd = QString("mv %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
+                    proc.execute(cmd);
+                    proc.waitForFinished();
+                }
 
 //                cmd = QString("rm %1").arg(fi.absoluteFilePath());
 //                proc.execute(cmd);

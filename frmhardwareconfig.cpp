@@ -276,7 +276,7 @@ void frmHardwareConfig::on_pbSVIConfig_clicked()
     if(m_collector == nullptr) return;
     if(m_collector->currentSystem() == nullptr) return;
     QString command;
-    command = QString("SVI:AIMAP:%1:%2:%3").arg(ui->cbSVIChannel->currentIndex()).arg(ui->cbSVIOption->currentIndex()).arg(ui->leSVIValue->text());
+    command = QString("SVI:AIMAP:%1:%2:%3").arg(ui->cbSVIChannel->currentIndex()).arg(ui->cbSVIOption->currentIndex()+2).arg(ui->leSVIValue->text());
     m_collector->currentSystem()->writeCommand(command);
 }
 

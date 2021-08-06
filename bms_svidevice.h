@@ -124,6 +124,34 @@ public:
 
     void valid(int interval_seconds = 5);
 
+    static CAN_Packet *zeroCalibration(int channel){
+        CAN_Packet *p = new CAN_Packet;
+        p->Command = 0x160;
+        QDataStream ds(&p->data,QIODevice::WriteOnly);
+        ds.setByteOrder(QDataStream::LittleEndian);
+        quint8 b8;
+        //quint16 b16;
+        b8 = channel;
+        ds << b8;
+        b8 = 4; // zero calibration
+        ds << 8;
+        return p;
+    }
+
+    static CAN_Packet *bandCalibration(int channel, float band){
+        CAN_Packet *p = new CAN_Packet;
+        p->Command = 0x160;
+        QDataStream ds(&p->data,QIODevice::WriteOnly);
+        ds.setByteOrder(QDataStream::LittleEndian);
+        quint8 b8;
+        b8 = channel;
+        ds << b8;
+        b8 = 5; // band calibration
+        ds << 8;
+        ds << band;
+        return p;
+    }
+
 signals:
     void set_ov();
     void set_uv();
