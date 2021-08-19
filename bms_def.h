@@ -77,7 +77,7 @@ private:
 
 class CAN_Packet{
 public:
-    quint16 Command;
+    quint32 Command;
     QByteArray data;
     bool readFrame= false;
     bool writeOK = false;

@@ -73,7 +73,7 @@ void BMS_SVIDevice::calculateState()
 {
     // calculate SOC
     float sv = (float)m_stackVoltage/10.;
-    float sa = (float)(m_stackCurrent+m_simAmpere)/10.;
+    float sa = (float)(m_stackCurrent)/10.;
     float dt = (m_currentTime - m_lastSeen)/1000.;
     m_lastSeen = m_currentTime;
     //qDebug()<<Q_FUNC_INFO<<"Last seen:"<<m_lastSeen;
@@ -84,7 +84,7 @@ void BMS_SVIDevice::calculateState()
     if(soc_new >100) soc_new = 100;
     if(soc_new < 0) soc_new = 0;
 
-    if((sa < 0.5) || (sa > -0.5)){
+    if((sa < 0.5) && (sa > -0.5)){
         return;
     }
     m_soc = soc_new;

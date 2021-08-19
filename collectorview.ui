@@ -203,6 +203,9 @@
     </item>
     <item row="1" column="7">
      <widget class="QPushButton" name="pbBatHistory">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>

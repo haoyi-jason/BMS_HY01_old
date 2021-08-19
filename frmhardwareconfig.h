@@ -117,6 +117,8 @@ private slots:
 
     void on_pbSaveBL_clicked();
 
+    void on_pbApplyNetwork_clicked();
+
 signals:
     void restart_controller();
     void connect_controller(bool,int);

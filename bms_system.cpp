@@ -1519,7 +1519,7 @@ CAN_Packet *BMS_System::broadcastBalancing()
 {
     if(m_cellMinVoltage < BalancingVoltage) return nullptr;
 
-    bool canBalance = false;
+    bool canBalance = true;
     foreach (BMS_Stack *s, m_stacks) {
         if(s->sviDevice()->current()> -5){ // discharge < 0.5A enable balancing
             canBalance = true;
@@ -1562,6 +1562,7 @@ CAN_Packet *BMS_System::heartBeat()
     CAN_Packet *ret = new CAN_Packet;
     ret->Command = 0x020;
     ret->remote = true;
+    return ret;
 }
 
 BMS_LocalConfig *BMS_System::config()

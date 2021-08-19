@@ -161,26 +161,8 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="historyChart" name="wCharg" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>240</height>
-      </size>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>historyChart</class>
-   <extends>QWidget</extends>
-   <header location="global">historychart.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

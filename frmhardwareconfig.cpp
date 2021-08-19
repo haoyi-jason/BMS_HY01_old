@@ -60,7 +60,9 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leSimSA,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leSimCV,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leSimPT,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+
     connect(ui->leSOC,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leSVIValue,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
     connect(ui->leEventLogCount,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leEventLogInterval,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
@@ -276,7 +278,7 @@ void frmHardwareConfig::on_pbSVIConfig_clicked()
     if(m_collector == nullptr) return;
     if(m_collector->currentSystem() == nullptr) return;
     QString command;
-    command = QString("SVI:AIMAP:%1:%2:%3").arg(ui->cbSVIChannel->currentIndex()).arg(ui->cbSVIOption->currentIndex()+2).arg(ui->leSVIValue->text());
+    command = QString("SVI:AIMAP:%1:%2:%3:%4").arg(ui->cbSVI->currentIndex()+1).arg(ui->cbSVIChannel->currentIndex()+2).arg(ui->cbSVIOption->currentIndex()).arg(ui->leSVIValue->text());
     m_collector->currentSystem()->writeCommand(command);
 }
 
@@ -968,4 +970,20 @@ void frmHardwareConfig::on_pbSaveBL_clicked()
 
     unsigned int bl = ui->leBackLightAutoSec->text().toInt();
     emit setBacklightDelay(bl);
+}
+
+void frmHardwareConfig::on_pbApplyNetwork_clicked()
+{
+    QString path;
+
+    if(QSysInfo::productType().contains("win")){
+        path="d:/temp/bms/config/controller.json";
+    }
+    else{
+       path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
+    }
+    localConfig.network.ip = QString("%1.%2.%3.%4").arg(ui->le_ip3->text()).arg(ui->le_ip2->text()).arg(ui->le_ip1->text()).arg(ui->le_ip0->text());
+    localConfig.network.gateway = QString("%1.%2.%3.%4").arg(ui->le_gw3->text()).arg(ui->le_gw2->text()).arg(ui->le_gw1->text()).arg(ui->le_gw0->text());
+    localConfig.network.mask = QString("%1.%2.%3.%4").arg(ui->le_nm_3->text()).arg(ui->le_nm_2->text()).arg(ui->le_nm_1->text()).arg(ui->le_nm_0->text());
+    localConfig.save(path);
 }

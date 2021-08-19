@@ -35,7 +35,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -45,7 +45,7 @@
      <item row="2" column="0">
       <widget class="QGroupBox" name="groupBox_7">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="minimumSize">
         <size>
@@ -327,6 +327,9 @@
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QGroupBox" name="groupBox_5">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -651,6 +654,9 @@
         </item>
         <item row="0" column="4">
          <widget class="QPushButton" name="pbSVIConfig">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -1104,7 +1110,7 @@
         <item>
          <widget class="QLabel" name="label_23">
           <property name="text">
-           <string>Rev 210806</string>
+           <string>Rev 210816</string>
           </property>
          </widget>
         </item>
@@ -1219,7 +1225,7 @@
         <item>
          <widget class="QPushButton" name="pbEnterLanMode">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

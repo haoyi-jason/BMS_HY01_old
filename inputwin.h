@@ -80,7 +80,7 @@ static QMap<QString,int> key_map{
     {"OK",11},
     {"CAN",12},
     {"<-",13},
-    {"CLR",14},
+    {"+/-",14},
 };
 
 class InputWin : public QDialog

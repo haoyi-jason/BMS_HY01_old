@@ -11,6 +11,7 @@ frmEventView::frmEventView(QWidget *parent) :
     m_evtModel = new BMS_EventModel;
     ui->tvEvents->setModel(m_evtModel);
     ui->tvEvents->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->comboBox->hide();
 
    // QtCharts *c = new QtCharts(this);
 
@@ -51,7 +52,9 @@ void frmEventView::reload()
         m_evtModel->clearEvents();
         if(m_totalPage == -1){
             int n = 0;
+            ts.readLine(); // first row
             while(!ts.atEnd()){
+
                 if(n<m_pageSize){
                     QString s = ts.readLine();
                     BMS_Event *e = new BMS_Event;
@@ -68,7 +71,7 @@ void frmEventView::reload()
             m_totalPage = n/m_pageSize+1;
         }
         else{
-            int byp = m_currentPage*m_pageSize;
+            int byp = m_currentPage*m_pageSize+1;
             int n = 0;
             bool stop = false;
             while(!ts.atEnd() && !stop){
@@ -112,7 +115,7 @@ void frmEventView::setLogFile(QString &path, QString recordPath)
 
     m_eventLogPath = recordPath;
 
-    ui->wCharg->loadDataFromFile(m_eventLogPath);
+    //ui->wCharg->loadDataFromFile(m_eventLogPath);
     reload();
 }
 
@@ -159,6 +162,7 @@ void frmEventView::on_pbDeleteCurrent_clicked()
 
 void frmEventView::on_tvEvents_clicked(const QModelIndex &index)
 {
+    return;
     // load records
     int c = index.column();
     if(c == 6){
@@ -176,13 +180,14 @@ void frmEventView::on_tvEvents_clicked(const QModelIndex &index)
         if(sl.size() == 0) return;
         int stack = sl[0].toInt();
 
-        ui->wCharg->showSeriesByStack(stack);
+        //ui->wCharg->showSeriesByStack(stack);
     }
 
 }
 
 void frmEventView::on_comboBox_currentIndexChanged(int index)
 {
+    return;
     int sec = 100;
     QComboBox *cbo = static_cast<QComboBox*>(sender());
     switch(cbo->currentIndex()){
@@ -192,7 +197,7 @@ void frmEventView::on_comboBox_currentIndexChanged(int index)
     default:sec = 3600; break;
     }
 
-    ui->wCharg->setWindowsWidth(sec);
+    //ui->wCharg->setWindowsWidth(sec);
 
 }
 

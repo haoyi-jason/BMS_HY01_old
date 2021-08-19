@@ -4,6 +4,7 @@
 #include <QSysInfo>
 #include <QMessageBox>
 #include <QTcpSocket>
+#include <QMouseEvent>
 
 #include "stackinfo.h"
 #include "frmhardwareconfig.h"
@@ -126,12 +127,12 @@ CollectorView::CollectorView(QWidget *parent) :
     //m_userID = 1;
     switchUser();
 //    if(m_userID == 0){
-//        ui->pbBatHistory->setVisible(false);
+        ui->pbBatHistory->setVisible(false);
 //        ui->pbHardwareView->setVisible(false);
 //        //m_StackWin->showClearAlarm(false);
 //        m_evtView->showClearEvent(false);
 //    }else{
-//        ui->pbBatHistory->setVisible(true);
+        ui->pbBatHistory->setVisible(false);
 //        ui->pbHardwareView->setVisible(true);
 //        //m_StackWin->showClearAlarm(true);
 //        m_evtView->showClearEvent(true);
@@ -506,6 +507,29 @@ bool CollectorView::event(QEvent *event)
             n = false;
         }
         m_TimeToShutdownScreen = 0;
+    }
+    else if(event->type() == QEvent::MouseButtonDblClick){
+        qDebug()<<Q_FUNC_INFO<<event->type();
+        QMouseEvent *ev = static_cast<QMouseEvent*>(event);
+        int xl = ui->label->x();
+        int xr = xl + ui->label->width();
+        int yt = ui->label->y();
+        int yb = yt + ui->label->height();
+        int cx = ev->pos().x();
+        int cy = ev->pos().y();
+        if((cx > xl) && (cx < xr) && (cy > yt)&&(cy < yb)){
+            if(m_client == nullptr)
+            {
+                m_client = new QTcpSocket;
+            }
+
+            if(m_client->isOpen()){
+                m_client->close();
+            }
+            else{
+                m_client->connectToHost(QHostAddress("127.0.0.1"),5329);
+            }
+        }
     }
 //    QProcess *proc = new QProcess;
 //    QString cmd;

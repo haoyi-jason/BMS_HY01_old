@@ -28,7 +28,8 @@ InputWin::InputWin(QWidget *parent) : QDialog(parent)
     connect(ok,&Button::clicked,this,&InputWin::padClicked);
     Button *can = new Button("CAN");
     connect(can,&Button::clicked,this,&InputWin::padClicked);
-    Button *clr = new Button("CLR");
+//    Button *clr = new Button("CLR");
+    Button *clr = new Button("+/-");
     connect(clr,&Button::clicked,this,&InputWin::padClicked);
     Button *bck = new Button("<-");
     connect(bck,&Button::clicked,this,&InputWin::padClicked);
@@ -113,7 +114,15 @@ void InputWin::padClicked()
         str = str.left(str.size()-1);
         break;
     case 14: // clear
-        str = "";
+    {
+       if(str.left(1)=="-"){
+           str = str.right(str.size()-1);
+       }
+       else{
+           str = "-"+str;
+       }
+    }
+     //   str = "";
         break;
     default:break;
     }

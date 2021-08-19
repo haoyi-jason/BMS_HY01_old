@@ -124,9 +124,69 @@ public:
 
     void valid(int interval_seconds = 5);
 
-    static CAN_Packet *zeroCalibration(int channel){
+
+
+    static CAN_Packet *rawLow(CAN_Packet *p, quint8 gid,int channel, ushort raw){
+        CAN_Packet *ret = new CAN_Packet;
+        p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
+        QDataStream ds(&p->data,QIODevice::WriteOnly);
+        ds.setByteOrder(QDataStream::LittleEndian);
+        quint8 b8;
+        quint16 b16;
+        b8 = channel;
+        ds << b8;
+        b8 = 0; // raw low
+        ds << 8;
+        ds >> raw;
+        return ret;
+    }
+
+    static CAN_Packet *rawHigh(quint8 gid,int channel, ushort raw){
         CAN_Packet *p = new CAN_Packet;
-        p->Command = 0x160;
+        p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
+        QDataStream ds(&p->data,QIODevice::WriteOnly);
+        ds.setByteOrder(QDataStream::LittleEndian);
+        quint8 b8;
+        quint16 b16;
+        b8 = channel;
+        ds << b8;
+        b8 = 1; // raw low
+        ds << 8;
+        ds >> raw;
+        return p;
+    }
+
+    static CAN_Packet *engLow(quint8 gid,int channel, float eng){
+        CAN_Packet *p = new CAN_Packet;
+        p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
+        QDataStream ds(&p->data,QIODevice::WriteOnly);
+        ds.setByteOrder(QDataStream::LittleEndian);
+        quint8 b8;
+        b8 = channel;
+        ds << b8;
+        b8 = 2; // eng low
+        ds << 8;
+        ds << eng;
+        return p;
+    }
+
+    static CAN_Packet *engHigh(quint8 gid,int channel, float eng){
+        CAN_Packet *p = new CAN_Packet;
+        p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
+        QDataStream ds(&p->data,QIODevice::WriteOnly);
+        ds.setByteOrder(QDataStream::LittleEndian);
+        quint8 b8;
+        b8 = channel;
+        ds << b8;
+        b8 = 3; // eng high
+        ds << 8;
+        ds << eng;
+        return p;
+    }
+
+    static CAN_Packet *zeroCalibration(quint8 gid,int channel){
+        CAN_Packet *p = new CAN_Packet;
+        p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
@@ -138,9 +198,9 @@ public:
         return p;
     }
 
-    static CAN_Packet *bandCalibration(int channel, float band){
+    static CAN_Packet *bandCalibration(quint8 gid,int channel, float band){
         CAN_Packet *p = new CAN_Packet;
-        p->Command = 0x160;
+        p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
