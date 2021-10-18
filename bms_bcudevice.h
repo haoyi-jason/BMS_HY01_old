@@ -20,6 +20,8 @@ public:
     QByteArray getDigitalInput();
     QByteArray getDigitalOutput();
     QList<int> getWorkingCurrent();
+    QList<int> getPwmInputs();
+    int getWorkingCurrent(int index);
     CAN_Packet *setDigitalOut(int id, int state);
 
     CAN_Packet *setVoltageSource(int id, int currentMa, bool enable = true);

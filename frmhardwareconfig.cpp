@@ -107,6 +107,7 @@ void frmHardwareConfig::update_collector()
     QByteArray dig_in = m_collector->currentSystem()->system->digitalInput();
     QByteArray dig_out = m_collector->currentSystem()->system->digitalOutput();
     QList<int> vs = m_collector->currentSystem()->system->vsource();
+    QList<int> pwm = m_collector->currentSystem()->system->bcu()->getPwmInputs();
 
     // update UI
     ui->lb_DI0->setText((dig_in[0] & 0x01)==0x01?"SET":"CLEAR");
@@ -114,6 +115,11 @@ void frmHardwareConfig::update_collector()
 
     ui->leVSourceIn_0->setText(QString::number(vs[0]));
     ui->leVSourceIn_1->setText(QString::number(vs[1]));
+
+    ui->pbPWM1->setValue(pwm[0]);
+    ui->pbPWM2->setValue(pwm[1]);
+
+    //qDebug()<<"PWM0:"<<pwm[0];
 }
 
 void frmHardwareConfig::on_system_config_ready()

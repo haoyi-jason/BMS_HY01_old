@@ -228,6 +228,8 @@ void frmStackView::updateStackInfo()
         p.setColor(ui->lbl_do1->backgroundRole(),Qt::green);
         ui->lbl_do1->setPalette(p);
     }
+
+
 //    ui->lbl_do1->setText((dig_out[0] & 0x02)==0x02?"輸出[2]開啟":"輸出[2]關閉");
     //qDebug()<<"Digital Out:"<< QString::number(dig_out[0],16);
 

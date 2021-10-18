@@ -87,6 +87,24 @@ QList<int> BMS_BCUDevice::getWorkingCurrent(){
     return ret;
 }
 
+int BMS_BCUDevice::getWorkingCurrent(int index)
+{
+    int ret = 0;
+    if(index < m_voltageSource.size()){
+        ret = m_voltageSource[index]->value();
+    }
+    return ret;
+}
+
+QList<int> BMS_BCUDevice::getPwmInputs()
+{
+    QList<int> ret;
+    foreach (HW_IOChannel *c, m_pwmInput) {
+        ret.append(c->value());
+    }
+    return ret;
+}
+
 CAN_Packet* BMS_BCUDevice::setDigitalOut(int id, int state){
     CAN_Packet *ret = nullptr;
     if(id < m_digitalOutput.size()){
