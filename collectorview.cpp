@@ -456,7 +456,9 @@ void CollectorView::on_pbAuth_clicked()
     }
     else{
         if(m_logValid->setFileName(path)){
+            //Qt::WindowFlags flags = m_logValid->windowFlags();
             m_logValid->hide();
+            //m_logValid->setWindowFlags(flags | Qt::WindowStaysOnTopHint);
             m_logValid->show();
         }
     }
@@ -467,12 +469,14 @@ void CollectorView::switchUser()
     if(m_userID == 1){
         ui->pbHardwareView->setVisible(true);
         ui->pbBatHistory->setVisible(true);
+        ui->pbSystemNavi->setVisible(true);
 //        m_StackWin->showClearAlarm(true);
         m_evtView->showClearEvent(true);
     }
     else{
         ui->pbHardwareView->setVisible(false);
         ui->pbBatHistory->setVisible(false);
+        ui->pbSystemNavi->setVisible(false);
 //        m_StackWin->showClearAlarm(false);
         m_evtView->showClearEvent(false);
     }

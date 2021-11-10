@@ -56,7 +56,8 @@ InputWin::InputWin(QWidget *parent) : QDialog(parent)
 
     setLayout(ml);
     //setWindowFlags(Qt::FramelessWindowHint|Qt::NoDropShadowWindowHint| Qt::Window);
-    setWindowModality(Qt::ApplicationModal);
+    //setWindowModality(Qt::ApplicationModal);
+    setWindowFlags(Qt::WindowStaysOnTopHint);
     setWindowTitle("Input");
 }
 

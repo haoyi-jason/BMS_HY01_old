@@ -19,7 +19,7 @@ LoginValid::LoginValid(QWidget *parent) :
    // setModal(true);
     if(!QSysInfo().productType().contains("win")){
 
-        //setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        setWindowFlags(Qt::WindowStaysOnTopHint);
         //setWindowFlags();
         //showFullScreen();
     }

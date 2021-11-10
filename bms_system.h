@@ -42,7 +42,7 @@ public:
 
     QString connectionString;
     int connectionPort;
-    int normalReportMS, errorReportMS;
+    int normalReportMS=1000, errorReportMS=100;
     QString Alias;
     int Stacks;
     int BalancingVoltage;

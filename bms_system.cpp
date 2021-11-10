@@ -352,9 +352,15 @@ bool BMS_System::Configuration(QByteArray data)
     }
 
     if(obj.contains("report")){
+        qDebug()<<"report section present";
         QJsonObject rpt = obj["report"].toObject();
         this->normalReportMS = rpt["normal"].toInt();
         this->errorReportMS = rpt["error"].toInt();
+    }
+    else{
+        qDebug()<<"report section NOT present";
+        this->normalReportMS = 1000;
+        this->errorReportMS = 100;
     }
 
     // for warning values
@@ -1519,8 +1525,9 @@ CAN_Packet *BMS_System::broadcastBalancing()
 {
     if(m_cellMinVoltage < BalancingVoltage) return nullptr;
 
-    bool canBalance = true;
+    bool canBalance = false;
     foreach (BMS_Stack *s, m_stacks) {
+        //qDebug()<<"Stacl current:"<<s->sviDevice()->current();
         if(s->sviDevice()->current()> -5){ // discharge < 0.5A enable balancing
             canBalance = true;
         }
@@ -1538,6 +1545,8 @@ CAN_Packet *BMS_System::broadcastBalancing()
     ds << b;
     ds << m_cellMinVoltage;
     m_currentBalanceVoltage = m_cellMinVoltage;
+
+    qDebug()<<"Can balance:"<<canBalance;
     return ret;
 
 }

@@ -2,6 +2,7 @@
 #define INPUTWIN_H
 
 #include <QDialog>
+#include <QWidget>
 #include <QToolButton>
 #include <QLineEdit>
 #include <QLabel>
