@@ -36,6 +36,7 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->leSVAValid,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leBMUValid,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
     connect(ui->leBackLightAutoSec,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
+    connect(ui->leBalancingThreshold,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused);
 
 
 
@@ -83,6 +84,23 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     connect(ui->le_nm_3,&FocusEditor::focused,this,&frmHardwareConfig::on_lineedit_focused_ip);
 
     load_settings();
+
+    // version test
+    QString Version;
+    Version += "Rev:";
+    QProcess proc;
+
+    proc.start("sh", QStringList()<<"-c" << "/opt/BMS_Controller/bin/BMS_Controller -v");
+    proc.waitForFinished();
+    //qDebug()<<"Controller Version: "<<(QString(proc.readAll()));
+    Version += proc.readAll().trimmed();
+    Version += "/";
+    proc.start("sh",QStringList()<<"-c" << "/opt/BMS_HY01/bin/BMS_HY01 -v");
+    proc.waitForFinished();
+    //qDebug()<<"UI Version: "<<(QString(proc.readAll()));
+    Version += proc.readAll().trimmed();
+
+    ui->lbVersion->setText(Version);
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -729,6 +747,7 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
 
     localConfig.system.SVA_ValidInterval = ui->leSVAValid->text();
     localConfig.system.BMU_ValidInterval = ui->leBMUValid->text();
+    localConfig.system.BalancingThreshold = ui->leBalancingThreshold->text();
 
 
     localConfig.stack.StackCount = ui->leNofStacks->text();
@@ -737,11 +756,13 @@ void frmHardwareConfig::on_pbSaveLocalConfig_clicked()
     localConfig.stack.NTCPerBattery = ui->leNofNtcs->text();
     localConfig.stack.Capacity = ui->leCapacity->text();
 
-    localConfig.modbus.Enable = ui->cbMBSRTUEnable->isChecked();
+//    localConfig.modbus.Enable = ui->cbMBSRTUEnable->isChecked();
+    localConfig.modbus.Enable = ui->rbRTU->isChecked();
     localConfig.modbus.Port = ui->cbRTUPort->currentText().trimmed();
     localConfig.modbus.Bitrate = ui->cbRTUBaudrate->currentText().trimmed();
     localConfig.modbus.Parity = ui->cbRTUParity->currentText().trimmed();
     localConfig.modbus.ID = ui->leRTUID->text();
+    localConfig.modbus.TCPPort = ui->leTCPPort->text();
 
     //network
     localConfig.network.Enable = ui->cbEnableNetwork->isChecked();
@@ -801,7 +822,13 @@ void frmHardwareConfig::updateLocalSetting()
     ui->leBalancingTimeSec->setText((localConfig.balancing.On_TimeSec));
     ui->leHystersis->setText(localConfig.balancing.HystersisMV);
 
-    ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
+    //ui->cbMBSRTUEnable->setChecked(localConfig.modbus.Enable);
+    if(localConfig.modbus.Enable){
+        ui->rbRTU->setChecked(true);
+    }
+    else{
+        ui->rbTCP->setChecked(true);
+    }
     //qDebug()<<"Baud:"<<localConfig.modbus.Bitrate;
     if(localConfig.modbus.Bitrate == "9600"){
         ui->cbBaudrate->setCurrentIndex(0);
@@ -863,6 +890,7 @@ void frmHardwareConfig::updateLocalSetting()
     ui->leSVAValid->setText(localConfig.system.SVA_ValidInterval);
     ui->leBMUValid->setText(localConfig.system.BMU_ValidInterval);
     ui->leBackLightAutoSec->setText(localConfig.system.BacklightOffDelay);
+    ui->leBalancingThreshold->setText(localConfig.system.BalancingThreshold);
 
     ui->cbAutoLaunch->setChecked(localConfig.system.AutoConnect);
 }

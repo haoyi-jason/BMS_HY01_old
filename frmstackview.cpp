@@ -166,7 +166,12 @@ void frmStackView::updateStackInfo()
     ushort bid = collector->currentSystem()->system->minBID();
     ushort cid = collector->currentSystem()->system->minCID();
 
-    message += QString("最低電壓:\n第%1簇 %2-%3 電芯\n").arg(sid+1).arg(bid+1).arg(cid+1);
+    if(cid < 30){
+        message += QString("最低電壓:%1-%2-C%3\n").arg(sid+1).arg(bid+1).arg(cid+1);
+    }
+    else{
+        message += QString("最低電壓:未知");
+    }
 
     BMS_Stack *stack = stackModel->findStack(m_currentStackIndex);
     ui->leMaxCellVoltage->setText(QString("%1").arg(stack->maxCellVoltage()/1000.,5,'f',3,'0'));
@@ -204,28 +209,28 @@ void frmStackView::updateStackInfo()
 //    ui->leVSourceIn_1->setText(QString::number(vs[1]));
 
     if((dig_out[0] & 0x01) == 0x00){
-        ui->lbl_do0->setText("輸出[1]關閉");
+        ui->lbl_do0->setText("Warning OFF");
         QPalette p = ui->lbl_do0->palette();
         p.setColor(ui->lbl_do0->backgroundRole(),Qt::white);
         ui->lbl_do0->setPalette(p);
     }
     else{
-        ui->lbl_do0->setText("輸出[1]開啟");
+        ui->lbl_do0->setText("Warning ON");
         QPalette p = ui->lbl_do0->palette();
-        p.setColor(ui->lbl_do0->backgroundRole(),Qt::green);
+        p.setColor(ui->lbl_do0->backgroundRole(),Qt::yellow);
         //p.setColor(ui->lbl_do0->foregroundRole(),Qt::green);
         ui->lbl_do0->setPalette(p);
     }
     if((dig_out[0] & 0x02) == 0x00){
-        ui->lbl_do1->setText("輸出[2]關閉");
+        ui->lbl_do1->setText("Alarm OFF");
         QPalette p = ui->lbl_do1->palette();
         p.setColor(ui->lbl_do1->backgroundRole(),Qt::white);
         ui->lbl_do1->setPalette(p);
     }
     else{
-        ui->lbl_do1->setText("輸出[2]開啟");
+        ui->lbl_do1->setText("Alarm ON");
         QPalette p = ui->lbl_do1->palette();
-        p.setColor(ui->lbl_do1->backgroundRole(),Qt::green);
+        p.setColor(ui->lbl_do1->backgroundRole(),Qt::red);
         ui->lbl_do1->setPalette(p);
     }
 

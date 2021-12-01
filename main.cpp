@@ -10,8 +10,15 @@ int main(int argc, char *argv[])
 //    MainWindow w;
    // MainInfo w;
 //    StackInfo w;
-    CollectorView w;
-    w.show();
+    if(argc > 1){
+        QTextStream out(stdout);
+        out << "211130\n";
+        return 0;
+    }
+    else{
+        CollectorView w;
+        w.show();
+        return a.exec();
+    }
 
-    return a.exec();
 }

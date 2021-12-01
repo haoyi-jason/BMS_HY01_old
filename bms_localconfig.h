@@ -431,6 +431,7 @@ public:
     QString SVA_ValidInterval;
     QString BMU_ValidInterval;
     QString BacklightOffDelay;
+    QString BalancingThreshold;
     bool Simulate;
     bool AdminLogin;
     bool AutoConnect;
@@ -478,6 +479,12 @@ public:
             AutoConnect = false;
         }
 
+        if(o.contains("balancing_ampere")){
+            BalancingThreshold = o["balancing_ampere"].toString();
+        }
+        else{
+            BalancingThreshold = "0.5"; // ampere
+        }
         ConfigReady = true;
         return true;
     }
@@ -493,6 +500,7 @@ public:
         (*o)["adm_login"] = AdminLogin;
         (*o)["backlight_off_time"] = BacklightOffDelay;
         (*o)["auto_connect"] = AutoConnect;
+        (*o)["balancing_ampere"] = BalancingThreshold;
     }
 };
 

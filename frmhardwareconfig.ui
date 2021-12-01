@@ -35,7 +35,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -57,122 +57,10 @@
         <string>Ethernet</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_14">
-        <item row="4" column="3">
-         <widget class="FocusEditor" name="le_nm_1">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="FocusEditor" name="le_ip0">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="FocusEditor" name="le_gw3">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
-         <widget class="FocusEditor" name="le_nm_2">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="4">
+        <item row="5" column="4">
          <widget class="FocusEditor" name="le_nm_0">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="4">
-         <widget class="QPushButton" name="pbApplyNetwork">
-          <property name="text">
-           <string>Apply</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_21">
-          <property name="text">
-           <string>Gateway</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="FocusEditor" name="le_gw1">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="FocusEditor" name="le_gw2">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="FocusEditor" name="le_ip1">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="FocusEditor" name="le_ip2">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="FocusEditor" name="le_gw0">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="FocusEditor" name="le_ip3">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_22">
-          <property name="text">
-           <string>Net Mask</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="FocusEditor" name="le_nm_3">
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="cbDHCP">
-          <property name="text">
-           <string>DHCP</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_20">
-          <property name="text">
-           <string>IP</string>
           </property>
          </widget>
         </item>
@@ -180,6 +68,118 @@
          <widget class="QCheckBox" name="cbEnableNetwork">
           <property name="text">
            <string>Enable</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="FocusEditor" name="le_ip0">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>Gateway</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4">
+         <widget class="FocusEditor" name="le_gw0">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="FocusEditor" name="le_nm_3">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
+         <widget class="FocusEditor" name="le_gw1">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="FocusEditor" name="le_ip2">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>IP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="FocusEditor" name="le_ip1">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4">
+         <widget class="QPushButton" name="pbApplyNetwork">
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="FocusEditor" name="le_nm_2">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="FocusEditor" name="le_gw2">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="FocusEditor" name="le_ip3">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3">
+         <widget class="FocusEditor" name="le_nm_1">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="FocusEditor" name="le_gw3">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_22">
+          <property name="text">
+           <string>Net Mask</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QCheckBox" name="cbDHCP">
+          <property name="text">
+           <string>DHCP</string>
           </property>
          </widget>
         </item>
@@ -1136,7 +1136,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QLabel" name="label_23">
+         <widget class="QLabel" name="lbVersion">
           <property name="text">
            <string>Rev 210816</string>
           </property>
@@ -1949,7 +1949,7 @@
         <string>MODBUS</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="0" column="1">
+        <item row="0" column="2">
          <widget class="QComboBox" name="cbRTUPort">
           <item>
            <property name="text">
@@ -1963,11 +1963,30 @@
           </item>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="cbMBSRTUEnable">
+        <item row="0" column="5">
+         <widget class="QLabel" name="lb_hclr_2">
           <property name="text">
-           <string>RTU</string>
+           <string>ID=</string>
           </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QComboBox" name="cbRTUParity">
+          <item>
+           <property name="text">
+            <string>NONE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>EVEN</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ODD</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="1" column="0">
@@ -1980,10 +1999,23 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="0" column="7">
+         <spacer name="horizontalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="2">
          <widget class="FocusEditor" name="leTCPPort">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>502</string>
@@ -1993,7 +2025,17 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="cbMBSRTUEnable">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>RTU</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="6">
          <widget class="FocusEditor" name="leRTUID">
           <property name="text">
            <string>1</string>
@@ -2003,14 +2045,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
-         <widget class="QLabel" name="lb_hclr_2">
-          <property name="text">
-           <string>ID=</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
+        <item row="0" column="3">
          <widget class="QComboBox" name="cbRTUBaudrate">
           <item>
            <property name="text">
@@ -2039,37 +2074,19 @@
           </item>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QComboBox" name="cbRTUParity">
-          <item>
-           <property name="text">
-            <string>NONE</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>EVEN</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>ODD</string>
-           </property>
-          </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="rbRTU">
+          <property name="text">
+           <string>RTU</string>
+          </property>
          </widget>
         </item>
-        <item row="0" column="6">
-         <spacer name="horizontalSpacer_10">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="1" column="1">
+         <widget class="QRadioButton" name="rbTCP">
+          <property name="text">
+           <string>TCP</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -2080,6 +2097,13 @@
         <string>Other</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_15">
+        <item row="1" column="1">
+         <widget class="FocusEditor" name="leBMUValid">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="1">
          <widget class="FocusEditor" name="leSVAValid">
           <property name="alignment">
@@ -2090,19 +2114,29 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label_27">
           <property name="text">
-           <string>SVA Valid(sec)</string>
+           <string>SVC連線驗証(sec)</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_28">
           <property name="text">
-           <string>BMU Valid(sec)</string>
+           <string>BMU連線驗証(sec)</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="FocusEditor" name="leBMUValid">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_32">
+          <property name="text">
+           <string>均衡啟動閥值(A)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="FocusEditor" name="leBalancingThreshold">
+          <property name="text">
+           <string>0</string>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>

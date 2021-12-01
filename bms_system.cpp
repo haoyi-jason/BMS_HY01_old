@@ -80,6 +80,7 @@ void BMS_System::generateSystemStructure()
        BalancingHystersis = m_localConfig->balancing.HystersisMV.toInt();
        BalancingOnTime = m_localConfig->balancing.On_TimeSec.toInt();
        BalancingOffTime = m_localConfig->balancing.Off_TimeSec.toInt();
+       m_balancingCurrentThes = (int)(m_localConfig->system.BalancingThreshold.toFloat()*10);
     }
 
     //todo: report time
@@ -1523,17 +1524,19 @@ void BMS_System::clearAlarm()
 
 CAN_Packet *BMS_System::broadcastBalancing()
 {
-    if(m_cellMinVoltage < BalancingVoltage) return nullptr;
+    //if(m_cellMinVoltage < BalancingVoltage) return nullptr; // remove 2021-12-01 to avoid not balancing when there is a cell < bv
 
     bool canBalance = false;
     foreach (BMS_Stack *s, m_stacks) {
         //qDebug()<<"Stacl current:"<<s->sviDevice()->current();
-        if(s->sviDevice()->current()> -5){ // discharge < 0.5A enable balancing
+        if(s->sviDevice()->current()> m_balancingCurrentThes){ // +:charge, -:discharge
+//        if(s->sviDevice()->current()> -5){ // discharge < 0.5A enable balancing
             canBalance = true;
         }
     }
 
     CAN_Packet *ret = new CAN_Packet;
+    ushort bv = (m_cellMinVoltage > BalancingVoltage)?m_cellMinVoltage:(ushort)BalancingVoltage;
     ret->Command = 0x080;
     ret->remote = false;
     QDataStream ds(&ret->data,QIODevice::WriteOnly);
@@ -1543,10 +1546,11 @@ CAN_Packet *BMS_System::broadcastBalancing()
     ds << b; // enable balancing
     b = BalancingHystersis;
     ds << b;
-    ds << m_cellMinVoltage;
+    ds << bv; // modified 2021-12-01
+//    ds << m_cellMinVoltage;
     m_currentBalanceVoltage = m_cellMinVoltage;
 
-    qDebug()<<"Can balance:"<<canBalance;
+    //qDebug()<<"Can balance:"<<canBalance;
     return ret;
 
 }

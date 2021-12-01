@@ -15,7 +15,7 @@ class QPushButton;
 
 //static QMap<QString, int> alarm_map = {"電池組"};
 //static QString alarm_string[]={"電池組過壓","電池組欠壓","電池組過溫","電池組低溫","電芯過壓","電芯欠壓","電池過溫","電池低溫","BMU失聯","BCU","SVC"};
-static QString alarm_string[]={"電池組過壓","電池組欠壓","電芯過壓","電芯欠壓","電池過溫","電池低溫","BMU","SVC"};
+static QString alarm_string[]={"總電壓過壓","總電壓欠壓","電芯過壓","電芯欠壓","電池過溫","電池低溫","BMU失聯","SVC失聯"};
 
 class frmStackView : public QWidget
 {

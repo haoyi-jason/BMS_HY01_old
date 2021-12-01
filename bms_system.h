@@ -157,6 +157,7 @@ private:
     quint16 m_eventRecordSize = 0xffff;
     quint16 m_maxEventRecords;
     bool m_isController = true;
+    int m_balancingCurrentThes;
 };
 
 #endif // BMS_SYSTEM_H
