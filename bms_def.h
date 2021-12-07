@@ -46,7 +46,9 @@ namespace bms {
         CELL_UVA,
         CELL_OTA,
         CELL_UTA,
-        SOC_LOW_A
+        SOC_LOW_A,
+        BMU_LOAT_A,
+        SVC_LOST_A
     };
 }
 

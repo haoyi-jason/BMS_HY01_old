@@ -1016,8 +1016,29 @@ void frmHardwareConfig::on_pbApplyNetwork_clicked()
     else{
        path = "/opt/bms/config/controller.json"; //-- change after Jul. 21'
     }
+    localConfig.network.Enable = ui->cbEnableNetwork->isChecked();
+    localConfig.network.Dhcp = ui->cbDHCP->isChecked();
     localConfig.network.ip = QString("%1.%2.%3.%4").arg(ui->le_ip3->text()).arg(ui->le_ip2->text()).arg(ui->le_ip1->text()).arg(ui->le_ip0->text());
     localConfig.network.gateway = QString("%1.%2.%3.%4").arg(ui->le_gw3->text()).arg(ui->le_gw2->text()).arg(ui->le_gw1->text()).arg(ui->le_gw0->text());
     localConfig.network.mask = QString("%1.%2.%3.%4").arg(ui->le_nm_3->text()).arg(ui->le_nm_2->text()).arg(ui->le_nm_1->text()).arg(ui->le_nm_0->text());
     localConfig.save(path);
+
+    // 211202: write to /lib/systemd/network/80-wired.network
+    QString text;
+    text = "[Match]\nName=en* eth*\nKernelCommandLine=!nfsroot\n\n";
+    text += "[Network]\n";
+    if(localConfig.network.Dhcp){
+        text += "DHCP=yes\n\n";
+        text += "[DHCP]\nRouteMetric=10\nClientIdentifier=mac\n";
+    }
+    else{
+        text += QString("Address=%1/24\nGateway=%2\n").arg(localConfig.network.ip).arg(localConfig.network.gateway);
+    }
+
+    QFile f("/lib/systemd/network/80-wired.network");
+    if(f.open(QFile::WriteOnly)){
+        f.write(text.toUtf8());
+        f.close();
+    }
+
 }

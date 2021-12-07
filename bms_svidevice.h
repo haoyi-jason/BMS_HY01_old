@@ -15,7 +15,7 @@ public:
     void voltage(int v){m_stackVoltage = v;}
     int current();
     void current(int v){m_stackCurrent  =v;}
-    float soc(){return m_soc + m_simSOC;}
+    float soc(){return m_simSOC==0?m_soc:m_simSOC;}
     void soc(float v){m_soc = v;}
     float soh(){return m_soh;}
     void soh(float v){m_soh = v;}

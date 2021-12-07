@@ -423,7 +423,8 @@ quint32 BMS_Stack::alarmState()
         if(b->isOVA()) alarm |= (1 << bms::CELL_OVA);
         if(b->isUVA()) alarm |= (1 << bms::CELL_UVA);
         if(b->isLost()){
-            alarm |= (1 <<bms::BMU_LOST);
+            //alarm |= (1 <<bms::BMU_LOST);
+            alarm |= (1 << bms::BMU_LOAT_A);
             //qDebug()<< QString("BMU %1 Lost").arg(id);
         }
         if(b->maxCellVoltage()>max_v){
@@ -457,7 +458,8 @@ quint32 BMS_Stack::alarmState()
     if(m_svi->isUvWarning())
         alarm |= (1 << bms::STACK_UV);
     if(m_svi->deviceLost())
-        alarm |= (1 << bms::SVI_LOST);
+        //alarm |= (1 << bms::SVI_LOST);
+        alarm |= (1 << bms::SVC_LOST_A);
 
     if(m_svi->isOvAlarm())
         alarm |= (1 << bms::STACK_OVA);

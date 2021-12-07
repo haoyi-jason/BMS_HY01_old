@@ -213,7 +213,7 @@
           <item row="0" column="7">
            <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>電流(安培)</string>
+             <string>電流(A)</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

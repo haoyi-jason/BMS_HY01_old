@@ -160,7 +160,7 @@ void frmStackView::updateStackInfo()
     foreach(BMS_Stack *s,collector->currentSystem()->system->stacks()){
         current += s->stackCurrent();
     }
-    message += QString("總電流:%1 安培\n").arg(current/10,5,'f',1,'0');
+    message += QString("總電流:%1 A\n").arg(current/10,5,'f',1,'0');
 
     ushort sid = collector->currentSystem()->system->minSID();
     ushort bid = collector->currentSystem()->system->minBID();

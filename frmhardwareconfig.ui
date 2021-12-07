@@ -35,7 +35,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -322,7 +322,7 @@
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
-     <string>Peripheral</string>
+     <string>週邊控制</string>
     </attribute>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>

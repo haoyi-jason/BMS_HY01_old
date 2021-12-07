@@ -709,13 +709,13 @@ void BMS_System::validState()
         if(s->sviDevice()->isLosted()){
             if(!s->sviDevice()->deviceLost()){
                 s->sviDevice()->isLosted(false);
-                evt_log("SVI Recover","NO",s->state(),QString("S-%1").arg(s->groupID()));
+                evt_log("SVC 復歸","二級",s->state(),QString("S-%1").arg(s->groupID()));
             }
         }
         else{
             if(s->sviDevice()->deviceLost()){
                 s->sviDevice()->isLosted(true);
-                evt_log("SVI Lost","NO",s->state(),QString("S-%1").arg(s->groupID()));
+                evt_log("SVC 失聯","二級",s->state(),QString("S-%1").arg(s->groupID()));
             }
         }
 
@@ -765,14 +765,14 @@ void BMS_System::validState()
             if(b->isLosted()){
                 if(!b->deviceLost()){
                     b->isLosted(false);
-                    evt_log("BMU Recover","一級",s->state(),QString("S%1-B%2").arg(s->groupID()).arg(b->deviceID()));
+                    evt_log("BMU 復歸","二級",s->state(),QString("S%1-B%2").arg(s->groupID()).arg(b->deviceID()));
                 }
             }
             else{
                 if(b->deviceLost() && !m_simulating){
                     b->isLosted(true);
                     b->resetValues();
-                    evt_log("BMU Lost","一級",s->state(),QString("S%1-B%2").arg(s->groupID()).arg(b->deviceID()));
+                    evt_log("BMU 失聯","二級",s->state(),QString("S%1-B%2").arg(s->groupID()).arg(b->deviceID()));
                 }
             }
             minCellVoltage = minCellVoltage > b->minCellVoltage()?b->minCellVoltage():minCellVoltage;
@@ -944,7 +944,7 @@ void BMS_System::validState()
 
     m_socSaveDelay--;
     if(m_socSaveDelay == 0){
-        m_socSaveDelay = 300;
+        m_socSaveDelay = 60;
         saveCurrentSOC();
         checkDiskSpace();
     }
