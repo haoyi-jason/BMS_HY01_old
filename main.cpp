@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 //    StackInfo w;
     if(argc > 1){
         QTextStream out(stdout);
-        out << "211207\n";
+        out << "22022201\n";
         return 0;
     }
     else{

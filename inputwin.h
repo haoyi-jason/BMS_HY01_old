@@ -41,6 +41,7 @@ public:
     int max(){return m_maxVal;}
     void passWordMode(bool b){setEchoMode(b?QLineEdit::Password:QLineEdit::Normal);}
 
+
 signals:
     void focused(bool b);
 public slots:
@@ -60,6 +61,8 @@ protected:
         }
         return true;
     }
+
+
 
 private:
     int m_minVal = 0;

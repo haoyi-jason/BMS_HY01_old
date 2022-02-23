@@ -136,8 +136,8 @@ public:
         b8 = channel;
         ds << b8;
         b8 = 0; // raw low
-        ds << 8;
-        ds >> raw;
+        ds << b8;
+        ds << raw;
         return ret;
     }
 
@@ -151,8 +151,8 @@ public:
         b8 = channel;
         ds << b8;
         b8 = 1; // raw low
-        ds << 8;
-        ds >> raw;
+        ds << b8;
+        ds << raw;
         return p;
     }
 
@@ -179,35 +179,38 @@ public:
         b8 = channel;
         ds << b8;
         b8 = 3; // eng high
-        ds << 8;
+        ds << b8;
         ds << eng;
         return p;
     }
 
     static CAN_Packet *zeroCalibration(quint8 gid,int channel){
         CAN_Packet *p = new CAN_Packet;
+        //qDebug()<<"Size:"<<p->data.size();
         p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
         //quint16 b16;
-        b8 = channel;
+        b8 = (quint8)channel;
         ds << b8;
         b8 = 4; // zero calibration
-        ds << 8;
+        ds << b8;
+
         return p;
     }
 
     static CAN_Packet *bandCalibration(quint8 gid,int channel, float band){
         CAN_Packet *p = new CAN_Packet;
+        p->remote = false;
         p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
-        b8 = channel;
+        b8 = (quint8)channel;
         ds << b8;
         b8 = 5; // band calibration
-        ds << 8;
+        ds << b8;
         ds << band;
         return p;
     }

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 
+class InputWin;
 namespace Ui {
 class LoginValid;
 }
@@ -28,6 +29,7 @@ private:
     Ui::LoginValid *ui;
 
     QString m_fname;
+    InputWin *m_inputWin;
 };
 
 #endif // LOGINVALID_H

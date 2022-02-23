@@ -255,7 +255,7 @@ void frmStackView::updateStackInfo()
         warning >>= 1;
     }
     quint32 alarm = (state >> 16);
-    for(int i=0;i<6;i++){
+    for(int i=0;i<8;i++){
         QPalette p = m_alarmLabels[i]->palette();
         if(alarm & 0x01){
             p.setColor(m_alarmLabels[i]->backgroundRole(),Qt::red);

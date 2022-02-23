@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QCryptographicHash>
+#include "inputwin.h"
 
 LoginValid::LoginValid(QWidget *parent) :
     QDialog(parent),
@@ -29,6 +30,9 @@ LoginValid::LoginValid(QWidget *parent) :
     connect(ui->lePasswd,&FocusEditor::focused,this,&LoginValid::on_lineedit_focused);
     connect(ui->lePasswd_2,&FocusEditor::focused,this,&LoginValid::on_lineedit_focused);
 
+    //connect(ui->lePasswd,&FocusEditor::,this,&LoginValid::on_lineedit_focused);
+
+    m_inputWin = new InputWin(this);
 
 }
 
@@ -65,11 +69,19 @@ void LoginValid::on_lineedit_focused(bool state)
 {
     //qDebug()<<Q_FUNC_INFO;
     FocusEditor *editor = (FocusEditor*)sender();
-    InputWin *w = new InputWin;
-    w->setAttribute(Qt::WA_DeleteOnClose);
-    w->setDisplayContent(editor->text());
-    connect(w,&InputWin::result,editor,&FocusEditor::setText);
-    w->exec();
+    //InputWin *w = new InputWin(this);
+    //w->setAttribute(Qt::WA_DeleteOnClose);
+    //w->setDisplayContent(editor->text());
+    //connect(w,&InputWin::result,editor,&FocusEditor::setText);
+    //w->exec();
+//    m_inputWin = new InputWin(this);
+//    m_inputWin->setAttribute(Qt::WA_DeleteOnClose);
+    m_inputWin->setDisplayContent(editor->text());
+    connect(m_inputWin,&InputWin::result,editor,&FocusEditor::setText);
+    //m_inputWin->exec();
+    //m_inputWin->setModal(true);
+    m_inputWin->hide();
+    m_inputWin->show();
 }
 
 void LoginValid::on_pbOk_clicked()

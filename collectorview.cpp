@@ -53,7 +53,7 @@ CollectorView::CollectorView(QWidget *parent) :
     //qDebug()<<"System Type:"<<QSysInfo::productType();
     //qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     m_StackWin = new frmStackView();
-    m_HardwareWin = new frmHardwareConfig();
+    m_HardwareWin = new frmHardwareConfig(this);
     m_HistWin = new frmHistoryView();
     m_evtView = new frmEventView();
     m_messageBox = new frmMessage();

@@ -648,14 +648,14 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Set</string>
+           <string>SOC</string>
           </property>
          </widget>
         </item>
         <item row="0" column="4">
          <widget class="QPushButton" name="pbSVIConfig">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">

@@ -136,6 +136,8 @@ private:
     BMSCollector *m_collector;
     BMS_LocalConfig localConfig;
     QString CurrentCriteria;
+
+    InputWin *m_inputWin;
 };
 
 #endif // FRMHARDWARECONFIG_H

@@ -992,6 +992,9 @@ void BMS_System::checkDiskSpace()
         QDir dest("/mnt/t/log");
         if(!dest.exists()){
             QDir().mkpath("/mnt/t/log");
+            if(!dest.exists()){
+                return;
+            }
         }
         uint nofFiles = src.count();
         if(nofFiles > 0){
@@ -1002,6 +1005,7 @@ void BMS_System::checkDiskSpace()
                 const QFileInfo& fi = files[i];
                 //if(fi.completeSuffix() == "csv")
                 bool move = true;
+                // comment follow code to move all files
                 foreach (QString s, activeFiles) {
                     if(s == fi.fileName()){
                         move = false;
@@ -1010,6 +1014,11 @@ void BMS_System::checkDiskSpace()
                 }
                 if(move){
                     cmd = QString("mv %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
+                    proc.execute(cmd);
+                    proc.waitForFinished();
+                }
+                else{
+                    cmd = QString("cp %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
                     proc.execute(cmd);
                     proc.waitForFinished();
                 }
@@ -1251,6 +1260,7 @@ void BMS_System::rec_log_csv()
                 ds << ",SVI-V(V),SVI-C(A),SOC,MODE ";
                 ds << ",C_MAX(V),C_MAX_ID,C_MIN,C_MIN_ID,DIFFV";
                 ds << ",T_MAX("<<QChar(0xb0)<<"C),T_MAX_ID,T_MIN("<<QChar(0xb0)<<"C),T_MIN_ID,DIFFT";
+                ds << ",Reason(0:No,1:Warning,2:Alarm)"; //- added 20211222
                 ds <<"\n";
             }
             {
@@ -1266,6 +1276,7 @@ void BMS_System::rec_log_csv()
                 ds << QString(",%1,%2,%3,%4").arg(s->sviDevice()->voltage()/10,5,'f',1).arg(s->sviDevice()->current()/10.,5,'f',1).arg(s->sviDevice()->soc()).arg(s->state());
                 ds << QString(",%1,%2:%3,%4,%7:%5,%6").arg(s->maxStackCV()).arg(s->maxCVBID()+1).arg(s->maxCVCID()+1).arg(s->minStackCV()).arg(s->minCVCID()+1).arg(s->maxStackCV() - s->minStackCV()).arg(s->minCVBID()+1);
                 ds << QString(",%1,%2:%3,%4,%7:%5,%6").arg(s->maxStackPT()/10.).arg(s->maxCTBID()+1).arg(s->maxCTTID()+1).arg(s->minStackPT()/10.).arg(s->minCTTID()+1).arg((s->maxStackPT() - s->minStackPT())/10.).arg(s->minCTBID()+1);
+                ds << QString(",0x%1").arg(alarmState(),8,16);
                 ds <<"\n";
             }
         }

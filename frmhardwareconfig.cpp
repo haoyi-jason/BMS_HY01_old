@@ -101,6 +101,8 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     Version += proc.readAll().trimmed();
 
     ui->lbVersion->setText(Version);
+
+    m_inputWin = new InputWin;
 }
 
 frmHardwareConfig::~frmHardwareConfig()
@@ -272,23 +274,30 @@ void frmHardwareConfig::on_lineedit_focused(bool state)
 {
     //qDebug()<<Q_FUNC_INFO;
     FocusEditor *editor = (FocusEditor*)sender();
-    InputWin *w = new InputWin;
-    w->setAttribute(Qt::WA_DeleteOnClose);
-    w->setDisplayContent(editor->text());
-    connect(w,&InputWin::result,editor,&FocusEditor::setText);
-    w->exec();
+    //InputWin *w = new InputWin;
+
+    //m_inputWin->setAttribute(Qt::WA_DeleteOnClose);
+    m_inputWin->setDisplayContent(editor->text());
+    disconnect(m_inputWin,&InputWin::result,0,0);
+    connect(m_inputWin,&InputWin::result,editor,&FocusEditor::setText);
+    //m_inputWin->exec();
+    m_inputWin->hide();
+    m_inputWin->show();
 }
 
 void frmHardwareConfig::on_lineedit_focused_ip(bool state)
 {
     FocusEditor *editor = (FocusEditor*)sender();
-    InputWin *w = new InputWin;
-    w->setAttribute(Qt::WA_DeleteOnClose);
-    w->setDisplayContent(editor->text());
-    w->setLimit(255,0);
-    w->checkInput(true);
-    connect(w,&InputWin::result,editor,&FocusEditor::setText);
-    w->exec();
+    //InputWin *w = new InputWin;
+    //w->setAttribute(Qt::WA_DeleteOnClose);
+    m_inputWin->setDisplayContent(editor->text());
+    m_inputWin->setLimit(255,0);
+    m_inputWin->checkInput(true);
+    disconnect(m_inputWin,&InputWin::result,0,0);
+    connect(m_inputWin,&InputWin::result,editor,&FocusEditor::setText);
+//    w->exec();
+    m_inputWin->hide();
+    m_inputWin->show();
 }
 
 
