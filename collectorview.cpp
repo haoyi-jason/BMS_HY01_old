@@ -272,6 +272,7 @@ void CollectorView::on_pbHardwareView_clicked()
     }
     mainWidget = m_HardwareWin;
     ui->mainLayout->addWidget(mainWidget);
+    m_HardwareWin->refresh_version_string();
     mainWidget->show();
 }
 

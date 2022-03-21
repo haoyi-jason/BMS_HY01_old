@@ -85,9 +85,20 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
 
     load_settings();
 
+
+    m_inputWin = new InputWin;
+}
+
+frmHardwareConfig::~frmHardwareConfig()
+{
+    delete ui;
+}
+
+void frmHardwareConfig::refresh_version_string()
+{
     // version test
     QString Version;
-    Version += "Rev:";
+    Version += "Rev(C/U):";
     QProcess proc;
 
     proc.start("sh", QStringList()<<"-c" << "/opt/BMS_Controller/bin/BMS_Controller -v");
@@ -101,13 +112,6 @@ frmHardwareConfig::frmHardwareConfig(QWidget *parent) :
     Version += proc.readAll().trimmed();
 
     ui->lbVersion->setText(Version);
-
-    m_inputWin = new InputWin;
-}
-
-frmHardwareConfig::~frmHardwareConfig()
-{
-    delete ui;
 }
 
 void frmHardwareConfig::setCollector(BMSCollector *c)
@@ -118,6 +122,8 @@ void frmHardwareConfig::setCollector(BMSCollector *c)
     connect(m_collector,&BMSCollector::configReady,this,&frmHardwareConfig::on_system_config_ready);
     connect(m_collector,&BMSCollector::dataReceived,this,&frmHardwareConfig::on_system_data_ready);
     //qDebug()<<Q_FUNC_INFO<< "OUT";
+
+    refresh_version_string();
 }
 
 void frmHardwareConfig::update_collector()
@@ -310,9 +316,13 @@ void frmHardwareConfig::on_pbSVIConfig_clicked()
 {
     if(m_collector == nullptr) return;
     if(m_collector->currentSystem() == nullptr) return;
-    QString command;
-    command = QString("SVI:AIMAP:%1:%2:%3:%4").arg(ui->cbSVI->currentIndex()+1).arg(ui->cbSVIChannel->currentIndex()+2).arg(ui->cbSVIOption->currentIndex()).arg(ui->leSVIValue->text());
-    m_collector->currentSystem()->writeCommand(command);
+
+    //if(QMessageBox::warning(this,"Confirm","Calibration",QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok){
+        QString command;
+        command = QString("SVI:AIMAP:%1:%2:%3:%4").arg(ui->cbSVI->currentIndex()+1).arg(ui->cbSVIChannel->currentIndex()+2).arg(ui->cbSVIOption->currentIndex()).arg(ui->leSVIValue->text());
+        m_collector->currentSystem()->writeCommand(command);
+    //}
+
 }
 
 void frmHardwareConfig::on_pbSaveSVI_clicked()

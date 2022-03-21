@@ -19,6 +19,7 @@ public:
     ~frmHardwareConfig();
     void setCollector(BMSCollector *c);
     void setLocalConfig(QString cfgName);
+    void refresh_version_string();
 
 public slots:
     void on_system_config_ready();

@@ -979,7 +979,7 @@ void BMS_System::checkDiskSpace()
     QStorageInfo sd_info = QStorageInfo("/mnt/t");
 
     int sd_size = sd_info.bytesTotal()/1024/1024;
-    qDebug()<<"SD Card Installed, Size="<<sd_size;
+    //qDebug()<<"SD Card Installed, Size="<<sd_size;
     QList<QString> activeFiles;
     for(int i=0;i<this->stacks().count();i++){
         QString path = QString("S_0%1_%2.csv").arg(i+1).arg(QDateTime::currentDateTime().toString("yyyyMMdd_hh"));
@@ -1030,7 +1030,7 @@ void BMS_System::checkDiskSpace()
         }
     }
     else{
-        qDebug()<<"NO SD card installed";
+        //qDebug()<<"NO SD card installed";
         QStorageInfo info=QStorageInfo::root();
         int mb = info.bytesAvailable()/1024/1024;
         if(mb < 100){

@@ -1161,7 +1161,7 @@
          <widget class="QDateEdit" name="dateEdit">
           <property name="minimumSize">
            <size>
-            <width>120</width>
+            <width>180</width>
             <height>0</height>
            </size>
           </property>
@@ -1174,7 +1174,7 @@
          <widget class="QTimeEdit" name="timeEdit">
           <property name="minimumSize">
            <size>
-            <width>120</width>
+            <width>180</width>
             <height>0</height>
            </size>
           </property>

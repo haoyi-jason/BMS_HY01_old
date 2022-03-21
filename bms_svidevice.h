@@ -126,19 +126,19 @@ public:
 
 
 
-    static CAN_Packet *rawLow(CAN_Packet *p, quint8 gid,int channel, ushort raw){
-        CAN_Packet *ret = new CAN_Packet;
+    static CAN_Packet *rawLow(quint8 gid,int channel, ushort raw){
+        CAN_Packet *p = new CAN_Packet;
         p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
         quint16 b16;
-        b8 = channel;
+        b8 = (quint8)channel;
         ds << b8;
         b8 = 0; // raw low
         ds << b8;
         ds << raw;
-        return ret;
+        return p;
     }
 
     static CAN_Packet *rawHigh(quint8 gid,int channel, ushort raw){
@@ -148,7 +148,7 @@ public:
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
         quint16 b16;
-        b8 = channel;
+        b8 = (quint8)channel;
         ds << b8;
         b8 = 1; // raw low
         ds << b8;
@@ -162,10 +162,10 @@ public:
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
         quint8 b8;
-        b8 = channel;
+        b8 = (quint8)channel;
         ds << b8;
         b8 = 2; // eng low
-        ds << 8;
+        ds << b8;
         ds << eng;
         return p;
     }
@@ -175,8 +175,9 @@ public:
         p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
+        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
         quint8 b8;
-        b8 = channel;
+        b8 = (quint8)channel;
         ds << b8;
         b8 = 3; // eng high
         ds << b8;
@@ -190,6 +191,7 @@ public:
         p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
+        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
         quint8 b8;
         //quint16 b16;
         b8 = (quint8)channel;
@@ -206,12 +208,14 @@ public:
         p->Command = 0x160 | ((GROUP(gid) | 0x1F)<<12);
         QDataStream ds(&p->data,QIODevice::WriteOnly);
         ds.setByteOrder(QDataStream::LittleEndian);
+        ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
         quint8 b8;
         b8 = (quint8)channel;
         ds << b8;
         b8 = 5; // band calibration
         ds << b8;
         ds << band;
+        //qDebug()<<"Packet Size:"<<p->data.size();
         return p;
     }
 
