@@ -155,8 +155,10 @@ CollectorView::CollectorView(QWidget *parent) :
  //   qDebug()<<QString("Width:%1, Height%2").arg(this->width()).arg(this->height());
     m_rtcLabel = new QLabel("yyyy/MM/dd hh:mm:ss");
     m_information = new QLabel;
+    m_sdInfo = new QLabel;
     ui->statusbar->addPermanentWidget(m_rtcLabel);
     ui->statusbar->addWidget(m_information);
+    ui->statusbar->addPermanentWidget(m_sdInfo);
 
     QProcess *proc = new QProcess;
     QString cmd;
@@ -227,6 +229,17 @@ void CollectorView::on_Controller_Offline()
 void CollectorView::on_Idle()
 {
     m_rtcLabel->setText(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+
+    QStorageInfo sd_info = QStorageInfo("/run/media/mmcblk1p1");
+
+    QString info="";
+    if(sd_info.isValid()){
+        info = QString("SD:%1/%2 MB").arg(sd_info.bytesFree()>>20).arg(sd_info.bytesTotal()>>20);
+    }
+    else{
+        info = "NO SD Card";
+    }
+    m_sdInfo->setText(info);
     if(!m_enableBacklightOff) return;
 
     if(m_TimeToShutdownScreen < m_BacklightShutdownSec){
@@ -380,6 +393,7 @@ void CollectorView::on_pbEventView_clicked()
         }
         m_evtView->setLogFile(path,recPath);
     }
+
 }
 
 void CollectorView::on_pbSystemNavi_clicked()

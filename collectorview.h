@@ -94,7 +94,7 @@ private:
     bool restartController = false;
     QLabel *m_information;
     QTcpSocket *m_client;
-
+    QLabel *m_sdInfo;
 };
 
 #endif // COLLECTORVIEW_H

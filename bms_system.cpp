@@ -975,65 +975,102 @@ void BMS_System::saveCurrentSOC()
 void BMS_System::checkDiskSpace()
 {
     if(!m_isController) return;
+    QString _dest = "/mnt/t";
+    // check if dest folder exists
+//    if(!QDir("/mnt/t").exists()){
+//        sys_log("SD Card Mount point not exists, create it!");
+//        QDir().mkdir("/mn/t");
+//    }
+
+    QProcess proc;
+    // mount sd card
+
+    //proc.start("mount /dev/mmcblk1p1 /mnt/t");
+    //proc.waitForFinished();
+    //qDebug()<<"Mount SD Card:"<<QString(proc.readAll());
     // try to move data to sd card if mounted
-    QStorageInfo sd_info = QStorageInfo("/mnt/t");
+    QStorageInfo sd_info = QStorageInfo(_dest);
 
     int sd_size = sd_info.bytesTotal()/1024/1024;
     //qDebug()<<"SD Card Installed, Size="<<sd_size;
-    QList<QString> activeFiles;
-    for(int i=0;i<this->stacks().count();i++){
-        QString path = QString("S_0%1_%2.csv").arg(i+1).arg(QDateTime::currentDateTime().toString("yyyyMMdd_hh"));
-        activeFiles.append(path);
-    }
-    if(sd_size > 100){
-        int sd_size_free =  sd_info.bytesAvailable()/1024/1024;
+    int sd_size_free =  sd_info.bytesAvailable()/1024/1024;
+    if(sd_info.isValid()){
         QDir src(this->m_logPath);
-        QProcess proc;
-        QDir dest("/mnt/t/log");
-        if(!dest.exists()){
-            QDir().mkpath("/mnt/t/log");
-            if(!dest.exists()){
-                return;
+        _dest += "/log";
+        int cleanFiles = 0;
+        QDir dest(_dest);
+        if((sd_size_free > 100)){ // 100 MB available
+            sys_log("Moving record files...");
+            if(dest.count() > (m_localConfig->record.LogDays.toInt() *24)){
+                cleanFiles = 1;
             }
-        }
-        uint nofFiles = src.count();
-        if(nofFiles > 0){
-            QString cmd;
-            QFileInfoList files = src.entryInfoList(QStringList()<<"*.csv",QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+            QList<QString> activeFiles;
+            for(int i=0;i<this->stacks().count();i++){
+                QString path = QString("S_0%1_%2.csv").arg(i+1).arg(QDateTime::currentDateTime().toString("yyyyMMdd_hh"));
+                activeFiles.append(path);
+            }
+            if(!dest.exists()){
+                sys_log("Destination log path not present, create!"+_dest);
+                QDir().mkpath(_dest);
+                if(!dest.exists()){
+                    sys_log("Create destination log path failed!");
+                    return;
+                }
+            }
+            uint nofFiles = src.count();
+            if(nofFiles > 0){
+                QString cmd;
+                QFileInfoList files = src.entryInfoList(QStringList()<<"*.csv",QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
 
-            for(int i=0;i<files.size();i++){
-                const QFileInfo& fi = files[i];
-                //if(fi.completeSuffix() == "csv")
-                bool move = true;
-                // comment follow code to move all files
-                foreach (QString s, activeFiles) {
-                    if(s == fi.fileName()){
-                        move = false;
-                        break;
+                for(int i=0;i<files.size();i++){
+                    const QFileInfo& fi = files[i];
+                    //if(fi.completeSuffix() == "csv")
+                    bool move = true;
+                    // comment follow code to move all files
+                    foreach (QString s, activeFiles) {
+                        if(s == fi.fileName()){
+                            move = false;
+                            break;
+                        }
+                    }
+                    if(move){
+                        cmd = QString("mv %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
+                        proc.execute(cmd);
+                        proc.waitForFinished();
+                    }
+                    else{
+                        cmd = QString("cp %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
+                        proc.execute(cmd);
+                        proc.waitForFinished();
                     }
                 }
-                if(move){
-                    cmd = QString("mv %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
-                    proc.execute(cmd);
-                    proc.waitForFinished();
-                }
-                else{
-                    cmd = QString("cp %1 /mnt/t/log/%2").arg(fi.absoluteFilePath()).arg(fi.fileName());
-                    proc.execute(cmd);
-                    proc.waitForFinished();
-                }
-
-//                cmd = QString("rm %1").arg(fi.absoluteFilePath());
-//                proc.execute(cmd);
-//                proc.waitForFinished();
+            }
+        }
+        else{
+            cleanFiles = 2;
+        }
+        if(cleanFiles == 1){ // days expired
+            uint nofFiles = dest.count();
+            QFileInfoList files = dest.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+            int fileToRemove = nofFiles - m_localConfig->record.LogDays.toInt() * 24;
+            for(int i=0;i<fileToRemove;i++){
+                const QFileInfo& info = files.at(i);
+                QFile::remove(info.absoluteFilePath());
+            }
+        }
+        else if(cleanFiles == 2){ // disk space low
+            QFileInfoList files = dest.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
+            for(int i=0;i<24;i++){
+                const QFileInfo& info = files.at(i);
+                QFile::remove(info.absoluteFilePath());
             }
         }
     }
     else{
-        //qDebug()<<"NO SD card installed";
         QStorageInfo info=QStorageInfo::root();
         int mb = info.bytesAvailable()/1024/1024;
-        if(mb < 100){
+        if(mb < 20){
+            sys_log("Local Disk space low, remove old files");
             QDir dir(this->m_logPath);
             uint nofFiles = dir.count();
             if(nofFiles > 24){ // kill 24 files (per day)
@@ -1047,6 +1084,9 @@ void BMS_System::checkDiskSpace()
         }
     }
 
+//   proc.start("umount /mnt/t");
+//   proc.waitForFinished();
+//   qDebug()<<"Unmount SD Card:"<<QString(proc.readAll());
 
 }
 QByteArray BMS_System::data()
@@ -1403,10 +1443,11 @@ void BMS_System::sys_log(QString msg)
         QDir().mkpath(path);
     }
     path += "/" + QDateTime::currentDateTime().toString("yyyyMMdd.log");
+    //qDebug()<<"Sys log path:"<<path;
     QFile f(path);
-    if(f.open(QIODevice::WriteOnly)){
+    if(f.open(QIODevice::WriteOnly | QIODevice::Append)){
         QTextStream ts(&f);
-        ts << msg;
+        ts<<QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss->") << msg <<"\n";
         f.close();
     }
 }

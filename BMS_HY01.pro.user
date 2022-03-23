@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.13.1, 2022-03-21T13:42:47. -->
+<!-- Written by QtCreator 4.13.1, 2022-03-22T17:34:02. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -285,13 +285,13 @@
       </valuelist>
       <valuelist type="QVariantList" key="ProjectExplorer.RunConfiguration.LastDeployedHosts">
        <value type="QString">192.168.0.119</value>
-       <value type="QString">192.168.0.240</value>
-       <value type="QString">192.168.0.117</value>
-       <value type="QString">192.168.1.240</value>
-       <value type="QString">192.168.1.139</value>
-       <value type="QString">192.168.0.114</value>
        <value type="QString">192.168.0.122</value>
        <value type="QString">192.168.1.240</value>
+       <value type="QString">192.168.1.240</value>
+       <value type="QString">192.168.1.139</value>
+       <value type="QString">192.168.0.240</value>
+       <value type="QString">192.168.0.114</value>
+       <value type="QString">192.168.0.117</value>
        <value type="QString">192.168.0.109</value>
       </valuelist>
       <valuelist type="QVariantList" key="ProjectExplorer.RunConfiguration.LastDeployedRemotePaths">
@@ -320,24 +320,24 @@
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.Incremental">true</value>
       <valuelist type="QVariantList" key="RemoteLinux.LastDeployedLocalTimes">
        <value type="QDateTime">2021-08-16T12:37:42.875</value>
-       <value type="QDateTime">2021-10-18T17:19:25.179</value>
-       <value type="QDateTime">2021-07-18T15:53:30.615</value>
-       <value type="QDateTime">2022-03-21T10:43:47.588</value>
-       <value type="QDateTime">2021-12-02T09:15:10.097</value>
-       <value type="QDateTime">2021-07-19T09:40:43.771</value>
        <value type="QDateTime">2021-08-02T16:11:41.038</value>
        <value type="QDateTime">2022-02-23T09:58:49.162</value>
+       <value type="QDateTime">2022-03-21T10:43:47.588</value>
+       <value type="QDateTime">2021-12-02T09:15:10.097</value>
+       <value type="QDateTime">2021-10-18T17:19:25.179</value>
+       <value type="QDateTime">2021-07-19T09:40:43.771</value>
+       <value type="QDateTime">2021-07-18T15:53:30.615</value>
        <value type="QDateTime">2021-08-05T13:32:37.893</value>
       </valuelist>
       <valuelist type="QVariantList" key="RemoteLinux.LastDeployedRemoteTimes">
        <value type="QDateTime">2021-03-12T18:44:16.000</value>
-       <value type="QDateTime">2021-03-12T18:59:39.000</value>
-       <value type="QDateTime">2021-07-18T23:54:26.000</value>
-       <value type="QDateTime">2022-03-21T10:44:08.000</value>
-       <value type="QDateTime">2021-12-01T19:32:57.000</value>
-       <value type="QDateTime">2021-07-19T17:40:54.000</value>
        <value type="QDateTime">2021-08-03T00:12:04.000</value>
        <value type="QDateTime">2022-02-23T09:59:05.000</value>
+       <value type="QDateTime">2022-03-21T10:44:08.000</value>
+       <value type="QDateTime">2021-12-01T19:32:57.000</value>
+       <value type="QDateTime">2021-03-12T18:59:39.000</value>
+       <value type="QDateTime">2021-07-19T17:40:54.000</value>
+       <value type="QDateTime">2021-07-18T23:54:26.000</value>
        <value type="QDateTime">2021-08-05T21:33:03.000</value>
       </valuelist>
      </valuemap>
