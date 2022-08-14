@@ -43,7 +43,7 @@ class Controller_V1
 {
 public:
     Controller_V1();
-    void LoadConfig();
+    void LoadConfig(QString defaultPath="");
 
 };
 
