@@ -50,6 +50,10 @@ void BMS_LocalConfig::load(QByteArray b)
         QJsonObject ob = obj["event_output"].toObject();
         event_output.parseJson(ob);
     }
+    if(obj.contains("canbus")){
+        QJsonObject ob = obj["canbus"].toObject();
+        conbus.parseJson(ob);
+    }
 }
 
 void BMS_LocalConfig::load(QString fileName)

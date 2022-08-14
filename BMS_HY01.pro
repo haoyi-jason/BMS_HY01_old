@@ -36,6 +36,7 @@ SOURCES += \
         bmscollector.cpp \
         can_codec.cpp \
         collectorview.cpp \
+        controller_v1.cpp \
         frmeventview.cpp \
         frmhardwareconfig.cpp \
         frmhistoryview.cpp \
@@ -45,6 +46,7 @@ SOURCES += \
         frmstackview.cpp \
         frmtest.cpp \
         historychart.cpp \
+        hy_controls.cpp \
         inputwin.cpp \
         loginvalid.cpp \
         main.cpp \
@@ -65,6 +67,7 @@ HEADERS += \
         bmscollector.h \
         can_codec.h \
         collectorview.h \
+        controller_v1.h \
         frmeventview.h \
         frmhardwareconfig.h \
         frmhistoryview.h \
@@ -75,6 +78,7 @@ HEADERS += \
         frmtest.h \
         historycharg.h \
         historychart.h \
+        hy_controls.h \
         inputwin.h \
         loginvalid.h \
         maininfo.h \

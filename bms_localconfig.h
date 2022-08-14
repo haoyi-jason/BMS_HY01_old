@@ -50,6 +50,33 @@ public:
     }
 };
 
+class BMS_CANBUSConfig{
+public:
+    QString Name;
+    QString Bitrate;
+    QString Groups;
+    bool ConfigReady = false;
+    bool parseJson(QJsonObject o){
+        if(o.contains("name")){
+            Name = o["name"].toString();
+        }
+        if(o.contains("bitrate")){
+            Bitrate = o["bitrate"].toString();
+        }
+        if(o.contains("groups")){
+            Groups = o["groups"].toString();
+        }
+        ConfigReady = true;
+        return true;
+    }
+
+    void feedJson(QJsonObject *o){
+        (*o)["name"] = Name;
+        (*o)["bitrate"] = Bitrate;
+        (*o)["groups"] = Groups;
+    }
+};
+
 class BMS_BalancingConfig{
 public:
     QString BalancingVolt;
@@ -549,6 +576,7 @@ public:
     BMS_MODBUSConfig modbus;
     BMS_NetworkConfig network;
     BMS_EventConfig event_output;
+    BMS_CANBUSConfig conbus;
 
     explicit BMS_LocalConfig(QObject *parent = nullptr);
     void load(QString fileName);
