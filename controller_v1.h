@@ -66,7 +66,7 @@ public:
     };
     Q_ENUM(BMS_Controller_State)
 
-    explicit BMS_StateMachine(QObject *parent = nullptr);
+    explicit StateMachine_V1(QObject *parent = nullptr);
 
     void setState(BMS_Controller_State state);
     bool isWaitResp();
