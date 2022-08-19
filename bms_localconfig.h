@@ -2,6 +2,7 @@
 #define BMS_LOCALCONFIG_H
 
 #include <QObject>
+#include <QtCore>
 #include <QJsonObject>
 
 class BMS_MODBUSConfig{
@@ -189,6 +190,7 @@ public:
 class BMS_CrieteriaSpec{
 public:
     //QString Name;
+    bool Enable = true;
     QString High_Set;
     QString High_Clr;
     QString Low_Set ;
@@ -228,6 +230,8 @@ public:
 
 class BMS_CriteriaConfig{
 public:
+    bool EnableV = true;
+    bool EnableT = true;
     BMS_CrieteriaSpec volt_warning;
     BMS_CrieteriaSpec volt_alarm;
     BMS_CrieteriaSpec temp_warning;
@@ -286,6 +290,8 @@ public:
 
 class BMS_CriteriaSOC{
 public:
+    bool EnableV=true;
+    bool EnableT = true;
     BMS_CrieteriaSpec warning;
     BMS_CrieteriaSpec alarm;
     bool ConfigReady = false;
@@ -590,5 +596,30 @@ public slots:
 
 private:
 };
+
+class BMS_AlarmModel:public QAbstractTableModel
+{
+    Q_OBJECT
+
+public:
+    BMS_AlarmModel(BMS_LocalConfig *cfg, QObject *parent = nullptr);
+    ~BMS_AlarmModel();
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,Qt::Orientation orientation, int role) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+//    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+//    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+
+private:
+    BMS_LocalConfig *m_config;
+    QStringList m_header;
+    QStringList m_rowHeader;
+
+};
+
+
 
 #endif // BMS_LOCALCONFIG_H

@@ -21,8 +21,8 @@
   <widget class="QStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>20</y>
+     <x>90</x>
+     <y>40</y>
      <width>1161</width>
      <height>521</height>
     </rect>
@@ -234,97 +234,6 @@
       </property>
      </widget>
     </widget>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>280</y>
-       <width>321</width>
-       <height>141</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>均衡參數設定:</string>
-     </property>
-     <widget class="QLabel" name="label_5">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>30</y>
-        <width>131</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>均衡電壓(mV):</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_6">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>60</y>
-        <width>131</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>電壓遲滯(mV):</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_7">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>90</y>
-        <width>131</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>均衡作動時間(秒):</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="leBalancingVoltage">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>20</y>
-        <width>113</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="leBalancingHystersis">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>60</y>
-        <width>113</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="leBalancingActiveTIme">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>90</y>
-        <width>113</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
@@ -351,13 +260,70 @@
       </rect>
      </property>
     </widget>
+    <widget class="QGroupBox" name="groupBox_16">
+     <property name="geometry">
+      <rect>
+       <x>460</x>
+       <y>90</y>
+       <width>601</width>
+       <height>170</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>均衡設定</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_10">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_19">
+        <property name="text">
+         <string>均衡作動(秒)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_20">
+        <property name="text">
+         <string>最低均衡電壓(V)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="FocusEditor" name="leMinBalancingMv">
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="FocusEditor" name="leBalancingTimeSec">
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_26">
+        <property name="text">
+         <string>電壓遲滯(mV):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="FocusEditor" name="leHystersis">
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
    <widget class="QWidget" name="page_3">
     <widget class="QLabel" name="label_14">
      <property name="geometry">
       <rect>
-       <x>190</x>
-       <y>10</y>
+       <x>410</x>
+       <y>0</y>
        <width>241</width>
        <height>51</height>
       </rect>
@@ -369,50 +335,21 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox_4">
+    <widget class="QTableView" name="tv_alarm">
      <property name="geometry">
       <rect>
-       <x>50</x>
-       <y>80</y>
-       <width>561</width>
-       <height>121</height>
+       <x>20</x>
+       <y>60</y>
+       <width>1041</width>
+       <height>311</height>
       </rect>
-     </property>
-     <property name="title">
-      <string>Cell</string>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_6">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>210</y>
-       <width>561</width>
-       <height>121</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Stack</string>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_5">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>360</y>
-       <width>561</width>
-       <height>121</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Temperature</string>
      </property>
     </widget>
     <widget class="QGroupBox" name="groupBox_11">
      <property name="geometry">
       <rect>
-       <x>660</x>
-       <y>90</y>
+       <x>20</x>
+       <y>380</y>
        <width>411</width>
        <height>121</height>
       </rect>
@@ -485,8 +422,8 @@
    <widget class="QPushButton" name="pb_next_stack">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>20</y>
+      <x>250</x>
+      <y>10</y>
       <width>131</width>
       <height>51</height>
      </rect>
@@ -508,8 +445,28 @@
      <string>&lt;- PREVIOUS</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pb_exit">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>10</y>
+      <width>131</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Exit</string>
+    </property>
+   </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FocusEditor</class>
+   <extends>QLineEdit</extends>
+   <header location="global">inputwin.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

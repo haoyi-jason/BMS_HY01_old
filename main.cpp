@@ -3,6 +3,7 @@
 #include "stackinfo.h"
 #include <QApplication>
 #include "collectorview.h"
+#include "frmstackconfig.h".h"
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +17,8 @@ int main(int argc, char *argv[])
         return 0;
     }
     else{
-        CollectorView w;
+//        CollectorView w;
+        frmStackConfig w("");
         w.show();
         return a.exec();
     }

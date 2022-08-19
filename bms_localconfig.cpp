@@ -179,3 +179,152 @@ void BMS_LocalConfig::genDefault(QString fileName)
     criteria.soc.alarm.Low_Clr = "20";
 
 }
+
+BMS_AlarmModel::BMS_AlarmModel(BMS_LocalConfig *cfg, QObject *parent):
+    QAbstractTableModel(parent)
+{
+    m_header << "Item"<<"Enable?";
+    m_header << "WSET LOW" << "WCLR LOW" << "WSET HIGH" << "WCLR HIGH";
+    m_header << "ASET LOW" << "ACLR LOW" << "ASET HIGH" << "ACLR HIGH";
+    m_header << "Duration";
+
+    m_rowHeader << "CELL Voltage" << "CELL Temp" << "STACK Volt" << "Stack Temp";
+    m_rowHeader << "SOC";
+
+    m_config = cfg;
+}
+
+BMS_AlarmModel::~BMS_AlarmModel()
+{
+
+}
+
+int BMS_AlarmModel::rowCount(const QModelIndex &parent) const{
+    return m_rowHeader.count();
+}
+int BMS_AlarmModel::columnCount(const QModelIndex &parent) const
+{
+    return m_header.count();
+}
+QVariant BMS_AlarmModel::data(const QModelIndex &index, int role) const
+{
+    int r = index.row();
+    int c = index.column();
+    BMS_SystemCriteriaConfig cc = m_config->criteria;
+    BMS_CriteriaConfig cell = cc.cell;
+    BMS_CriteriaConfig stack= cc.stack;
+    BMS_CriteriaSOC soc = cc.soc;
+    switch(role){
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+        switch(r){
+        case 0:
+            switch(c){
+            case 0: return QVariant(cell.EnableV);break;
+            case 1: return QVariant(cell.volt_warning.Low_Set);break;
+            case 2: return QVariant(cell.volt_warning.Low_Clr);break;
+            case 3: return QVariant(cell.volt_warning.High_Set);break;
+            case 4: return QVariant(cell.volt_warning.High_Clr);break;
+            case 5: return QVariant(cell.volt_alarm.Low_Set);break;
+            case 6: return QVariant(cell.volt_alarm.Low_Clr);break;
+            case 7: return QVariant(cell.volt_alarm.High_Set);break;
+            case 8: return QVariant(cell.volt_alarm.High_Clr);break;
+            default: return QVariant();break;
+            }
+            break;
+        case 1:
+            switch(c){
+            case 0: return QVariant(cell.EnableT);break;
+            case 1: return QVariant(cell.temp_warning.Low_Set);break;
+            case 2: return QVariant(cell.temp_warning.Low_Clr);break;
+            case 3: return QVariant(cell.temp_warning.High_Set);break;
+            case 4: return QVariant(cell.temp_warning.High_Clr);break;
+            case 5: return QVariant(cell.temp_alarm.Low_Set);break;
+            case 6: return QVariant(cell.temp_alarm.Low_Clr);break;
+            case 7: return QVariant(cell.temp_alarm.High_Set);break;
+            case 8: return QVariant(cell.temp_alarm.High_Clr);break;
+            default: return QVariant();break;
+            }
+            break;
+        case 2:
+            switch(c){
+            case 0: return QVariant(stack.EnableV);break;
+            case 1: return QVariant(stack.volt_warning.Low_Set);break;
+            case 2: return QVariant(stack.volt_warning.Low_Clr);break;
+            case 3: return QVariant(stack.volt_warning.High_Set);break;
+            case 4: return QVariant(stack.volt_warning.High_Clr);break;
+            case 5: return QVariant(stack.volt_alarm.Low_Set);break;
+            case 6: return QVariant(stack.volt_alarm.Low_Clr);break;
+            case 7: return QVariant(stack.volt_alarm.High_Set);break;
+            case 8: return QVariant(stack.volt_alarm.High_Clr);break;
+            default: return QVariant();break;
+            }
+            break;
+        case 3:
+            switch(c){
+            case 0: return QVariant(stack.EnableT);break;
+            case 1: return QVariant(stack.temp_warning.Low_Set);break;
+            case 2: return QVariant(stack.temp_warning.Low_Clr);break;
+            case 3: return QVariant(stack.temp_warning.High_Set);break;
+            case 4: return QVariant(stack.temp_warning.High_Clr);break;
+            case 5: return QVariant(stack.temp_alarm.Low_Set);break;
+            case 6: return QVariant(stack.temp_alarm.Low_Clr);break;
+            case 7: return QVariant(stack.temp_alarm.High_Set);break;
+            case 8: return QVariant(stack.temp_alarm.High_Clr);break;
+            default: return QVariant();break;
+            }
+            break;
+        case 4:
+            switch(c){
+            case 0: return QVariant(soc.EnableV);break;
+            case 1: return QVariant(soc.warning.Low_Set);break;
+            case 2: return QVariant(soc.warning.Low_Clr);break;
+            case 3: return QVariant(soc.warning.High_Set);break;
+            case 4: return QVariant(soc.warning.High_Clr);break;
+            case 5: return QVariant(soc.alarm.Low_Set);break;
+            case 6: return QVariant(soc.alarm.Low_Clr);break;
+            case 7: return QVariant(soc.alarm.High_Set);break;
+            case 8: return QVariant(soc.alarm.High_Clr);break;
+            default: return QVariant();break;
+            }
+            break;
+        default:return QVariant();break;
+        }
+
+        break;
+    case Qt::TextAlignmentRole:
+        return (Qt::AlignRight);
+    case Qt::CheckStateRole:
+        return Qt::Checked;
+        break;
+    default:break;
+    }
+    return QVariant();
+}
+
+bool BMS_AlarmModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    return false;
+}
+
+QVariant BMS_AlarmModel::headerData(int section,Qt::Orientation orientation, int role) const
+{
+    if(role == Qt::DisplayRole){
+        if(orientation == Qt::Horizontal){
+            return QVariant(m_header[section]);
+        }
+        else if(orientation == Qt::Vertical){
+            return QVariant(m_rowHeader[section]);
+        }
+    }
+    return QVariant();
+}
+Qt::ItemFlags BMS_AlarmModel::flags(const QModelIndex &index) const
+{
+    if(index.column() == 0){
+        return Qt::ItemIsUserCheckable | QAbstractTableModel::flags(index);
+    }
+    return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
+}
+
+

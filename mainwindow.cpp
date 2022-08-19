@@ -55,7 +55,7 @@ void MainWindow::on_pbHardwareInfo_clicked()
 
 void MainWindow::on_pbSysConfig_clicked()
 {
-    frmStackConfig *config = new frmStackConfig();
+    frmStackConfig *config = new frmStackConfig("");
     config->show();
 }
 
